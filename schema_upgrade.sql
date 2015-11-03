@@ -1,0 +1,2 @@
+ALTER TABLE ProductImage DROP CONSTRAINT C_PRIMARY;
+ALTER TABLE ProductImage ADD PRIMARY KEY(url, productNumber);

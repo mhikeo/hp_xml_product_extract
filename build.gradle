@@ -1,0 +1,114 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+// compileJava.options.fork = true
+// compileJava.options.forkOptions.executable = '/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/bin/java'
+
+version = '1.0.0'
+
+sourceCompatibility = '1.8'
+
+mainClassName = "com.hp.inventory.audit.parser.Main"
+
+applicationDefaultJvmArgs = ["-Xmx500m"]
+
+repositories {
+    jcenter()
+}
+
+configurations {
+    hibernateTools
+}
+
+dependencies {
+
+    // Conf dir
+    compile files('src/dist/conf')
+
+    // Vertica and other provided libs
+    compile fileTree(dir: 'lib', include: '*.jar')
+
+    // Options parsing
+    compile 'commons-cli:commons-cli:1.3.1'
+
+    // Logging
+    compile 'org.slf4j:slf4j-api:1.7.12'
+    compile 'ch.qos.logback:logback-classic:1.1.3'
+
+    // ORM
+    compile 'org.hibernate:hibernate-core:4.3.10.Final'
+    compile 'org.hibernate:hibernate-entitymanager:4.3.10.Final'
+    compile 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
+    compile 'org.hibernate:hibernate-c3p0:4.3.10.Final'
+
+
+    // Time manipulaiton
+    compile 'joda-time:joda-time:2.8.1'
+
+    // CSV parsing
+    compile 'net.sf.opencsv:opencsv:2.3'
+
+    // Non-blocking simple HTTP requests
+    compile 'com.mashape.unirest:unirest-java:1.4.6'
+
+    // Jsoup
+    compile 'org.jsoup:jsoup:1.8.2'
+
+    // Json manipulation
+    compile 'com.google.code.gson:gson:2.3.1'
+
+    // Common utilities
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'commons-io:commons-io:2.4'
+
+
+    testCompile 'junit:junit:4.12'
+
+    // Hibernate Tools (for schema generation)
+    hibernateTools 'org.hibernate:hibernate-tools:4.3.1.Final'
+    hibernateTools 'org.postgresql:postgresql:9.3-1103-jdbc41'
+    hibernateTools 'org.slf4j:slf4j-api:1.7.12'
+    hibernateTools 'org.slf4j:log4j-over-slf4j:1.7.12'
+    hibernateTools 'ch.qos.logback:logback-classic:1.1.3'
+    hibernateTools fileTree(dir: 'lib', include: '*.jar')
+}
+
+/**
+ * Generate a schema from the mapped entities. The generated schema is not production
+ * ready and must be adjusted.
+ */
+task generateSchema {
+    dependsOn = ["classes"]
+
+    doFirst{
+        mkdir("build")
+    }
+
+    doLast {
+        ant.taskdef(name:"hibernatetool",
+                classname: "org.hibernate.tool.ant.HibernateToolTask",
+                classpath: configurations.hibernateTools.asPath)
+
+        ant.hibernatetool(destdir: "./build") {
+
+            classpath {
+                path(location: sourceSets.main.output.classesDir)
+                path(location: "src/dist/conf")
+            }
+
+            jpaconfiguration(persistenceunit: "hp-product-parser")
+
+            hbm2ddl(export:"false", outputfilename: "./schema.sql", format:"true", drop:"true")
+        }
+        println "Schema generated in build/schema.sql file."
+    }
+}
+
+startScripts {
+    doLast {
+        def windowsScriptFile = file getWindowsScript()
+        def unixScriptFile    = file getUnixScript()
+        windowsScriptFile.text = windowsScriptFile.text.replace('%APP_HOME%\\lib\\conf', '%APP_HOME%\\conf')
+        unixScriptFile.text  = unixScriptFile.text.replace('$APP_HOME/lib/conf', '$APP_HOME/conf')
+    }
+}

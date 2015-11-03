@@ -1,0 +1,55 @@
+Product Inventory Audit Data Extraction Application
+===================================================
+Deployment guide remained intact, as the deployment steps haven't changed.
+
+---------------------------------------
+The Deployment Guide is located in the "doc" directory of the submission.
+
+A video instruction on how to deploy and run the application is located at:
+
+http://youtu.be/BbwsGE6D7aM
+
+--------------------------
+to run unit tests:
+./gradlew test
+--------------------------
+run the solution with data files "day1.zip", then with "day2.zip" provided in forum
+some interesting products to look at:
+J5P80UT#ABA  look for the price change from 1694 to 1594, at the same time strikedPrice should become 1694
+A8P79A#BGJ  look for rating and numberOfReviews
+F5S23A#B1H  parsing error
+L4R64AV_1	parsing error
+N0X20AV#ABA_1	parsing error
+K4U29AA#ABA	parsing error
+F1M22UT#ABA coming soon
+--------------------------
+Changes in current submission
+- Implemeted all requirements
+- Changed schema schema.sql as per http://apps.topcoder.com/forums/?module=Thread&threadID=866515&start=0
+- Fixed currentPrice parsing
+- Fixed strikedPrice parsing
+- Moved parsing of all common fields(which are ultimately populated to the Product entity) to DocumentParser class
+- Added new command-liine parameter (-c, --currency) to specify the default currency.
+  If that currency is specified, parser will not try to parse the currency from html files,
+  instead it will put this specified currency to the "currency" filed in the database
+- Added null-value checking for productNumber field, since it is a primary key
+- Added unittests for correct parsing:
+	All documents : currentPrice, strikedPrice, currency, rating, numberOfReviews, productType, productName
+	Printer : type, technology(as it as crucial for determining the type of the printer)
+- Added unittests for correct Current -> Previous value migration(since the implementation doesn't depend on the type of the document added it only in one document type):
+    - currentPrice for Laptop Document
+	- rating for Desktop document
+- Added unittest for (the following tests done without parsing)
+  - correct setting of dateAdded for new products
+  - correct setting of availableForSaleDate for new product, depending on comingSoonDate
+  - correct changing of availableForSaleDate to null, when comingSoonDate is set
+  - correct changing of availableForSaleDate current date, when comingSoonDate is not set, and availableForSaleDate is not set yet
+  - correct behavior of not changing of availableForSaleDate, when comingSoonDate is not set and availableForSaleDate was already set
+  
+- Price and rating tracking implemented with the help of new added annotation @TrackChanges
+- Added parsed properties count threshold checking, to avoid updating of a completely changed document(for example due to major html format changes)
+
+----------------
+Regards,
+
+TCDEVELOPER

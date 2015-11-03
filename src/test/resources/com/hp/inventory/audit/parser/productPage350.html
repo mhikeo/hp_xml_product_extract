@@ -1,0 +1,2401 @@
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+<!DOCTYPE html>
+<head>
+		
+	<meta content="IE=edge" http-equiv="X-UA-Compatible" />
+	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+  	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  	<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+  	<meta name="apple-mobile-web-app-capable" content="yes" />
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]> <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]-->
+	<!-- Style sheet from Foundation folder for header and footer-->
+<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/CommonCSSFiles.css?v=50249" />
+
+
+
+<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/category.css?v=50249">
+
+
+
+	<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/pattern-library/system/styles/patterns/icons_tooltip.css?v=32317">
+
+
+
+
+<!-- BEGIN CommonJSToInclude.jspf -->
+ <script src="/wcsstore/HPStorefrontAssetStore/js/vendor/jquery-1.11.1.min.js?v=32305"></script> 
+ <script src="https://ssl.www8.hp.com/ie/en/scripts/framework/jquery/v-1-8/can.jquery.js"></script>
+<!--[if gte IE 9]><!-->
+ 	<script src="/wcsstore/HPStorefrontAssetStore/js/panzoom.js?v=21701"></script>
+
+	<script src="/wcsstore/HPStorefrontAssetStore/js/pdp_zoom.js?v=32305"></script>
+<!--<![endif]-->
+
+
+<script src="/wcsstore/HPStorefrontAssetStore/js/jquery.dotdotdot.min.js?v=11590"></script> 
+<script type="text/javascript" charset="UTF-8" src="/wcsstore/dojo18/dojo/dojo.js" djConfig="parseOnLoad: true, isDebug: false,  modulePaths: {storetext: '/wcsstore/HPStorefrontAssetStore/'}, useCommentedJson: true,locale: 'en-us' "></script>
+<script type="text/javascript" charset="UTF-8" src="/wcsstore/dojo18/dojo/dojodesktop.js" djConfig="parseOnLoad: true, isDebug: false,  modulePaths: {storetext: '/wcsstore/HPStorefrontAssetStore/'}, useCommentedJson: true,locale: 'en-us' "></script>
+
+
+
+<meta name="CommerceSearch" content="storeId_10151" /> 
+
+
+<link rel="shortcut icon" href="/wcsstore/HPStorefrontAssetStore/images/favicon.ico" mce_href="/wcsstore/HPStorefrontAssetStore/images/favicon.ico"  type="image/x-icon" />
+
+<script type="text/javascript">
+	// Convert the WCParam object which contains request properties into javascript object
+	var WCParamJS = {
+		"storeId":'10151',
+		"catalogId":'10051',
+		"langId":'-1',
+		"pageView":'',
+		"orderBy":'',
+		"orderByContent":'',
+		"searchTerm":''
+	};
+	var absoluteURL = "/webapp/wcs/stores/servlet/";
+	var imageDirectoryPath = "/wcsstore/HPStorefrontAssetStore/";
+	var styleDirectoryPath = "images/colors/color1/";
+	var supportPaymentTypePromotions = false;
+	
+	var subsFulfillmentFrequencyAttrName = "fulfillmentFrequency";
+	var subsPaymentFrequencyAttrName = "paymentFrequency";
+	var subsTimePeriodAttrName = "timePeriod";
+	
+	var storeNLS = null;
+	var storeUserType = "G";
+	var ios = false;
+	var android = false;
+	
+	
+	// Store the amount of time of inactivity before a re-login is required, this value is retrieved from wc-server.xml, default is 30 mins
+	var inactivityTimeout = 1800000;
+	
+	// Store the amount of time the inactivity warning dialog will be displayed before it closes itself, default is 20 seconds
+	var inactivityWarningDialogDisplayTimer = 20000;
+	
+	// Store the amount of time to display a inactivity warning dialog before a re-login is required, default is 30 seconds
+	var inactivityWarningDialogBuffer = 30000;
+	
+	// Store the timing event to display the inactivity dialog
+	var inactivityTimeoutTracker = null;
+
+	// Store the timing event to close the inactivity dialog
+	var dialogTimeoutTracker = null;
+	
+	//Summary: Returns the absolute URL to use for prefixing any Ajax URL call.
+	//Description: Dojo does not handle the case where the parameters in the URL are delimeted by the "/" forward slash. Therefore, in order to
+	//             workaround the issue, all AJAX requests must be done using absolute URLs rather than relative.
+	//Returns: The absolute URL to use for prefixing any Ajax URL call.
+	function getAbsoluteURL() {
+
+	
+		return absoluteURL;
+	}
+	//Summary: Returns the path pointing to the shared image directory.
+	//Description: In order to get the image directory path in any javascript file, this function can be used.
+	//Returns: The path to reference images.
+	function getImageDirectoryPath() {
+		return imageDirectoryPath;
+	}
+	//Summary: Returns the path pointing to the directory containing color-dependant image files.
+	//Description: In order to get the directory containing color-dependant image files in any javascript file, this function can be used.
+	//Returns: The path to reference color-dependant image files.
+	function getStyleDirectoryPath() {
+		return styleDirectoryPath;
+	}
+</script>
+<!--
+<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/javascript/MessageHelper.js?v=1210"></script>-->
+
+
+<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/javascript/StoreCommonUtilities_ShoppingActions.js?v=51302"></script>
+<script>
+	dojo.require("wc.service.common");
+	dojo.require("dojo.number");
+</script>
+
+
+
+<script type="text/javascript">
+ //Set the default NLS to use in the store.
+ if(storeNLS == null) {
+	 dojo.requireLocalization("storetext", "StoreText");
+	 storeNLS = dojo.i18n.getLocalization("storetext","StoreText");
+ }
+ initializeInactivityWarning();
+ var ie6 = false;
+ if (navigator != null && navigator.userAgent != null) {
+	 ie6 = (navigator.userAgent.toLowerCase().indexOf("msie 6.0") > -1); 
+ }
+ if (location.href.indexOf('UnsupportedBrowserErrorView') == -1 && ie6) {
+	 document.write('<meta http-equiv="Refresh" content="0;URL=/us/en/UnsupportedBrowserErrorView?catalogId=10001&amp;langId=-1&amp;storeId=10151"/>');
+ }
+</script>
+
+
+
+<script type="text/javascript">
+	dojo.addOnLoad(function() { 
+				shoppingActionsJS.setCommonParameters('-1','10151','10051','G','$');
+	});
+</script>
+
+<!--
+<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/javascript/Widgets/Search.js?v=36445"></script>-->
+
+
+<!-- END CommonJSToInclude.jspf --><!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  
+						vallll:[//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02552048.png]	
+					  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		<!--	  -->
+
+
+		
+	
+	
+	<script>
+	console.log('sales'+'[Ljava.lang.String;@62f662f6');
+	</script>
+	
+	 <script>
+		console.log('MatchListElement' + 'Scanjet~Scanjet~By brand~Printers');
+	</script>
+		
+	 <script>
+		console.log('MatchListElement' + 'Scanjet~By brand~Printers');
+	</script>
+		
+	<script>
+		console.log('brand values' + 'Scanjet~Scanjet~By brand~Printers');
+	</script><!-- Omniture - Start -->
+        <meta name="hp_design_version" content="hpweb.1.4"/>
+        <meta name="target_country" content="" />
+        <meta name="page_content" content="Solutions" />
+        <meta name="segment" content="consumer.home" />
+        <meta name="lifecycle" content="presales.selection" />
+        <meta name="business_unit" content="" />
+        <meta name="web_section_id" content="" />
+		<meta name="language" content="en-us"/>
+	<meta name="description" content="Free shipping. Buy direct from HP. See customer reviews and comparisons for the HP Scanjet G3110 Photo Scanner. Upgrades and savings on select products." />
+	<!-- Omniture - End -->
+			 <script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/js/omniture/omniture-tag.js?v=51302"></script>
+		 
+	<script>
+		var locale="en_US";
+		metrics(locale);
+    </script>
+
+			 			  
+<input type="hidden" id="days" value=""/>
+<script type = "text/javascript">
+var element = document.getElementById("days").value;
+setCookie('jumpid',element,'2');
+
+function setCookie(pLabel, pVal, pMinutes)
+{
+ var tExpDate=new Date();
+ tExpDate.setTime( tExpDate.getTime()+(pMinutes*60*1000) );
+ document.cookie= pLabel + "=" +escape(pVal)+
+   ( (pMinutes==null) ? "" : ";expires="+ tExpDate.toGMTString() );
+}
+
+</script>
+
+
+
+	<title>HP Scanjet G3110 Photo Scanner |  HP® Official Store</title>
+ 	 
+	<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/360degree.css?v=17426" type="text/css" />
+	<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/pdp.css?v=51174" type="text/css" />
+	<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/custom-mobile.css?v=33829">
+<!--	<link href="/wcsstore/HPStorefrontAssetStore/pattern-library/system/styles/patterns/lightbox.css?v=11590" media="screen" rel="stylesheet" type="text/css" /> -->
+	<link href="/wcsstore/HPStorefrontAssetStore/pattern-library/system/styles/patterns/icons_tooltip.css?v=32317" media="screen" rel="stylesheet" type="text/css" /> 
+	
+			<link rel="canonical" href="http://store.hp.com/us/en/pdp/printers/hp-scanjet-g3110-photo-scanner-p-l2698a-b1h--1" />
+		
+	<link rel="alternate" media="only screen and (max-width: 640px)" href="http://m.store.hp.com/m20/us/en/pdp/printers/hp-scanjet-g3110-photo-scanner-p-l2698a-b1h--1" />
+	
+	<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/javascript/Common/ShoppingActionsServicesDeclaration.js?v=45537"></script>
+    <script>
+		var catentIdPST = "";
+	</script>
+	
+</head>
+<body>
+	<input type="hidden" id="isPDP" name="isPDP" value="true">
+       <input type="hidden" id="isUsertype" name="isUsertype" value="">
+	<script type="text/javascript">
+				var PLPCatentryIdList = new Array();
+				PLPCatentryIdList.push('501931');	
+	</script>
+	
+				<div class="header_wrapper_position" id="headerWidget">
+					<!-- BEGIN Header.jsp -->
+<div id = "Omniture">
+<script type = "text/javascript">
+var hierArray = new Array();
+var priceArray = new Array();
+var catentryArray = new Array();
+var cartProducts = new Array();
+var cartPrice = new Array();
+var skuList=new Array();
+var PriceList=new Array();
+var Quantityvalue=new Array();
+var partvalue=new Array();
+var partNumber ={sku:[],price:[]};
+var xsellList=new Array();
+var eventsList=new Array();
+var positionList=new Array();
+//Getter and Setter for Product price
+var orderId=getOrderId();
+function getEvents()
+{
+			var itemcount; 
+			if(orderId==''||orderId==null)
+			{
+			itemcount ='';
+                     
+			}
+			else
+			{
+			//var cart_total = document.getElementById ('minishopcart_total').innerHTML;
+			//itemcount =cart_total.trim();
+                      itemcount =1; 
+                     }
+                    return itemcount;
+}
+function getcartitem()
+{
+                    var itemvalue=getEvents();
+			if(itemvalue==''||itemvalue==0)
+			{
+			eventsList=['cart.new','cart.add'+':'+'502504'+getOrderId()];
+			}
+			else
+			{
+			eventsList=['cart.add'+':'+'502504'+getOrderId()];
+
+			}
+      return eventsList;
+			
+}
+
+	
+
+
+function setPrice(price)
+{
+ cartPrice.push(price);
+}
+
+function getPrice()
+{
+return cartPrice;
+}
+
+//Getter and Setter for Product Part number
+
+function setPartNumber(partnumber)
+{
+ cartProducts.push(partnumber);
+}
+function getPartNumber()
+{
+return cartProducts;
+}
+
+function get_cookies_array() {
+	 
+	    var cookies = { };
+	 
+	    if (document.cookie && document.cookie != '') {
+	        var split = document.cookie.split(';');
+	        for (var i = 0; i < split.length; i++) {	            
+	        var name_value = split[i].split("=");
+	            name_value[0] = name_value[0].replace(/^ /, '');
+	            cookies[decodeURIComponent(name_value[0])] = decodeURIComponent(name_value[1]);
+	          
+	        }
+	    }
+	 return cookies;
+	}
+	
+function get_visitorid(userid)
+{
+	var start=userid.indexOf("|")+1; 
+	var end=userid.lastIndexOf("["); 
+	userid=userid.substring(start,end);
+	return userid;
+}
+
+function appendDate()
+{
+var appendDate=new Date();
+var serialNum = (appendDate.getUTCDate()+''+appendDate.getMonth()+''+appendDate.getFullYear()+''+appendDate.getDay()+''+appendDate.getHours());
+return serialNum;
+}
+function setorderId(cookies)
+{
+var orderId;
+for(var cookieName in cookies) {
+	 if (cookieName.substring(0,14) == 'WC_CartOrderId')
+	  {
+  			
+ 			orderId=cookies[cookieName];
+	 		  }
+}
+return orderId;
+}
+function getOrderId()
+{
+	var cookies = get_cookies_array();
+	var orderNumber = setorderId(cookies);
+	return orderNumber;
+	}
+
+function getBusinessUnit(sectionname) { 
+   		
+       		var business_unit = document.querySelector("meta[name=business_unit]");
+                     if( sectionname.match("Laptop") || sectionname.match("Desktops") || sectionname.match("Tablets"))
+                     { 
+			business_unit.setAttribute('content', 'psg'); 
+                     }
+                    else if(sectionname.match("Printers"))
+                     {
+                       business_unit.setAttribute('content', 'IPG');
+                     }
+      			else 
+                     {
+                       business_unit.setAttribute('content', 'Shared');
+                     }
+
+    		return business_unit;
+} 
+
+</script>
+</div>
+<INPUT TYPE="hidden" NAME="APPC" VALUE="418701">
+<INPUT TYPE="hidden" NAME="APPN" VALUE="3070">
+<INPUT TYPE="hidden" NAME="APPJ" VALUE="2">
+<INPUT TYPE="hidden" NAME="WEBSN" VALUE="tore">
+<!--
+-->
+ 
+<script type="text/javascript">
+	var isGuest = true;
+</script>
+
+<!--
+<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/javascript/MessageHelper.js?v=1210"></script>-->
+
+
+
+<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/javascript/Widgets/MessageHelper_Search_ShoppingCart_MiniShopCartDisplay.js?v=50249"></script>
+
+
+<!-- JS for callcenter order capture flow - START-->
+	<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/CallCenter/js/CallcenterCommon.js?v=48617"></script>
+	
+	<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/CallCenter/js/CallcenterCommonServicesDeclarations.js?v=48617"></script>
+<!-- JS for callcenter order capture flow - END -->
+<script src="https://ssl.www8.hp.com/caas/header-footer/us/en/hho/latest.r?contentType=js&show_shopping_cart=true&storeId=10151&catalogId=10051"></script>
+
+
+	<div id="searchWidget">
+         <!-- Search Widget -->
+						<div id="searchComponent">
+							<!-- BEGIN Search.jsp -->
+
+
+		<meta name="CommerceSearch" content="storeId_10151" />
+		
+		<script type="text/javascript">
+				dojo.addOnLoad(function(){
+					SearchJS.init();
+					SearchJS.setCachedSuggestionsURL('SearchComponentCachedSuggestionsView?langId=-1&amp;storeId=10151&amp;catalogId=10051');
+					SearchJS.setAutoSuggestURL('SearchComponentAutoSuggestView?coreName=MC_10001_CatalogEntry_en_US&amp;serverURL=http%3a%2f%2fglbecomtran-ext-solr.austin.hp.com%3a9081%2fsolr%2fMC_10001_CatalogEntry_en_US&amp;langId=-1&amp;storeId=10151&amp;catalogId=10051');
+				});
+
+				// The primary Array to hold all static search suggestions
+				var staticContent = new Array();
+
+				// The titles of each search grouping
+				var staticContentHeaders = new Array();
+		</script>	
+	<form name="CatalogSearchForm" action="/us/en/SearchDisplay?" method="get" id="CatalogSearchForm">
+	
+	
+	<div id="ETRautoSuggest" style="display:none;">
+	<div id="autoSuggest_Result_div" style="display:none;" class="row">
+
+		<div id="widget_search_dropdown" class="widget_search_dropdown_position">
+			<div class="widget_search_dropdown">
+		<section id="searchContainer">
+		<div id="search_results">
+				
+				
+				
+				
+				
+		
+						<div id="AutoSuggestDiv" class="content" onmouseover="SearchJS.autoSuggestHover = true;" onmouseout="SearchJS.autoSuggestHover = false; document.getElementById('SimpleSearchForm_SearchTerm').focus();">
+							
+								
+								<div dojoType="wc.widget.RefreshArea" widgetId="autoSuggestDisplay_Widget" controllerId="AutoSuggestDisplayController" id="autoSuggestDynamic_Result_div" role="region" aria-live="polite" aria-atomic="true" aria-relevant="all" aria-labelledby="autoSuggestDynamic_Result_div_ACCE_Label" >
+									
+								</div>
+		
+								
+								<div id="autoSuggestHistory"></div>
+								
+		
+						</div>
+						</div>
+		</section>
+					
+				</div>
+				
+			</div>
+		</div>
+		</div>
+	
+	<div dojoType="wc.widget.RefreshArea" widgetId="AutoSuggestCachedSuggestions" controllerId="AutoSuggestCachedSuggestionsController" id="autoSuggestCachedSuggestions_div" role="region" aria-live="polite" aria-atomic="true" aria-relevant="all" style="display:none;" aria-labelledby="autoSuggestCachedSuggestions_div_ACCE_Label">
+	</div>
+
+	
+	<input type="hidden" name="storeId" value='10151' />
+	<input type="hidden" name="catalogId" value='10051' />
+	<input type="hidden" name="langId" value='-1' />
+	<input type="hidden" name="pageSize" value="9" />
+	<input type="hidden" name="beginIndex" value="0" />
+	<input type="hidden" name="sType" value="SimpleSearch" />
+	<input type="hidden" name="resultCatEntryType" value="2" />
+	<input type="hidden" name="showResultsPage" value="true" />
+	<input type="hidden" name="searchSource" value="Q" />
+	<input type="hidden" name="pageView" value="grid" />
+	<span id="searchTextHolder" class="nodisplay"></span> 
+
+</form>
+<!-- END Search.jsp -->
+						</div>
+		<!-- End Search Widget -->      
+        </div>
+<!--<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/javascript/Widgets/MiniShopCartDisplay/MiniShopCartDisplay.js?v=50249"></script>-->
+	      
+<script type="text/javascript">
+  function cart(relativeId,contentId,contentType){
+  var cart=new CartLoader1();
+  cart.retrieveContents(relativeId,contentId,contentType);
+ }
+</script>
+<script type="text/javascript"> (function(d, s, id){ var js, ref = d.getElementsByTagName(s)[0]; if (!d.getElementById(id)){ js = d.createElement(s); js.id = id; js.async = true; js.src = "//www.paypalobjects.com/js/external/paypal.js"; ref.parentNode.insertBefore(js, ref); } }(document, "script", "paypal-js")); </script>
+
+
+
+
+<div id="header" class="header">
+<div class="row headerminicart">
+<script type="text/javascript">
+	 dojo.addOnLoad(function() {
+		setMiniShopCartControllerURL(getAbsoluteURL()+'MiniShopCartDisplayView?storeId=10151&catalogId=10051&langId=-1');});
+</script>						
+<div id="MiniShoppingCartContainer" class="widget_minishopcart_position">						
+	
+<span id="MiniShoppingCart_Label" class="spanacce"></span>
+<div dojoType="wc.widget.RefreshArea" id="MiniShoppingCart" widgetId="MiniShoppingCart" controllerId="MiniShoppingCartController" 
+	ariaMessage="Shopping Cart Display Updated" ariaLiveId="ariaMessage" 
+	role="region" aria-labelledby="MiniShoppingCart_Label">
+	
+
+<div id="widget_minishopcart" role="button" tabindex="0" aria-labelledby="widget_minishopcart_Label" onclick="javascript:setCartDropDownInit();javascript:showMiniShopCartDropDown('widget_minishopcart','quick_cart_container','orderItemsListAutoClose1');"
+	onKeyPress="javascript:showMiniShopCartDropDownEvent(event,'widget_minishopcart','quick_cart_container','orderItemsList');" >
+	
+	<div id="miniShopCartBody" class="content row">
+	
+		
+						 	
+				<span id="minishopcart_total" class="cartcount">
+					
+				</span>
+		
+			
+		
+		</div>
+		
+		
+	</div>
+
+
+
+
+
+<input type="hidden" id="currentOrderQuantity" value="0"/>
+<input type="hidden" id="currentOrderAmount" value="0.00"/>
+<input type="hidden" id="currentOrderCurrency" value="USD"/>
+<input type="hidden" id="currentOrderLanguage" value="-1"/>
+<input type="hidden" id="currentOrderId" value=""/>
+
+
+</div>
+
+<div id ="MiniShopCartContents" class="row" dojoType="wc.widget.RefreshArea" widgetId="MiniShopCartContents" controllerId="MiniShopCartContentsController">
+</div>
+
+ 
+
+<script type="text/javascript">
+ dojo.addOnLoad(function() {
+		setMiniShopCartControllerURL(getAbsoluteURL()+'MiniShopCartDisplayView?storeId=10151&catalogId=10051&langId=-1');
+		
+		wc.render.getRefreshControllerById("MiniShopCartContentsController").url = '/us/en/MiniShopCartDisplayView?catalogId=10051&amp;page_view=dropdown&amp;langId=-1&amp;storeId=10151&page_view=dropdown';
+		if(dojo.byId('MiniShoppingCart') != null){
+			loadMiniCart("USD","-1");
+		}		
+	});
+</script>
+ 
+							
+</div>
+</div>
+</div>
+<nav class="row show-for-small">
+   <section class="storeNav">
+		
+		<ul class="right">
+			<li>
+				<a href="" class="grid spriteMobile" alt='Grid View'>
+					<span class="hide">Grid View</span>
+				</a>
+			</li>
+			<li class="last">
+				<a href="" class="account spriteMobile" alt='Account'>
+					<span class="hide">Account</span>
+				</a>
+			</li>         
+		</ul>
+  </section>
+</nav>	
+<!-- Welcome Note URL Formation -->
+<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/javascript/servicesdeclaration_checkouthelper_shipmodeselectionext_tealeaWCf_query_dlmenu.js?v=51302"></script>
+
+
+
+<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/javascript/Analytics.js?v=43"></script>
+
+ 
+<script type="text/javascript">
+	$(".menubox").on("mouseenter", "a:not(.selected)", function ( event ) {
+		if (!$(this).hasClass("lvl3")){ 
+		$(".selected", event.delegateTarget).removeClass("selected");
+		$(this).addClass("selected");
+		if ($(this).hasClass("flyout")) {console.log('flyout detected');$('.menubox').addClass('opened');} else {$('.menubox').removeClass('opened');}
+		$(this).parent().addClass("selected");
+		}   	
+	
+		})
+		.on("mouseleave", function ( event ) {
+	    $(".selected", event.delegateTarget).removeClass("selected");
+		})
+		;
+		
+		
+		$('.firstlevel').hover( function () {
+				$('.menubox').removeClass('opened');
+	     });
+		
+		$('.menubox').mouseleave(function(event) {
+			$(this).removeClass('opened');
+			$('ul.level3').removeClass('selected');
+		});
+		
+		/* Ajax Function to call WelcomeNote */
+		$(document).ready(function()
+		{
+
+		jQuery.support.cors = true;
+
+		 var pair;
+		 var query = window.location.search.substring(1);
+ 		 var vars = query.split("&");
+		 console.log(vars);
+		 for (var i=0;i<vars.length;i++)
+		 {
+			pair = vars[i].split("=");
+			var name = pair[0];
+			if(name == 'aoid')
+			{
+
+				var value = pair[1];
+				console.log(value);
+			}
+		 }
+			$.ajax({
+		      		url: "/webapp/wcs/stores/servlet/WelcomeNoteView",	
+					crossDomain: true,
+					data: {'aoid': value,'langId':'-1','storeId':'10151','categoryId':'88340'},
+                    async: false,
+		      		success: function(data) {
+				 		$("#header").before(data);
+						
+						if($('div#hiddenCallCenterDiv').length > 0){
+							$('div#header').bind("DOMSubtreeModified",function(){
+								var menu = $('div#header div.hf_top_menu.js_header_topmenu');
+								if(menu.length>0 && menu.is(":visible")){
+									menu.hide();
+								}
+							});
+							
+							$('div#footer').hide();
+							$('footer').hide();
+							$('.footer_wrapper_position').hide();													
+							$('#myShoppingLinks').hide();
+							$('div#utilityNav').css("display", "block");
+
+							$('.gmpoints').css("display", "block");
+							$('.stock').css("display", "block");
+						} else {
+							$('div#footer').show();
+							$('footer').show();
+							$('.footer_wrapper_position').show();																				
+							$('#myShoppingLinks').show();
+						
+							$('.gmpoints').css("display", "none");
+							$('.stock').css("display", "none");
+						}
+						
+						$('.topmenu, .nextcolumn').css({opacity: 0.0, visibility: "visible"}).animate({opacity: 1.0}, 2000);
+						var Analyitc_usertype=$('#Analytics_usertype').html();
+					if(!(typeof omniture_Tag=='undefined'))
+					{
+					omniture_Tag(Analyitc_usertype); 
+					}
+					
+		      		}
+		    });
+		
+		});
+		
+
+</script>
+
+
+
+<script type="text/javascript">
+	$(document).ready( function() {
+		if ( window.location.href.indexOf("AjaxOrderItemDisplayView?") === -1 ) {
+	    	function showMiniCartDropdown(event) {
+	    	 	setCartDropDownInit();
+				showMiniShopCartDropDown('widget_minishopcart', 'quick_cart_container', 'orderItemsListAutoClose1');
+	    	}
+
+	    	$( "#header" ).on( "click", "a#shop_widget", showMiniCartDropdown );
+			
+		}
+	});
+</script><!-- END Header.jsp -->	
+				</div>
+		<div class="header-container">
+	<div id="navigationWrapper">
+		<div class="loginStorenavGroup">
+
+			<div id="storeSlider" class="large-12 columns hide-for-small">
+				<div id="storenav" class="">
+					<div class="row">
+						<div class="column prevcolumn">
+							<div id="prev">
+								<p>Prev
+</p>
+							</div>
+						</div>
+						
+						<div class="slidercolumn"> 
+							<ul>
+								
+			<li>
+
+									<a  href="/us/en/">
+										<div  class="sliderImgContainer">
+											 <img src="/wcsstore/hpusstore/Banners/store_home_icon.png" alt="Store Home"/>
+										</div>
+										<p  class="caption">Store Home</p>
+									</a>
+								</li>
+										
+									<li>
+
+
+
+<a href="/us/en/cat/Laptops" onclick="CTOcookie();if(!(typeof trackMetrics=='undefined')){trackMetrics('new.link', {page:{navigation:'topNav'+':'+'Laptops'}});}">
+									
+
+<div class="sliderImgContainer">
+
+									<img  src="/wcsstore/HPStorefrontAssetStore//wcsstore/hpusstore/Banners/nav_Laptops.png" alt="Laptops"/>
+									</div>
+									<p  class="caption">Laptops</p>
+									</a></li>
+									
+									<li>
+
+
+
+<a href="/us/en/cat/desktops" onclick="CTOcookie();if(!(typeof trackMetrics=='undefined')){trackMetrics('new.link', {page:{navigation:'topNav'+':'+'Desktops'}});}">
+									
+
+<div class="sliderImgContainer">
+
+									<img  src="/wcsstore/HPStorefrontAssetStore//wcsstore/hpusstore/Banners/SMB-nav-Desktops-icon.png" alt="Desktops"/>
+									</div>
+									<p  class="caption">Desktops</p>
+									</a></li>
+									
+									<li>
+
+
+
+<a href="/us/en/cat/printers" onclick="CTOcookie();if(!(typeof trackMetrics=='undefined')){trackMetrics('new.link', {page:{navigation:'topNav'+':'+'Printers'}});}">
+									
+
+<div class="sliderImgContainer">
+
+									<img  src="/wcsstore/HPStorefrontAssetStore//wcsstore/hpusstore/Banners/nav_Printers.jpg" alt="Printers"/>
+									</div>
+									<p  class="caption">Printers</p>
+									</a></li>
+									
+									<li>
+
+
+
+<a href="/us/en/cat/ink--toner---paper" onclick="CTOcookie();if(!(typeof trackMetrics=='undefined')){trackMetrics('new.link', {page:{navigation:'topNav'+':'+'Ink, toner & paper'}});}">
+									
+
+<div class="sliderImgContainer">
+
+									<img  src="/wcsstore/HPStorefrontAssetStore//wcsstore/hpusstore/Banners/nav_inkpaper.png" alt="Ink, toner &amp; paper"/>
+									</div>
+									<p  class="caption">Ink, toner &amp; paper</p>
+									</a></li>
+									
+									<li>
+
+
+
+<a href="/us/en/cat/accessories-88342--1" onclick="CTOcookie();if(!(typeof trackMetrics=='undefined')){trackMetrics('new.link', {page:{navigation:'topNav'+':'+'Accessories'}});}">
+									
+
+<div class="sliderImgContainer">
+
+									<img  src="/wcsstore/HPStorefrontAssetStore//wcsstore/hpusstore/Banners/SMB-nav-Accessories-icon_1.png " alt="Accessories"/>
+									</div>
+									<p  class="caption">Accessories</p>
+									</a></li>
+									
+									<li>
+
+
+
+<a href="/us/en/cat/business-solutions" onclick="CTOcookie();if(!(typeof trackMetrics=='undefined')){trackMetrics('new.link', {page:{navigation:'topNav'+':'+'Business'}});}">
+									
+
+<div class="sliderImgContainer">
+
+									<img  src="/wcsstore/HPStorefrontAssetStore//wcsstore/hpusstore/Banners/nav_BusiSolutions-final2.png" alt="Business"/>
+									</div>
+									<p  class="caption">Business</p>
+									</a></li>
+									
+									<li>
+
+
+
+<a href="/us/en/cat/tablets" onclick="CTOcookie();if(!(typeof trackMetrics=='undefined')){trackMetrics('new.link', {page:{navigation:'topNav'+':'+'Tablets'}});}">
+									
+
+<div class="sliderImgContainer">
+
+									<img  src="/wcsstore/HPStorefrontAssetStore//wcsstore/hpusstore/Banners/nav_Tablets.png" alt="Tablets"/>
+									</div>
+									<p  class="caption">Tablets</p>
+									</a></li>
+									
+									<li>
+
+
+
+<a href="/us/en/cat/care-packs-88343--1" onclick="CTOcookie();if(!(typeof trackMetrics=='undefined')){trackMetrics('new.link', {page:{navigation:'topNav'+':'+'Care Packs'}});}">
+									
+
+<div class="sliderImgContainer">
+
+									<img  src="/wcsstore/HPStorefrontAssetStore/wcsstore/hpusstore/Banners/hp_CarePack_Icon_NoBg.png" alt="Care Packs"/>
+									</div>
+									<p  class="caption">Care Packs</p>
+									</a></li>
+											
+							</ul>
+						</div>
+						<div class="nextcolumn">
+							<div id="next">
+							  <p>More
+</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="clear"></div> 
+
+
+<script type="text/javascript">
+document.cookie="CTOType=false; path=/;domain=.hp.com";
+function CTOcookie()
+{
+console.log("CTO");
+ document.cookie="CTOType=true; path=/;domain=.hp.com";
+}
+</script>
+
+
+
+
+
+<!-- InstanceEndEditable --><!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <style type="text/css">
+        .gradient {
+           filter: none;
+        }
+      </style>
+    <![endif]-->
+  <!-- InstanceBeginEditable name="Style sheets" --><!-- InstanceEndEditable --><!-- For IE 8 and earlier --><!--[if lt IE 9]>
+	<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/iesupport.css"> 
+    <link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/IE8.css">
+	<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/ielistview.css">
+	<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/iegridview.css">
+  <![endif]-->
+  <!-- For IE 9 and greater--><!--[if gte IE 9]>
+    <link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/IE9.css">
+  <![endif]-->  
+<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/forms_valid.css">
+<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/pdp_mobile_tabs.css">
+<script type="text/javascript">var runResponsive = true;</script>
+<!--[if lt IE 9]>
+<script type="text/javascript">
+    runResponsive = false;
+
+</script>
+<![endif]-->
+<script>
+	function PopupCenter(pageURL, title,w,h) {
+	var left = (screen.width/2)-(w/2);
+	var top = (screen.height/2)-(h/2);
+	var targetWin = window.open (pageURL, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no,scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+	} 
+	var gcSKU="";
+</script>
+
+<div id="content">
+	<!-- InstanceBeginEditable name="Content" --><!--BEGIN MAIN CONTEXT--><!--Standard Products Contents BEGIN-->
+	<div itemscope itemtype="http://schema.org/Product">
+		
+		<section class="topgradient heroProducts mb">
+			<!-- Banner BEGINS -->
+			<div class="tabs_slider _inliner" data-tab="0" data-page="skupdp">
+				<div id="tabs_mobile" class="slide_this_tab">
+					<div class="row pdpBlock scroll_reference">
+						<div class="large-12">					
+							<div class="showcase pdpLeft positionRelative"> 
+								
+ 
+								<div class="featured_image_container js_overlay_trigger" rel="pdpzoomarea">
+									<ul class="pdp_featured_image">
+										
+											<li><span class="helper"></span><img itemprop="image" src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02552048.png" alt="HP Scanjet G3110 Photo Scanner" title="HP Scanjet G3110 Photo Scanner"></li>
+										
+											<li><span class="helper"></span><img itemprop="image" src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736747.png" alt="HP Scanjet G3110 Photo Scanner" title="HP Scanjet G3110 Photo Scanner"></li>
+										
+											<li><span class="helper"></span><img itemprop="image" src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736070.png" alt="HP Scanjet G3110 Photo Scanner" title="HP Scanjet G3110 Photo Scanner"></li>
+										      
+									</ul>
+									<p class="click_to_zoom_instructions">
+									Click to zoom</p>
+								</div>
+								
+								<div class="featured_image_container_pager">
+									<ul id="featured_image_pager" class="sub-slider">							
+											
+												<li> <a data-slide-index="0" href=""><img src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02122452.png" alt="Thumbnail_HP Scanjet G3110 Photo Scanner"/></a> </li>
+											
+												<li> <a data-slide-index="1" href=""><img src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736753.png" alt="Thumbnail_HP Scanjet G3110 Photo Scanner"/></a> </li>
+											
+												<li> <a data-slide-index="2" href=""><img src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736068.png" alt="Thumbnail_HP Scanjet G3110 Photo Scanner"/></a> </li>
+																		
+									</ul>
+									<div id="pager-prev" class=""></div>
+									<div id="pager-next" class=""></div>
+								</div>
+								<!-- code for bundles start --><!-- code for bundles end-->
+									</div>    
+					   
+							<div class="sku_info positionRelative">
+								<!-- Product Items BEGINS -->
+<aside>
+
+
+
+    <div class="headBlock">
+        <h1 itemprop="name" class="prodTitle no-margin">HP Scanjet G3110 Photo Scanner<span class="clasification"></span></h1>
+        
+            <p class="seeAllOffers" onclick="myFunction123()"><span>
+			
+				
+			Free shipping & free returns|See all offers			
+			</span>
+            </p>
+        <!-- code for bundle component names starts-->
+		 <ul>
+            
+                <li>Great scans of black-and-white and color photos at an affordable price with 4800 x 9600 dpi <div class='seealloffertooltiparea'><p><span class='tooltip_main'><a tabindex='0' class='link_icn' href='javascript:void(0)'> [1] </a></span></p><div class='tooltip tooltip_bottom'><div class='tooltip_text'>Maximum resolution may be limited by PC system factors and scan size. <a class='seetermlink' href='javascript:void(0)'></a></div><div class='tooltip_corner'>&nbsp;</div></div></div>, 48-bit color</li>
+            
+                <li>Scan four 35 mm slides, five negatives or three 4 x 6-inch photos at once and save to separate files</li>
+            
+                <li>Create PDFs for easy filing and sharing</li>
+            
+        	</ul>
+	<!-- code for bundle component names ends-->
+            <div class="specLink">
+                <a href="#specs">
+                    See all Specs
+                </a>
+            </div>
+        
+			<div class="priceBlock">
+					<p class="etr1">
+						<strong>Out of Stock</strong>
+						<span>Notify me when this item is available.</span>
+					</p>
+                <div>
+
+                    <div class="standard_price   _36">
+                        
+					
+                        <div itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+			<meta itemprop="priceCurrency" content="USD"/>
+			<link itemprop="itemCondition" href="http://schema.org/NewCondition"/>
+			
+			
+			<span itemprop="price" style="display:none">$99.99</span>
+	
+                          <div name="PST_136680" style="display: none;">
+					<span class="price_info">
+					
+					<del class="strikeprice">
+					 
+
+					<span  id="priceValCurBase_136680" name="priceValCurBase_136680">$</span><span id="base_136680" name="base_136680"></span><span id="basePoint_136680" name="basePoint_136680"></span><span id="baseDecimal_136680" name="baseDecimal_136680"></span>
+					
+
+					</del>
+					
+					</span>
+					
+
+					
+
+
+    					<span class="price_amount"><sup  id="priceValCur_136680" name="priceValCur_136680">$</sup><span id="promo_136680" name="promo_136680"></span><span id="promoPoint_136680" name="promoPoint_136680"></span><sup><span id="promoDecimal_136680" name="promoDecimal_136680"></span></sup></span>
+
+			<!-- GM Points Holder -->
+                    <div class="gmpoints" id="136680gmpts_holder_pst" style="color: #00a000;font-size: 14px;padding: 3px 0 0 0;font-weight: normal;display:none"></div>
+                    <!-- Stock Holder -->
+                    <div class="stock" id="136680stock_holder_pst" style="color: #222222;font-size: 14px;padding: 3px 0 0 0;font-weight: normal;display:none"></div>
+                    
+				</div>
+				<div id="oldPriceFlow_136680" name="oldPriceFlow_136680">
+
+				 
+                         <span class="price_amount"><sup>$</sup><span id="501931wholeprice" name="501931wholeprice"></span>.<sup id="501931decimalprice" name="501931decimalprice" class="superred"></sup>
+                         </span>
+
+            <!-- GM Points Holder -->
+                        <div class="gmpoints" id="501931gmpts_holder" style="color: #00a000;font-size: 14px;padding: 3px 0 0 0;font-weight: normal;display:none"></div>
+                        <!-- Stock Holder -->
+                        <div class="stock" id="501931stock_holder" style="color: #222222;font-size: 14px;padding: 3px 0 0 0;font-weight: normal;display:none"></div>
+                    
+                          </div>
+                        </div>
+                    </div>
+                    
+					
+					<script>
+						if(catentIdPST == undefined || catentIdPST == null){
+						var catentIdPST = "";
+						}
+						catentIdPST = catentIdPST+","+'136680';
+						
+					</script>
+
+                                
+                                        <span class="cta_price InventoryStatusAddToCart_136680" style="display:none">
+											<p class="lowinventoryinfopdp_136680 lowinventoryinfo" style="visibility:hidden">Only &nbsp;<span class="lowinventoryinfo lowinventoryqty_136680"></span> Left!</p>
+											<a id="add2CartBtn" href="javascript:shoppingActionsJS.setCommonParameters('-1','10151','10051','G','$');setCurrentId('add2CartBtn');shoppingActionsJS.AddSKU2ShopCartAjax('136680','501931',1,false,true);AddtoCart();" class="btn redbtn" title="Add To Cart">Add To Cart</a>
+										</span>
+                                        <div class="OutOfStock_136680" style="display:none">
+                                            <a class="btn outofstockbtn noPointerEvent" href="#">
+                                                Out of Stock
+                                            </a>
+                                        </div>
+                                    
+					<span class="hide"><a href="#" class="btn redbtn">Notify me</a></span>
+					<div class="clear"></div>
+					
+				</div>
+			</div>
+		
+		<div class="linePdp2"></div>
+		<div class="prodSku">
+                       Product# <span class="prodNum">L2698A#B1H</span>   
+                            
+			
+		</div>  
+  	
+    </div>
+</aside>
+<!-- Product Items end -->
+							</div>  
+						</div>
+					</div>
+					<!-- Banner ENDS -->
+					<div class="linePdp"> </div>
+					<!-- Tabs BEGINS -->
+					<div class="i_want_to_be_always_visible">	
+						<div class="row hide-for-small standardnavigationblock">
+								<div class="large-8 columns">
+									<div class="row">
+										<div class="large-12">
+											<nav class="linePdp">
+												<ul class="tabsUnderlined">
+												   
+													   <li><a id="featurestab" class="active" title="features" onclick="TabClick('features')" style="display:none;">Features</a></li>
+												  
+												   
+														<li><a title="specs" onclick="TabClick('specs')">Specs</a></li>
+												   
+														  <li><a title="specialoffertab" onclick="TabClick('specialoffertab');myFunction123();">Special offers</a></li>
+												   
+												</ul>
+											</nav>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					 
+					<div id="specialoffertab111"></div>
+					<!-- Tabs ENDS -->
+					 
+						
+					  
+					<script type="text/javascript">
+    function myFunction123() {
+        $.ajax({
+            url: '/webapp/wcs/stores/servlet/SpecialOffersAjaxView',
+            data: {
+                langId:'-1',
+                storeId:'10151',
+                catalogId:'10051',
+                productId:'136680',
+		  ajaxCall:'true',
+            },
+            success: function(data) {
+				//console.debug("data"+data);
+				
+				
+				//displayProgressBar();
+				//setTimeout('cursor_clear()',500);
+                $("#specialoffertab111").html(data);
+				
+				
+            }
+        });
+    }
+</script>
+			
+					<div class="row show-for-small hero drop_down">
+						<div class="filters accordion">
+							<section class="small-12 columns">
+          <form class="custom" name="features-form">
+									<h3 class="filtlink">Features</h3>
+									<div class="filter-content">
+										<h4>Specs</h4>
+										<h4>Accessories</h4>
+										<h4>Services&amp;Support</h4>
+										<h4>OS&amp;apps</h4>
+									</div>           
+								</form>
+							</section>
+						</div>
+					</div>
+					<!-- Features Content BEGINS -->
+<div id="features" style="display:none;">
+	<!-- BEGIN ContentRecommendation/ContentRecommendation.jsp --><!-- BEGIN ESpotTitle_Data.jspf --><!-- END ESpotTitle_Data.jspf --><!-- END ContentRecommendation.jsp -->
+    <div class="row">
+    </div>
+    
+		<div class="row heroFeatures">
+			<div class="overview_group gd-grid-18">
+				<h2><br></h2>
+				<ul class="bullet-item">
+					
+						<li>
+							<span>Get quality scans of just about anything on this affordable, easy-to-use flatbed scanner. Scan photos, slides, 3-D objects and more with great resolution. One-touch buttons and plenty of options help you digitally archive your documents the easy way.</span>
+						</li>
+					
+				</ul>
+			</div>
+
+					<div class="row no-margin outstanding_display_banner">
+						<div class="large-6 column nosidepaddings">
+							<div class="leftImage">						
+								<img border="0" src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736747.png" alt="HP Scanjet G3110 Photo Scanner" >
+								
+							</div>
+						</div>
+						<div class="large-6 contentHolder column nosidepaddings">
+							<h2>Your photos deserve a great quality scan<br></h2>
+							<ul class="bullet-item">
+							
+								<li>
+									<span>Great scans of black-and-white and color photos at an affordable price with 4800 x 9600 dpi <div class='seealloffertooltiparea'><p><span class='tooltip_main'><a tabindex='0' class='link_icn' href='javascript:void(0)'> [1] </a></span></p><div class='tooltip tooltip_bottom'><div class='tooltip_text'>Maximum resolution may be limited by PC system factors and scan size. <a class='seetermlink' href='javascript:void(0)'></a></div><div class='tooltip_corner'>&nbsp;</div></div></div>, 48-bit color<br></span>
+								</li>
+							
+								<li>
+									<span>Easily remove red-eye from scanned photos to improve image quality<br></span>
+								</li>
+							
+								<li>
+									<span>Bring out details in dark photos, restore faded colors or damaged photos with HP technology<br></span>
+								</li>
+							
+								<li>
+									<span>Correct most flaws and scratches from old or damaged photos with HP scanning technology<br></span>
+								</li>
+							 
+							</ul>
+						</div>
+					</div>						
+				
+					<div class="row secondbox outstanding_display_banner">
+						<div class="large-6 column nosidepaddings">
+							<div class="contentHolder">
+								<h2>Flatbed scanner ready for just about anything
+<br>	</h2>
+								<ul class="bullet-item">
+									
+										<li>
+											<span>Scan four 35 mm slides, five negatives or three 4 x 6-inch photos at once and save to separate files
+<br></span>
+										</li>
+									
+										<li>
+											<span>Scan a variety of documents, except from thick bound materials and other bulky items
+<br></span>
+										</li>
+									
+										<li>
+											<span>Scan and archive important family records and documents up to 8.5 x 11 inches
+<br></span>
+										</li>
+									
+										<li>
+											<span>Get realistic scans of 3-D items by capturing more detail and depth—ideal for online auction sites
+<br></span>
+										</li>
+									 
+								</ul>
+							</div>
+						</div>
+						<div class="large-6 column nosidepaddings">
+							<div class="rightImage">	
+					
+								<img border="0" src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736070.png" alt="HP Scanjet G3110 Photo Scanner" >
+								
+							</div>
+						</div>
+					</div>	
+					
+					<div class="row no-margin outstanding_display_banner">
+						<div class="large-6 column nosidepaddings">
+							<div class="leftImage">						
+								<img border="0" src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02552048.png" alt="HP Scanjet G3110 Photo Scanner" >
+								
+							</div>
+						</div>
+						<div class="large-6 contentHolder column nosidepaddings">
+							<h2>Plenty of options for your scans<br></h2>
+							<ul class="bullet-item">
+							
+								<li>
+									<span>Create PDFs for easy filing and sharing<br></span>
+								</li>
+							
+								<li>
+									<span>Scan a photo or document directly into e-mail for quick and easy sharing<br></span>
+								</li>
+							
+								<li>
+									<span>Print copies of scanned documents using a one-touch button and default printer<br></span>
+								</li>
+							
+								<li>
+									<span>Create word processing files from scanned documents with Optical Character Recognition software<br></span>
+								</li>
+							 
+							</ul>
+						</div>
+					</div>						
+				
+					<div class="row secondbox outstanding_display_banner">
+						<div class="large-6 column nosidepaddings">
+							<div class="contentHolder">
+								<h2>Get more done with less effort
+<br>	</h2>
+								<ul class="bullet-item">
+									
+										<li>
+											<span>Save time on common jobs using scan shortcuts to create a variety of scan-to options
+<br></span>
+										</li>
+									
+										<li>
+											<span>Easily complete common tasks with 4 one-touch buttons—Scan, Copy, Scan to E-mail, Scan to PDF
+<br></span>
+										</li>
+									
+										<li>
+											<span>Organize, edit, print, share and save scanned photos with included HP Photosmart Essential Software
+<br></span>
+										</li>
+									
+										<li>
+											<span>Quickly and easily connect to a PC for optimum scan transfer speeds with Hi-Speed USB 2.0
+<br></span>
+										</li>
+									 
+								</ul>
+							</div>
+						</div>
+						<div class="large-6 column nosidepaddings">
+							<div class="rightImage">	
+					
+								<img border="0" src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736747.png" alt="HP Scanjet G3110 Photo Scanner" >
+								
+							</div>
+						</div>
+					</div>	
+					
+		</div>
+    <!-- Similar Products BEGINS  AccessoriesSectionCatentries--><!-- Return & Exchange Information BEGINS -->
+		<div class="row returnExchangepdp">
+			<h2 class="txtsize30">Return &amp; exchange information</h2>
+			  <p>HP Shopping will accept returns or exchanges for this product up to 30 days after delivery</p>
+		</div> 
+	<!-- Return & Exchange Information ENDS -->
+
+	<div class="row">
+		<div class="disclaimer_page">
+			<div class="large-12">
+				<li>
+		`			
+						<p>[1]Maximum resolution may be limited by PC system factors and scan size.</p>
+					
+				</li>
+			</div>
+		</div>
+	</div>
+	
+</div>
+
+
+<script>
+$(document).ready(function(){
+
+$("#features").css({ display: "block" });
+$("#featurestab").css({ display: "block" });
+});
+</script>
+ 
+<!-- Features Content END --><!-- Specs contents BEGINS --><!-- Specs contents BEGINS -->
+<div id="specs">
+    <div class="row"> 
+	
+	<div class="large-12 column headerrow"><p class="tabheader">Product specifications</p></div>
+        <div class="large-12 column smallprint legal_information"><small>See below for important legal information</small></div>
+   	</div>
+
+
+   	<div class="row">          	      
+<!-- Hp data sheet document starts -->
+			<div class="large-12 nosidepaddings data">
+				<div class="large-5 columns nosidepaddings">
+					<div class="desc verticalMiddle">
+ 				 		<h2>HP Data Sheet</h2>
+ 					</div>
+  				</div>
+   				<div class="large-7 columns nosidepaddings">	
+					<a class="verticalMiddle" href="//store.hp.com/wcsstore/hpusstore/pdf/l2698a.pdf" onclick="PopupDocument(this.href,'myPop1',630,420);return false;">View Document</a>
+ 				</div>
+ 			</div>					
+		<!-- Hp data sheet document ends --><!--Specs Tuple Begins-->
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Resolution</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>Up to 4800 x 9600 dpi</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Weight</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>6.39 lb</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Supported operating systems</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>Microsoft® Windows® 7 ready. For more information go to http://www.hp.com/go/windows7. Some features may not be available. Windows Vista®, Windows® XP (32-bit and 64-bit), Windows® XP, Windows® 2000, Mac OS X v10.4.11, 10.5, 10.6</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>ENERGY STAR</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>ENERGY STAR® qualified; EPEAT ® Bronze</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Warranty</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>One-year limited hardware warranty (Canada), 90-day limited hardware warranty (US), phone and Web support included. Warranty may vary by country as required by law.</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>What's in the box</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>HP Scanjet G3110 Photo Scanner; power supply adapter/power cord; USB cable; CD-ROMs with software and User's Guide; Setup Poster; Warranty Statement</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Control panel</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>4 front-panel buttons (Copy, Scan, Scan to E-mail, Scan to PDF)</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Bit depth</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>48-bit</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Scannable media types</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>Paper (inkjet, laser, plain), photographic material (silver halide, pigment-dye), 3-D objects, 35 mm slides and negatives (using transparent media adapter)</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Input type</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>Flatbed</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Auto document feeder</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>None</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Connectivity</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>1 Hi-Speed USB 2.0</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    
+		<div class="large-12 nosidepaddings os">
+            <div class="large-5 columns nosidepaddings">
+                <div class="verticalMiddle">
+                </div>
+                <div class="desc verticalMiddle"><h2>Dimensions</h2></div>
+            </div>
+            <div class="large-7 columns nosidepaddings">
+				<div class="large-12 proc verticalMiddle">
+                	
+						
+							<p>17.91 x 12.01 x 2.76 in</p> 
+						 
+                   
+                </div>
+            </div>
+        </div>
+    <!--Specs Tuple Ends-->           
+	</div> 
+    <!-- script for HP data sheet starts-->
+	<script>
+	function PopupDocument(pageURL, title,w,h) {
+		var left = (screen.width/2)-(w/2);
+		var top = (screen.height/2)-(h/2);
+		var targetWin = window.open (pageURL, title, 'toolbar=no, location=no, directories=no, status=no, menubar=no,scrollbars=no, resizable=no, copyhistory=no, width='+w+', height='+h+', top='+top+', left='+left);
+	} 
+	</script>
+<!-- script for HP data sheet ends -->
+</div>
+<!-- Specs contents ENDS --><!-- Specs contents ENDS --><!-- Service and Support contents BEGINS --><!-- Service and Support contents ENDS --><!-- OS And Apps contents BEGINS --><!-- OS And Apps contents ENDS --><!-- Accessories contents BEGINS --><!-- Accessories contents ENDS --><!-- Special Offers contents BEGINS --><!-- Special Offers contents ENDS -->
+
+				<div id="pdpzoomarea" class="topgradient">
+					<a href="javascript:void(0);" class="btnClose js_pop_close">Close</a>
+					<div class="parent">
+							
+										<div class="panzoom">
+											<img src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02552048.png" alt="HP Scanjet G3110 Photo Scanner">
+										</div>
+									
+
+
+					</div>
+					<div class="buttons">
+						<div class="zoomin zoombutton"></div>
+						<div class="zoom_sep"></div>
+						<div class="zoomout zoombutton"></div>
+						<!--begin zoomthumbslider-->
+						<div class="rotate">
+							<div id="sections">
+								<section id="screen_rotation">
+									<div id="instructions"></div>
+									<img id="img360" src="/wcsstore/HPStorefrontAssetStore/img/rotation/001.jpg" alt="HP SlateBook 10 x2" width="960" height="540">
+								</section>
+							</div>
+						</div>
+						
+							<div id="attach_to_overlay_after_loading" class="pdpBanner">
+								<div class="thumbSlider2">
+ 
+									<nav>
+										<ul class="thumps2 left">
+											
+															<li class="selected">
+																<a href="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02552048.png">
+																	<img src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02122452.png" alt="HP Scanjet G3110 Photo Scanner"/>
+																</a>
+															</li>
+														
+															<li>
+																<a href="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736747.png">
+																	<img src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736753.png" alt="HP Scanjet G3110 Photo Scanner"/>
+																</a>
+															</li>
+														
+															<li>
+																<a href="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736070.png">
+																	<img src="//ssl-product-images.www8-hp.com/digmedialib/prodimg/lowres/c02736068.png" alt="HP Scanjet G3110 Photo Scanner"/>
+																</a>
+															</li>
+														
+										
+										</ul>
+										<div id="thumslider2-prev" class=""></div>
+										<div id="thumslider2-next" class=""></div>
+									</nav>
+								</div>
+
+							</div>
+					</div>
+				</div>
+			</div>
+		</section>
+			
+	</div>
+</div>
+
+			<script type="text/javascript">
+				var sku_value='L2698A#B1H';
+				var product_name='HP Scanjet G3110 Photo Scanner';
+				var cate='printers';
+				var topcategory='printers';
+			</script>
+		
+
+
+
+	<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/javascript/PromPriceDisplay.js?v=51318"></script> 
+
+	<input type="hidden" id="storeId" name="storeId" value="10151">
+	<input type="hidden" id="langId" name="langId" value="-1">
+	<input type="hidden" id="catalogId" name="catalogId" value="10051">
+	<div name="gift_price" id="gift_price" style="display: none;"></div>
+<script type="text/javascript">
+
+var catentIdList = formCatentryIdList();
+
+$(document).ready(function()
+{
+       var hash = document.location.hash;
+       var TabName = hash.split("=");
+       
+       
+       if(TabName[1]!=null)
+       {
+       $('.tabsUnderlined li a').removeClass('active')
+       $("a[title='" + TabName[1] + "']").addClass('active');
+              $('#features').hide();
+              $('#specs').hide();
+              $('#serviceAndSupport').hide();
+              $('#accessories').hide();
+              $('#osAndApps').hide();
+              $('#viewalloption').hide();
+              $('#specialoffertab').hide();
+
+       $('#'+TabName[1]).show();
+
+       }
+});
+
+
+$(document).ready(function()
+{
+	if(document.getElementById("isGiftCardEnabled")!=null){
+	var prd_class = document.getElementById("prd_class").value;
+	console.log("GiftCardAjaxToBeTriggered");
+		$.ajax({
+			  url: '/webapp/wcs/stores/servlet/GiftCardAjaxView',
+			  data:{langId:-1,storeId:10151,catalogId:10051,productId:'501931',prd_class:prd_class,editGC:'',editGcOrderItemId:''},
+			  success: function(data) {
+				 $('#giftCardDetails').append(data);
+			   
+				 $('#gift_price').html($(data).find('#Gift_price').html());
+				 console.log('giftPrice'+$('#gift_price').html());
+				 pdpprice=$('#gift_price').html();
+				  PDPstdTag(productName,userId,Sku,pdpprice,HeirarchyList,sectionValue,'',pagefunction,countryname,websectionId,hp_profileId,CID);
+					}
+			});
+	}
+
+	    var InventUrl =  '/us/en/CLPStdView?catalogId=10051&langId=-1&storeId=10151';
+	var ctlist="&catentryIdList=";
+	InventUrl=InventUrl+ctlist;
+	InventUrl = InventUrl.concat(catentIdList);
+	
+		
+
+$.ajax({
+	
+      url: InventUrl,
+      success: function(data) {
+	 data = $.parseJSON(data);
+	var status;
+	var availQty;
+	var oos;
+	var addtocartId;
+	var belowThreshold;
+	var lowInfo;
+	var lowInfoPDP;
+	
+   	 $.each(data.skus, function(i, item) {
+       	status = item.status;
+	       availQty = parseInt(item.availableQuantity);
+		oos = item.id;
+		lowInfo = "lowinventoryinfo_"  + oos;
+		lowQty = "lowinventoryqty_" + oos;
+		lowInfoPDP="lowinventoryinfopdp_" + oos;
+        	addtocartId = "InventoryStatusAddToCart_" + oos;
+		belowThreshold = item.belowThreshold;
+		publishedOverrideValue = item.publishedOverrideValue;
+              oos = 'OutOfStock_' + oos; 
+		if( publishedOverrideValue !=0)    {
+        	if( (status.localeCompare("Available") != 0) || (availQty < 1))    {	           
+	              $("." + oos).show();
+       	          $("." + addtocartId).empty();
+
+        	}
+		else	{
+			if(belowThreshold.localeCompare("true") ==0)	{
+		              $("." + lowQty).html(availQty);					
+		              $("." + lowInfo).show();	
+					  $("." +lowInfoPDP).css("visibility", "visible");
+			}
+	      	       $("." + addtocartId).show();
+				   $("." + oos).empty();
+		}
+		}
+    	});
+      }
+    });
+	priceDisplayAjax(catentIdList);
+	
+	
+});
+				
+</script>			
+		
+		<div class="footer_wrapper_position">
+			<!-- BEGIN Footer.jsp -->
+
+<script type="text/javascript" src="https://h30664.www3.hp.com/netagent/proactive/proactive.aspx" defer="defer"></script>
+
+
+<!--BEGIN My shopping links section-->
+<div class="">
+<div id="shoppinglinks_support" class="row">
+<hr>
+<section id="myShoppingLinks" class="">
+	<div class="large-12">
+	<span class="list_title">
+	<strong>My shopping links</strong>
+	</span>
+	<ul>
+		<li>
+
+			<a id="/us/en/MyAccountOrderStatusView?catalogId=10051&langId=-1&storeId=10151" target="_blank" href="/us/en/MyAccountOrderStatusView?catalogId=10051&langId=-1&storeId=10151"  >Order status</a>
+
+		</li>
+	
+       <li>
+			<a target="_blank" href="/us/en/ManageSubscription?orderStatusStyle=strong&amp;catalogId=10051&amp;langId=-1&amp;storeId=10151">Manage subscriptions</a>
+		</li>
+	
+	
+       <li>
+			<a href="/us/en/MyAccountFormView?catalogId=10051&amp;langId=-1&amp;storeId=10151"  target="_blank">My Account</a>
+		</li>
+	
+	
+        <li>
+
+		<a href="/us/en/ContentView?eSpotName=ReturnsandExchanges&catalogId=10051&langId=-1&storeId=10151"  target="_blank">Returns & Exchanges</a>  
+	
+	</li>
+</ul>
+</div>
+</section>
+<!--END My shopping links section-->
+	
+<section id="lp_chat" class="lp_chat">
+
+<img src="/wcsstore/HPStorefrontAssetStore/img/lpchat.png" alt="lpchat" />
+<h2>Need Help?</h2>
+<a id="live_help_dd" class="live_help_dd downDisclosure" href="javascript:void(0)" >Contact us now</a>
+<ul id="live_help_list" class="live_help_list">
+	
+		<li><a id="help_window_footer" href="https://h30665.www3.hp.com/netagent/cimlogin.aspx?questid=246C34C5-5B3F-42D0-9EEC-D51634B0EE3F&portid=942E5E82-25F9-4DFD-9A71-537876996383">Chat with a sales rep</a></li>				
+		<li><a id="c2c_window_footer" href="https://h30665.www3.hp.com/netagent/cimlogin.aspx?questid=A54BA411-122B-4D0B-8B15-26E72DE88844&portid=21844431-8DFC-4978-B17E-AA1D3636C748">Request a Sales Rep</a></li>
+	
+<li><a href="/us/en/SendEmailView?langId=-1&storeId=10151">Send us an email</a></li>
+<li>
+
+</li>
+</ul>
+	
+</section>
+
+</div>
+</div>
+<!--Start blue bar stay connected section--><!-- BEGIN ContentRecommendation.jsp --><!-- BEGIN ESpotTitle_Data.jspf --><!-- END ESpotTitle_Data.jspf --><!-- BEGIN ESpotTitle_UI.jspf --><!-- END ESpotTitle_UI.jspf --><div>											<!-- WIN 10 SIDEBAR CONTENT-->
+	<style>
+		#smBlueBar		{width: 100%; height: auto; position: relative; margin: 0; text-align: center; display: inline-block;}
+		#smBlueBarImage	{width: 100%; height: auto; position: relative; display: block;}
+		#smBlueBarLearn	{text-align: center; display: block; position: absolute; left: 52.16%; top: 78.30%; width: 7.32%; height: 18%;}
+
+		#winSide 		{}
+		#winSideBar		{position: fixed; top: 65%; right: 0; z-index: 998;}		/* CHANGE 'TOP' PERCENTAGES TO SEPARATE FROM FEEDBACK BAR */
+		#winPop 		{position: fixed; top: 65%; right: 0; z-index: 999; opacity: 0; visibility: hidden;}
+		#winSideLink	{position: absolute; top: 66%; height: 11%; width: 100%;}
+		#winDeets 		{position: absolute; top: 80%; height: 20%; width: 100%;}
+
+		#winSideBar:hover + #winPop {opacity: 1; visibility: visible;}
+		#winPop:hover {opacity: 1; visibility: visible;}
+
+		/* Details Popup*/
+
+		.winBox 	{position: fixed; top: 25%; left: 33%; width: 33%; height: auto; padding: 20px; background-color: white; box-shadow: 0 0 50px rgba(0,0,0,0.5); overflow: auto; z-index: 1001;}
+		.winBlack 	{position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); transition: opacity 200ms; visibility: hidden; opacity: 0; z-index: 1000;}
+		.cancel 	{position: fixed; width: 100%; height: 100%; cursor: default;}
+
+		.close {position: absolute; width: 20px; height: 20px; top: 20px; right: 20px; opacity: 0.8; transition: all 200ms; font-size: 24px; font-weight: bold; text-decoration: none; color: #666;}
+		.close:hover {opacity: 1;}
+
+		.winBlack:target {visibility: visible; opacity: 1;}
+
+		div.row#content a 		{color: #007DBA; text-decoration: none;}
+		div.row#content a:hover {text-decoration: underline;}
+		div.row#content ul 		{padding-left: 40px;}
+		div.row#content ul li 	{display: list-item; list-style-type: disc;}
+		div.row#content ol li 	{display: list-item; list-style-type: decimal;}
+	</style>
+
+	<div id="smBlueBar">			<!--BACKGROUND IMAGE - File Location: /wcsstore/hpusstore/Banners/-->
+		<!--Change link below to search results when ready-->
+		<a href="#winDeetsBox">
+			<div id="smBlueBarImage"><img src="/wcsstore/hpusstore/Banners/hp_win_10_footer_042415_alt_copy.jpg" style="height:auto; width: 100%;"></div>
+		</a>
+		<a href=""><div id="winBarLink"></div></a>
+		<!--Learn More Link
+		<a href="/webapp/wcs/stores/servlet/PlainContentView?eSpotName=Windows10Upgrade&storeId=10151&langId=-1&catalogId=10051&jumpid=windows10Offer"><div id="smBlueBarLearn"></div></a>
+		-->
+	</div>
+
+	<div id="winSide">					
+		<div id="winSideBar">				
+			<img src="/wcsstore/hpusstore/Banners/win10_sidebar.png">
+		</div>
+		<div id="winPop">				
+			<img src="/wcsstore/hpusstore/Banners/win10_popout.jpg">
+			<a href="http://windows.com/windows10upgrade" target="_blank"><div id="winSideLink"></div></a>		
+			<a href="#winDeetsBox"><div id="winDeets"></div></a>			 
+		</div>
+	</div>
+
+	<div id="winDeetsBox" class="winBlack">
+		<a class="cancel" href="#"></a>
+		<div class="winBox">
+			<a class="close" href="#"></a>
+			<div class="row" id="content" data-role="popup">				
+				<p style="margin-top: 25px;">Windows 10 Upgrade Offer valid for qualified Windows 7 and Windows 8.1 devices (including devices you already own) for one year after Windows 10 upgrade availability. Visit <a href="www.hp.com/go/windows10upgrade">www.hp.com/go/windows10upgrade</a> for more details.</p>
+				<ul>
+		 			<li>Not all features may be available when upgrading to Windows 10 from Windows 7 or Windows 8.1 PCs.</li>
+		 			<li>Your system may require additional hardware, drivers, software, firmware, and/or BIOS update.</li>
+		 			<li>Upgrading between versions may incur additional fees.</li>
+		 		</ul>
+			</div>
+		</div>
+	</div>
+
+</div><!-- END ContentRecommendation.jsp -->
+
+
+    <div class="large-6 columns buttons etr1module">
+      <div class="bbox">
+        <div class="likefacebook"> 
+           
+          <a href="" class="buttonfacebook spritebuttons" alt="Like us on Facebook"> <span class="hide">Like us on Facebook</span> </a> 
+           
+        </div>
+        <span class="or">or</span>
+        <div class="followtwitter"> 
+           
+          <a href="" class="buttontwitter spritebuttons" alt="Follow us on Twitter"> <span class="hide">Follow us on Twitter</span> </a> 
+           
+        </div>
+      </div>
+    </div>
+   	 <section id="get_latest_deals" class="box-sizing">	
+          	<h2>Get the latest deals</h2>
+          	<p>Stay connected with the latest updates and newsletters.</p>        	 
+          	<div class="social_button_section clearfix"></div> 
+    	 </section>	
+		
+<!--END blue bar stay connected section--><!-- Disclaimer Page Section Begins-->
+  <div class="row borderBox">
+    <div class="disclaimer_page">
+      <div class="large-12">
+	  <!-- BEGIN ContentRecommendation/ContentRecommendation.jsp --><!-- BEGIN ESpotTitle_Data.jspf --><!-- END ESpotTitle_Data.jspf --><!-- BEGIN ESpotTitle_UI.jspf --><!-- END ESpotTitle_UI.jspf -->
+            <li data-orbit-slide="headline-1">
+        
+		
+			<p>Prices, specifications, availability and terms of offers may change without notice. Quantity limits may apply to orders, including orders for discounted and promotional items. Despite our best efforts, a small number of items may contain pricing, typography, or photography errors. Correct prices and promotions are validated at the time your order is placed. These terms apply only to products sold by the HP Home & Home Office Store; reseller offers may vary. Items sold by the HP Home & Home Office Store are not for immediate resale. Orders that do not comply with HP Home & Home Office Store terms, conditions, and limitations may be cancelled.</p>
+
+<p>HP’s MSRP is subject to discount.  HP’s MSRP price is shown as either a stand-alone price or as a strike-through price with a discounted or promotional price also listed.  Discounted or promotional pricing is indicated by the presence of an additional higher MSRP strike-through price.</p>
+
+<p>In-home warranty is available only on select customizable HP desktop PCs. Need for in-home service is determined by HP support representative. Customer may be required to run system self-test programs or correct reported faults by following advice given over phone. On-site services provided only if issue can't be corrected remotely. Service not available holidays and weekends.</p>
+
+<p>HP will transfer your name and address information, IP address, products ordered and associated costs and other personal information related to processing your application to Bill Me Later®. Bill Me Later will use that data under its privacy policy.</p>
+
+<p>Ultrabook, Celeron, Celeron Inside, Core Inside, Intel, Intel Logo, Intel Atom, Intel Atom Inside, Intel Core, Intel Inside, Intel Inside Logo, Intel vPro, Itanium, Itanium Inside, Pentium, Pentium Inside, vPro Inside, Xeon, and Xeon Inside are trademarks of Intel Corporation in the U.S. and/or other countries.</p>
+
+<p>Microsoft Windows 10: Not all features are available in all editions or versions of Windows 10. Systems may require upgraded and/or separately purchased hardware, drivers, software or BIOS update to take full advantage of Windows 10 functionality. Windows 10 is automatically updated, which is always enabled. ISP fees may apply and additional requirements may apply over time for updates. See http://www.microsoft.com.</p>
+
+            </li>
+        
+			<!-- END ContentRecommendation.jsp -->
+      </div>
+    </div>
+  </div>
+  
+<!-- Disclaimer Page Section Ends--><!--Footnotes Section Begins--><!--Footnotes Section ends-->
+
+ 
+   
+   
+    <div id="footer" class="footer"></div>
+    
+<script>
+	$('#help_window_footer').click(function(event) {	
+    event.preventDefault();
+    window.open($(this).attr("href"), "popupWindow", "width=625,height=750,scrollbars=yes");
+    });	
+    
+    $('#c2c_window_footer').click(function(event) {	
+    event.preventDefault();
+    window.open($(this).attr("href"), "popupWindow", "width=625,height=750,scrollbars=yes");
+    });	
+</script>
+
+<script>
+	var talCustProp = '';
+</script>
+<script type="text/javascript">
+$(document).ready(function() {	
+	var chatURL = $("#help_window_footer").attr("href");
+	chatURL = chatURL + getMoxieParams('&') + '&nareferer=' + escape(document.location);
+	$("#help_window_footer").attr("href", chatURL);
+	var callURL = $("#c2c_window_footer").attr("href");
+	callURL = callURL + getMoxieParams('&') + '&nareferer=' + escape(document.location);
+	$("#c2c_window_footer").attr("href", callURL);	
+	
+	talCustProp = getMoxieParams('#:Prop!');
+});
+</script>
+
+<script type="text/javascript">
+	function getMoxieParams(delimiter) {
+		var params = '';
+		var cartOrderId = $.cookie('WC_CartOrderId_10151');
+		if ($.trim(cartOrderId)){
+			var cartCookie = $.cookie('WC_CartTotal_'+cartOrderId);
+			var content = cartCookie  ? cartCookie.split(/;/) : new Array();
+			if(content.length > 1) {
+				params += delimiter;
+				params += 'CartTotal=';
+				params += content[1];
+			}
+		}			
+		return params;				
+	}
+</script>
+
+<!-- begin usabilla live embed code -->
+
+<script type="text/javascript">/*{literal}<![CDATA[*/window.lightningjs||function(c){function g(b,d){d&&(d+=(/\?/.test(d)?"&":"?")+"lv=1");c[b]||function(){var i=window,h=document,j=b,g=h.location.protocol,l="load",k=0;(function(){function b(){a.P(l);a.w=1;c[j]("_load")}c[j]=function(){function m(){m.id=e;return c[j].apply(m,arguments)}var b,e=++k;b=this&&this!=i?this.id||0:0;(a.s=a.s||[]).push([e,b,arguments]);m.then=function(b,c,h){var d=a.fh[e]=a.fh[e]||[],j=a.eh[e]=a.eh[e]||[],f=a.ph[e]=a.ph[e]||[];b&&d.push(b);c&&j.push(c);h&&f.push(h);return m};return m};var a=c[j]._={};a.fh={};a.eh={};a.ph={};a.l=d?d.replace(/^\/\//,(g=="https:"?g:"http:")+"//"):d;a.p={0:+new Date};a.P=function(b){a.p[b]=new Date-a.p[0]};a.w&&b();i.addEventListener?i.addEventListener(l,b,!1):i.attachEvent("on"+l,b);var q=function(){function b(){return["<head></head><",c,' onload="var d=',n,";d.getElementsByTagName('head')[0].",d,"(d.",g,"('script')).",i,"='",a.l,"'\"></",c,">"].join("")}var c="body",e=h[c];if(!e)return setTimeout(q,100);a.P(1);var d="appendChild",g="createElement",i="src",k=h[g]("div"),l=k[d](h[g]("div")),f=h[g]("iframe"),n="document",p;k.style.display="none";e.insertBefore(k,e.firstChild).id=o+"-"+j;f.frameBorder="0";f.id=o+"-frame-"+j;f.title="Feedback Javascript";/MSIE[ ]+6/.test(navigator.userAgent)&&(f[i]="javascript:false");f.allowTransparency="true";l[d](f);try{f.contentWindow[n].open()}catch(s){a.domain=h.domain,p="javascript:var d="+n+".open();d.domain='"+h.domain+"';",f[i]=p+"void(0);"}try{var r=f.contentWindow[n];r.write(b());r.close()}catch(t){f[i]=p+'d.write("'+b().replace(/"/g,String.fromCharCode(92)+'"')+'");d.close();'}a.P(2)};a.l&&setTimeout(q,0)})()}();c[b].lv="1";return c[b]}var o="lightningjs",k=window[o]=g(o);k.require=g;k.modules=c}({}); window.usabilla_live = lightningjs.require("usabilla_live", "//w.usabilla.com/0ef6e6f5c58b.js"); /*]]>{/literal}*/</script>
+
+<!-- end usabilla live embed code --><!-- END Footer.jsp --><!-- Foundation 3 for IE 8 and earlier --><!--[if lt IE 9]>
+
+    <script src="/wcsstore/HPStorefrontAssetStore/js/foundation3/foundation.min.js?v=43"></script>
+
+    <script src="/wcsstore/HPStorefrontAssetStore/js/foundation3/app.js?v=43"></script>
+<![endif]-->
+
+
+
+
+
+<link rel="stylesheet" href="/wcsstore/HPStorefrontAssetStore/css/wcs-custom.css?v=51606" />
+
+
+
+
+
+<script src="/wcsstore/HPStorefrontAssetStore/js/foundation.min_custom_foundation.orbit_jquery.bxslider.min.js?v=48617"></script>
+
+
+ <!--
+
+<script src="/wcsstore/HPStorefrontAssetStore/js/foundation/foundation.orbit.js?v=2231"></script>
+
+  <script src="/wcsstore/HPStorefrontAssetStore/js/foundation3/foundation.min.js?v=43"></script> 
+ 
+ <script src="/wcsstore/HPStorefrontAssetStore/js/custom.js?v=48617"></script>  
+
+<script src="/wcsstore/HPStorefrontAssetStore/js/vendor/bxslider/jquery.bxslider.min.js?v=43"></script> -->
+
+
+
+<!--[if lt IE 9]>
+
+  <script src="/wcsstore/HPStorefrontAssetStore/js/vendor/jquery.corner.js?v=103"></script>
+
+  <script src="/wcsstore/HPStorefrontAssetStore/js/foundation3/jquery.foundation.forms.js?v=32305"></script>
+
+  <script src="/wcsstore/HPStorefrontAssetStore/js/IE8.js?v=45910"></script>
+<![endif]-->
+  
+<script>
+    $(document).foundation();
+</script>
+
+
+  
+    
+<!-- begin usabilla live embed code -->
+<script type="text/javascript">/*{literal}<![CDATA[*/window.lightningjs||function(c){function g(b,d){d&&(d+=(/\?/.test(d)?"&":"?")+"lv=1");c[b]||function(){var i=window,h=document,j=b,g=h.location.protocol,l="load",k=0;(function(){function b(){a.P(l);a.w=1;c[j]("_load")}c[j]=function(){function m(){m.id=e;return c[j].apply(m,arguments)}var b,e=++k;b=this&&this!=i?this.id||0:0;(a.s=a.s||[]).push([e,b,arguments]);m.then=function(b,c,h){var d=a.fh[e]=a.fh[e]||[],j=a.eh[e]=a.eh[e]||[],f=a.ph[e]=a.ph[e]||[];b&&d.push(b);c&&j.push(c);h&&f.push(h);return m};return m};var a=c[j]._={};a.fh={};a.eh={};a.ph={};a.l=d?d.replace(/^\/\//,(g=="https:"?g:"http:")+"//"):d;a.p={0:+new Date};a.P=function(b){a.p[b]=new Date-a.p[0]};a.w&&b();i.addEventListener?i.addEventListener(l,b,!1):i.attachEvent("on"+l,b);var q=function(){function b(){return["<head></head><",c,' onload="var d=',n,";d.getElementsByTagName('head')[0].",d,"(d.",g,"('script')).",i,"='",a.l,"'\"></",c,">"].join("")}var c="body",e=h[c];if(!e)return setTimeout(q,100);a.P(1);var d="appendChild",g="createElement",i="src",k=h[g]("div"),l=k[d](h[g]("div")),f=h[g]("iframe"),n="document",p;k.style.display="none";e.insertBefore(k,e.firstChild).id=o+"-"+j;f.frameBorder="0";f.id=o+"-frame-"+j;f.title="Feedback Javascript";/MSIE[ ]+6/.test(navigator.userAgent)&&(f[i]="javascript:false");f.allowTransparency="true";l[d](f);try{f.contentWindow[n].open()}catch(s){a.domain=h.domain,p="javascript:var d="+n+".open();d.domain='"+h.domain+"';",f[i]=p+"void(0);"}try{var r=f.contentWindow[n];r.write(b());r.close()}catch(t){f[i]=p+'d.write("'+b().replace(/"/g,String.fromCharCode(92)+'"')+'");d.close();'}a.P(2)};a.l&&setTimeout(q,0)})()}();c[b].lv="1";return c[b]}var o="lightningjs",k=window[o]=g(o);k.require=g;k.modules=c}({}); window.usabilla_live = lightningjs.require("usabilla_live", "//w.usabilla.com/0ef6e6f5c58b.js"); /*]]>{/literal}*/</script>
+<!-- end usabilla live embed code --><!-- InstanceBeginEditable name="Scripts" --><!-- InstanceEndEditable --><!-- BEGIN OptIn.jsp -->
+
+
+
+
+<script type="text/javascript">
+
+var etr_cookie="ETR_OPT_IN"+"=";
+
+if (document.cookie.length > 0)   
+			{  
+			// Search for a cookie.
+			  
+
+			offset = document.cookie.indexOf(etr_cookie);
+			if (offset != -1)  
+			{  
+			
+			offset += etr_cookie.length;   
+			// set index of beginning of value   
+			end = document.cookie.indexOf(";",offset);  
+			if (end == -1)   
+				{  
+						end = document.cookie.length;
+				}  
+			var value=decodeURIComponent(document.cookie.substring(offset, end));
+			
+
+			if(value=="atlas")
+				{
+			 		
+					deleteCookie('ETR_OPT_IN');
+					document.cookie="ETR_OPT_IN=true; path=/;domain=.hp.com;expires=Wed, 15 Jan 2020 00:00:00 GMT";
+
+
+			 	}
+			}
+			else
+					{
+			
+  				document.cookie="ETR_OPT_IN=true; path=/;domain=.hp.com;expires=Wed, 15 Jan 2020 00:00:00 GMT";
+					}
+  			}
+
+function deleteCookie(hpshopping2)
+    {
+        var d = new Date();
+        d.setDate(d.getDate() - 1);
+        var expires = ";expires="+d;
+        var name="hpshopping2";
+    
+        
+        document.cookie = name + "=" +  expires + "; path=/";                    
+    }
+
+
+function  changeCookie(){	
+		//localStorage.setItem("ETR_OPT_IN",false);
+  document.cookie="ETR_OPT_IN=false; path=/;domain=.hp.com;expires=Wed, 15 Jan 2020 00:00:00 GMT";
+ 
+   }
+function verifyUrl()
+{
+if ((document.URL.indexOf("store.hp.com") != -1))
+{
+window.location ="http://shopping.hp.com?jumpid=re_r329_redirect_atlas";
+}	
+else
+{
+window.location ="http://test.shopping.hp.com/";
+}
+}
+</script>
+
+<!-- End OptIn.jsp -->
+		</div>
+		<!--BEGIN Explore By Category-->
+	<script src="/wcsstore/HPStorefrontAssetStore/js/jquery.mousewheel.min.js?v=978"></script> 
+	
+	<script src="/wcsstore/HPStorefrontAssetStore/js/script.min.js?v=501"></script>  
+		  
+	
+	<script src="/wcsstore/HPStorefrontAssetStore/js/libs/jquery.reel-bundle.js?v=498"></script>
+    <!--<script src="/wcsstore/HPStorefrontAssetStore/js/jquery.ellipsis.min.js?v=18197"></script>-->
+	
+	
+	<!-- please ensure  jquery-ui is loaded before selectboxit parsley and pdp_dev. Please donot change the order of these-->
+	
+<script src="/wcsstore/HPStorefrontAssetStore/js/vendor/jquery-ui-1.10.3.custom.min.js?v=11590"></script>
+
+	<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/js/vendor/parsley.min.js?v=30519"></script>
+	
+	 <script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/js/selectBoxIt.js?v=18197"></script>
+	 
+	<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/js/pdp_dev.js?v=42963"></script>
+	
+	<script type="text/javascript" src="/wcsstore/HPStorefrontAssetStore/js/vendor/matchMedia.js?v=21711"></script>
+	
+  	<script src="/wcsstore/HPStorefrontAssetStore/js/pdp_standard_product.js?v=45832"></script>
+	
+  	<!-- Minicart is not getting opened because of the script below and hence commented-Mohana Priya--><!-- <script src="/wcsstore/HPStorefrontAssetStore/js/vendor/hammer.min.js"></script>
+  	<script src="/wcsstore/HPStorefrontAssetStore/js/vendor/headroom.min.js"></script> -->
+	
+			  
+	
+	<!-- InstanceEndEditable -->
+	<script>
+		$(document).foundation();
+	</script>
+	<!-- InstanceBeginEditable name="Can Controls" -->
+	<script src="/wcsstore/HPStorefrontAssetStore/pattern-library/scripts/hp-jquery-lib/control-utils_popup-base_tooltip_Department.js?v=36229">//</script> 
+	
+	<script src="/wcsstore/HPStorefrontAssetStore/pattern-library/scripts/hp-jquery-lib/molecules/lightbox.js?v=11590">//</script>  
+
+<script>
+var HeirarchyList=new Array();
+console.log('in main'+'');
+var productName=product_name;
+var userId="-1002";
+var Sku='L2698A#B1H';
+console.log('PartNumber Value is::::::'+'L2698A#B1H');
+if(Sku==null || Sku=='')
+{
+console.log('CTOSKU123');
+Sku='P_L2698A#B1H';
+}
+var Price=''+"."+'';
+var sectionValue='Printers';
+var pagefunction='';
+console.log(sectionValue);
+
+var hp_profileId="";
+var CID="";
+var finalList='Scanjet~Scanjet~By brand~Printers';
+var SplitList=finalList.split("~");
+
+for(var i=0;i<SplitList.length;i++)
+{
+HeirarchyList.push(finalList.split("~")[i]);
+console.log('final vlaue is'+finalList.split("~")[i]);
+}
+console.log(HeirarchyList);
+function AddtoCart()
+{
+if(!(typeof trackMetrics=='undefined'))
+{trackMetrics( 'new.page', { page: {site:'hhos',name: hpmmd.page.name, section: hpmmd.page.section,page_function:'cart',events: getcartValue('501931')},product: {list: [{sku:Sku,units:1,total_price:hpmmd.product.list[0].price}],addtocart_method:'pdp'}});}
+                       
+}
+function Addtocart(productId,partNum)
+{
+var totalprice=document.getElementById(productId+'wholeprice').innerHTML+"."+document.getElementById(productId+'decimalprice').innerHTML;
+if(!(typeof trackMetrics=='undefined'))
+{trackMetrics( 'new.page', { page: {site:'hhos',name: hpmmd.page.name, section: hpmmd.page.section,page_function:'pdp',events: getcartValue(productId)},product: {list: [{sku:partNum,units:1,total_price:totalprice,xsell:true}],addtocart_method:'pdp'},promo:{parent_id:Sku,location:'pdp'}});}
+                       
+}
+
+function TabClick(sId)
+{
+
+window.location.hash = "TabName="+sId;
+
+
+
+if(!(typeof trackMetrics=='undefined'))
+{
+trackMetrics( "new.page", { page: {"name":"tab:"+sId,"tabname":sId , events:['product.view']}} ); 
+}
+}
+
+var language="en_US";
+                   
+var countryname=getcountry(language);
+var websectionId=getwebsectionId(language);
+var hp_profileId="";
+var productIdValue='501931';
+function productDisplayView(totalprice)
+	{
+       var pdpprice=totalprice;
+	    
+		if(totalprice=='. ')
+		{
+			pdpprice=document.getElementById('base_'+productIdValue).innerHTML+"."+document.getElementById('baseDecimal_'+productIdValue).innerHTML;
+			console.log("productId"+productIdValue);
+			console.log("Price is"+pdpprice+"Price is");
+			totalprice=pdpprice;
+			if(totalprice=='.')
+			{
+			pdpprice=document.getElementById('promo_'+productIdValue).innerHTML+"."+document.getElementById('promoDecimal_'+productIdValue).innerHTML;
+			totalprice=pdpprice;
+			
+			}
+		}
+var usertype=document.getElementById("isUsertype").value;
+if(document.getElementById("isGiftCardEnabled")==null){
+	
+	PDPstdTag(productName,userId,Sku,pdpprice,HeirarchyList,sectionValue,usertype,pagefunction,countryname,websectionId,hp_profileId,CID);
+	}
+
+		
+	}
+function omniture_Tag(Analyitc_usertype)
+{
+document.getElementById("isUsertype").value=Analyitc_usertype;
+	
+}
+ 
+</script>
+ 
+
+
+	
+<script>
+(function(){
+	
+var thumbnailsNumber = $('#featured_image_pager li').length;
+if 	(thumbnailsNumber <= 5){
+	$('.featured_image_container_pager').addClass('hidethumbnailnavigation');
+	$('.thumbSlider2').addClass('hidethumbnailnavigation');
+
+	}
+
+	
+})();
+</script>
+<script type="text/javascript">
+$(function() {
+	if ($('ul.pdp_featured_image').not(':empty')) {
+	$("a.bx-next").addClass("disabled");
+	} 
+});
+</script>
+ <script type="text/javascript">
+	HP.Utils.ready( function() {
+	//dynamically generated from used molecules
+	HP.Control.init(HP.Tooltip, '.tooltip', {});
+    HP.Control.init(HP.LightBox, '.js_overlay_trigger', {addToPopupManager     : false});
+	});	
+  </script>
+	<!-- InstanceEndEditable --><!-- Removing Id for MPR from Category Listing  -->
+	<div id="hpmmdframework_complete"></div>
+			 	   
+</body>
+</html>
+
