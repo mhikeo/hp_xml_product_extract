@@ -36,10 +36,17 @@ public class ProductIterable implements Iterable<Product>, Iterator<Product> {
      */
     private String listDelimiter;
 
-    public ProductIterable(File source, String defaultCurrency, String listDelimiter) {
+    /**@since 1.0.3
+     */
+    private Integer propertiesThreshold;
+
+    public ProductIterable(File source, String defaultCurrency,
+    		String listDelimiter,
+    		Integer propertiesThreshold) {
         this.source = source;
         this.defaultCurrency = defaultCurrency;
         this.listDelimiter = listDelimiter;
+        this.propertiesThreshold = propertiesThreshold;
     }
 
     @Override
@@ -102,6 +109,7 @@ public class ProductIterable implements Iterable<Product>, Iterator<Product> {
         p.setAuditTimeStamp(extractionTimeStamp);
         p.setCurrency(defaultCurrency);
         p.setListDelimiter(listDelimiter);
+        p.setPropertiesThreshold(propertiesThreshold);
         return p;
     }
 

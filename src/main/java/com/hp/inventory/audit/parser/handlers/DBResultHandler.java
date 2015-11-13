@@ -126,7 +126,7 @@ public class DBResultHandler implements ResultHandler {
                         productDefinition.getId(),
                         productDefinition.getProductNumber(),
                         extractedEntity.getClass().getSimpleName());
-                report.addProductCount(extractedEntity.getClass().getSimpleName());
+                report.addProductCount(extractedEntity.getClass().getSimpleName(), productDefinition.getProductNumber());
             } catch (Exception e) {
                 try { rollbackTransaction(); } catch (Exception ignored) { }
                 log.error("Offending product: " + new GsonBuilder()
@@ -158,13 +158,18 @@ public class DBResultHandler implements ResultHandler {
      */
     @Override
     public void reportResults() {
-        Gson gson;
+    	Gson gson;
+        GsonBuilder gsonBuilder;
         if (PRETTY_PRINT) {
-            gson = new GsonBuilder().setPrettyPrinting().create();
+        	gsonBuilder = new GsonBuilder().setPrettyPrinting();
         } else {
-            gson = new Gson();
+        	gsonBuilder = new GsonBuilder();
         }
 
+        gsonBuilder = gsonBuilder.disableHtmlEscaping().excludeFieldsWithoutExposeAnnotation();
+        
+        gson = gsonBuilder.create();
+        
         String out = gson.toJson(report);
         log.info("Writing report results.");
         reportOutput.print(out);
@@ -219,4 +224,19 @@ public class DBResultHandler implements ResultHandler {
     public void setEntityManagerFactory(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
     }
+
+	@Override
+	public void detectParserFailed(Product definition) {
+		report.addDetectFailed(definition);
+	}
+	
+	@Override
+	public void addIgnored(Product definition) {
+		report.addIgnored(definition);
+	}
+	
+	@Override
+	public void addHit(String ruleHit) {
+		report.addHit(ruleHit);
+	}
 }

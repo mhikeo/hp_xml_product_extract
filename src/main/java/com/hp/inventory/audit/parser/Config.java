@@ -20,4 +20,6 @@ public class Config {
     public int singleProductId;
     public String defaultCurrency;
     public String listDelimiter;
+    public int propertiesThreshold;
+    public File rulesConfig;
 }

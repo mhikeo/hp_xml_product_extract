@@ -2,6 +2,7 @@ package com.hp.inventory.audit.parser.model;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang3.text.WordUtils;
 
+import com.hp.inventory.audit.parser.model.annotation.IgnoreUpdate;
 import com.hp.inventory.audit.parser.model.annotation.SkipNullUpdate;
 import com.hp.inventory.audit.parser.model.annotation.TrackChanges;
 import com.mchange.v2.beans.BeansUtils;
@@ -51,12 +53,87 @@ public interface IProduct {
 	 * 
 	 * @param what destination set
 	 * @param from source set
+	 * @param update TODO
+	 * @param delete TODO
+	 * @throws Exception 
 	 */
-    default <T> void updateSet(Set<T> what, Set<T> from) {
-		what.retainAll(from);
+    default <T> void updateSet(Set<T> what, Set<T> from, boolean update, boolean delete) throws Exception {
+		if(delete) {
+			what.retainAll(from);
+		}
+		
+		if(update) {
+			for (T w : what) {
+				for (T f : from) {
+					if (w.equals(f)) {
+						updateFrom(w, f);
+					}
+				}
+			}
+		}
 		what.addAll(from);
 	}
 	
+    /**
+	 * Updates 'this' object's fields with fromObject's fields using setters in
+	 * 'this' object
+	 * 
+	 * @param fromObject
+	 * @throws Exception
+	 */
+	@SuppressWarnings("rawtypes")
+	public static <T> void updateFrom(T where, T from) throws Exception {
+
+		Class clazz = from.getClass();
+
+		while (clazz != null && !clazz.equals(Object.class)
+				&& !clazz.equals(String.class) && !clazz.equals(Integer.class)
+				&& !clazz.equals(Long.class) && !clazz.equals(BigInteger.class)
+				&& !clazz.equals(BigDecimal.class) && !clazz.equals(Date.class)
+				&& !clazz.equals(Calendar.class)) {
+			for (Field f : clazz.getDeclaredFields()) {
+
+				// skip static fields
+				if (java.lang.reflect.Modifier.isStatic(f.getModifiers())) {
+					continue;
+				}
+				Transient[] t = f.getAnnotationsByType(Transient.class);
+
+				IgnoreUpdate[] ignore = f
+						.getAnnotationsByType(IgnoreUpdate.class);
+
+				if ((t != null && t.length > 0)
+						|| (ignore != null && ignore.length > 0)) {
+					// skip fields, marked as @Transient or @IgnoreUpdate
+					continue;
+				}
+
+				SkipNullUpdate[] nullUpdate = f
+						.getAnnotationsByType(SkipNullUpdate.class);
+
+				f.setAccessible(true);
+
+				String setterName = "set" + WordUtils.capitalize(f.getName());
+
+				Object newValue = f.get(from);
+
+				if (nullUpdate != null && nullUpdate.length > 0) {
+					if (newValue == null)
+						continue;
+				}
+
+				java.beans.Statement stmt = new java.beans.Statement(where,
+						setterName, new Object[] { f.get(from) });
+
+				stmt.execute();
+
+			}
+
+			clazz = clazz.getSuperclass();
+		}
+	}
+    
+    
     /**
      * Updates 'this' object's fields with fromObject's fields
      *  using setters in 'this' object

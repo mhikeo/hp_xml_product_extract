@@ -1,5 +1,6 @@
 package com.hp.inventory.audit.parser;
 
+import com.google.gson.annotations.Expose;
 import com.hp.inventory.audit.parser.model.Product;
 
 import java.util.*;
@@ -12,13 +13,31 @@ import java.util.*;
  */
 public class Report {
 
+    @Expose
     private final List<Error> errors = new LinkedList<>();
 
+    @Expose
     private final Map<String, Integer> productCount = new TreeMap<>();
 
+    @Expose
+    private final Map<String, Integer> productDupes = new TreeMap<>();
+
+    @Expose
+    private final Map<String, Integer> rulesHit = new TreeMap<>();
+
+    private final Map<String, Set<String>> productIDs = new TreeMap<>();
+
+    @Expose
     private final Map<String, List<Integer>> nonParsedSpecs = new TreeMap<>();
 
+    @Expose
     private final List<Integer> parserNotFoundProducts = new LinkedList<>();
+
+    @Expose
+    private final Map<Integer, String> nonDetectedProductTypes = new TreeMap<>();
+
+    @Expose
+    private final Map<Integer, String> ignoredProducts = new TreeMap<>();
 
     /**
      * Add an error thrown when extracting a product
@@ -33,10 +52,19 @@ public class Report {
      * Add a product count, evaluated when finished the job.
      * @param typeName A string to identify the product type.
      */
-    public synchronized void addProductCount(String typeName) {
-        Integer c = productCount.getOrDefault(typeName, 0);
-        c += 1;
-        productCount.put(typeName, c);
+    public synchronized void addProductCount(String typeName, String productID) {
+        Set<String> ids = productIDs.getOrDefault(typeName, new HashSet<String>());
+        if(ids.contains(productID)) {
+        	Integer cc = productDupes.getOrDefault(typeName, 0);
+        	cc += 1;
+        	productDupes.put(typeName, cc);
+        }
+        ids.add(productID);
+        
+        Integer cnt = ids.size();
+        
+        productIDs.put(typeName, ids);
+        productCount.put(typeName, cnt);
     }
 
     /**
@@ -71,8 +99,8 @@ public class Report {
         return nonParsedSpecs;
     }
 
-    protected Map<String, Integer> getProductCount() {
-        return productCount;
+    protected Map<String, Set<String>> getProductIDs() {
+        return productIDs;
     }
 
     public List<Integer> getParserNotFoundProducts() {
@@ -81,8 +109,11 @@ public class Report {
 
     protected static class Error {
 
+    	@Expose
         private final Product productDefinition;
-        private final String message;
+        
+    	@Expose
+    	private final String message;
 
         public Error(Product definition, String message) {
             this.productDefinition = definition;
@@ -98,4 +129,17 @@ public class Report {
         }
     }
 
+	public void addDetectFailed(Product definition) {
+		nonDetectedProductTypes.put(definition.getId(), definition.getProductUrl());
+	}
+
+	public void addIgnored(Product definition) {
+		ignoredProducts.put(definition.getId(), definition.getProductUrl());
+	}
+
+	public void addHit(String ruleHit) {
+		Integer cc = rulesHit.getOrDefault(ruleHit, 0);
+    	cc += 1;
+    	rulesHit.put(ruleHit, cc);
+	}
 }

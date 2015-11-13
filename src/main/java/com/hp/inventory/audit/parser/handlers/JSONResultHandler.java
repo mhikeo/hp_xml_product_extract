@@ -56,7 +56,7 @@ public class JSONResultHandler implements ResultHandler {
     @Override
     public void extractionSucceeded(Product definition, IProduct extracted) {
         parsed.add(extracted);
-        report.addProductCount(extracted.getClass().getSimpleName());
+        report.addProductCount(extracted.getClass().getSimpleName(), extracted.getProductNumber());
     }
 
     /**
@@ -66,12 +66,17 @@ public class JSONResultHandler implements ResultHandler {
     @Override
     public void reportResults() {
         Gson gson;
+        GsonBuilder gsonBuilder;
         if (PRETTY_PRINT) {
-            gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+        	gsonBuilder = new GsonBuilder().setPrettyPrinting().serializeNulls();
         } else {
-            gson = new Gson();
+        	gsonBuilder = new GsonBuilder();
         }
 
+        gsonBuilder = gsonBuilder.excludeFieldsWithoutExposeAnnotation();
+        
+        gson = gsonBuilder.create();
+        
         String out = gson.toJson(parsed);
         output.print(out);
         output.flush();
@@ -126,4 +131,19 @@ public class JSONResultHandler implements ResultHandler {
     public void addParserNotFound(Product definition) {
         report.addParserNotFound(definition);
     }
+
+	@Override
+	public void detectParserFailed(Product definition) {
+		report.addDetectFailed(definition);
+	}
+	
+	@Override
+	public void addIgnored(Product definition) {
+		report.addIgnored(definition);
+	}
+	
+	@Override
+	public void addHit(String ruleHit) {
+		report.addHit(ruleHit);
+	}
 }

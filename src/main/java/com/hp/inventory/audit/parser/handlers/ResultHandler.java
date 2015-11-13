@@ -55,4 +55,10 @@ public interface ResultHandler {
     void setReportOutput(PrintWriter printWriter);
 
     void addParserNotFound(Product definition);
+
+	void detectParserFailed(Product definition);
+
+	void addIgnored(Product definition);
+
+	void addHit(String string);
 }

@@ -15,13 +15,12 @@ import org.apache.commons.lang3.StringUtils;
  * !!Description
  *
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.3
  */
 public class PrinterParser extends DocumentParser {
-	private final int PRINTER_PARSED_THRESHOLD = 10;
-
+	
 	@Override
-	protected IProduct extract() {
+	protected IProduct extract() throws Exception {
 		Printer p = new Printer();
 
 		setParsingErrorsReceiver(p);
@@ -213,7 +212,7 @@ public class PrinterParser extends DocumentParser {
 
 		recommendedMonthlyPageVolume(p);
 
-		checkParsedProps(PRINTER_PARSED_THRESHOLD);
+		checkParsedProps();
 
 		return p;
 	}

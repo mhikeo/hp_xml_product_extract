@@ -88,6 +88,11 @@ public abstract class AbstractProduct implements IProduct {
     @BatchSize(size=100)
     private Set<RelatedAccessory> topAccessories = new HashSet<RelatedAccessory>();
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
+    @Fetch(FetchMode.JOIN)
+    @BatchSize(size=100)
+    private Set<ProductReview> reviews = new HashSet<ProductReview>();
+
     @Column(nullable = false)
     private Date parseDate;
 
@@ -187,12 +192,16 @@ public abstract class AbstractProduct implements IProduct {
         return images;
     }
 
-    public void setImages(Set<ProductImage> images) {
-    	updateSet(this.images, images);
+    public void setImages(Set<ProductImage> images) throws Exception {
+    	updateSet(this.images, images, false, true);
     }
 
-    public void setTopAccessories(Set<RelatedAccessory> topAccessories) {
-    	updateSet(this.topAccessories, topAccessories);
+    public void setTopAccessories(Set<RelatedAccessory> topAccessories) throws Exception {
+    	updateSet(this.topAccessories, topAccessories, false, true);
+    }
+    
+    public void setReviews(Set<ProductReview> reviews) throws Exception {
+    	updateSet(this.reviews, reviews, true, false);
     }
     
     public Set<RelatedAccessory> getTopAccessories() {

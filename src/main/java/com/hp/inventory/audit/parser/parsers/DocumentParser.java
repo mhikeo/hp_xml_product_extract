@@ -1,16 +1,22 @@
 package com.hp.inventory.audit.parser.parsers;
 
+import com.google.gson.Gson;
+import com.hp.inventory.audit.parser.RulesConfig;
 import com.hp.inventory.audit.parser.handlers.ResultHandler;
 import com.hp.inventory.audit.parser.model.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -25,25 +31,118 @@ import java.util.regex.Pattern;
  */
 public abstract class DocumentParser {
 
+	@SuppressWarnings("unchecked")
+	public static void init(File rulesConfig) throws IOException, ClassNotFoundException {
+		StringBuilder sb = new StringBuilder();
+
+		for (String line : Files.readAllLines(rulesConfig.toPath())) {
+			sb.append(line);
+			sb.append("\n");
+		}
+
+		RulesConfig rulesCfg = (new Gson()).fromJson(sb.toString(), RulesConfig.class);
+		
+		QueriesSpec.productNumberQuery = rulesCfg.queriesSpec.get("productNumberQuery");
+		QueriesSpec.productNameQuery = rulesCfg.queriesSpec.get("productNameQuery");
+		QueriesSpec.currentPriceQueryVisible = rulesCfg.queriesSpec.get("currentPriceQueryVisible");
+		QueriesSpec.currentPriceQuery = rulesCfg.queriesSpec.get("currentPriceQuery");
+		QueriesSpec.currencyQuery = rulesCfg.queriesSpec.get("currencyQuery");
+		QueriesSpec.strikedPriceQuery = rulesCfg.queriesSpec.get("strikedPriceQuery");
+		QueriesSpec.reviewIdPattern = Pattern.compile(rulesCfg.queriesSpec.get("reviewIdPattern"));
+		QueriesSpec.ratingQuery = rulesCfg.queriesSpec.get("ratingQuery");
+		QueriesSpec.reviewsQuery = rulesCfg.queriesSpec.get("reviewsQuery");
+		QueriesSpec.comingSoonQuery = rulesCfg.queriesSpec.get("comingSoonQuery");
+		
+		QueriesSpec.specQueryPrefix = rulesCfg.queriesSpec.get("specQueryPrefix");
+		QueriesSpec.specQuerySuffix = rulesCfg.queriesSpec.get("specQuerySuffix");
+		QueriesSpec.specQueryPostQuery = rulesCfg.queriesSpec.get("specQueryPostQuery");
+		
+		QueriesSpec.linkQueryPrefix = rulesCfg.queriesSpec.get("linkQueryPrefix");
+		QueriesSpec.linkQuerySuffix = rulesCfg.queriesSpec.get("linkQuerySuffix");
+		QueriesSpec.linkQueryPostQuery = rulesCfg.queriesSpec.get("linkQueryPostQuery");
+		
+		QueriesSpec.accessoriesNameQuery = rulesCfg.queriesSpec.get("accessoriesNameQuery");
+		QueriesSpec.accessoriesUrlQuery = rulesCfg.queriesSpec.get("accessoriesUrlQuery");
+		
+		QueriesSpec.imagesSelectQuery = rulesCfg.queriesSpec.get("imagesSelectQuery");
+		QueriesSpec.imagesSelectPostQuery = rulesCfg.queriesSpec.get("imagesSelectPostQuery");
+		
+		
+		QueriesSpec.reviewsExtractQuery = rulesCfg.queriesSpec.get("reviewsExtractQuery");
+		QueriesSpec.reviewsExtractDateFormat = rulesCfg.queriesSpec.get("reviewsExtractDateFormat");
+		QueriesSpec.reviewsExtractPostDateQuery = rulesCfg.queriesSpec.get("reviewsExtractPostDateQuery");
+		QueriesSpec.reviewsExtractHpResponseDateQuery = rulesCfg.queriesSpec.get("reviewsExtractHpResponseDateQuery");
+		QueriesSpec.reviewsExtractRatingQuery = rulesCfg.queriesSpec.get("reviewsExtractRatingQuery");
+		QueriesSpec.reviewsExtractScaleQuery = rulesCfg.queriesSpec.get("reviewsExtractScaleQuery");
+		QueriesSpec.reviewsExtractTitleQuery = rulesCfg.queriesSpec.get("reviewsExtractTitleQuery");
+		QueriesSpec.reviewsExtractComentsQuery = rulesCfg.queriesSpec.get("reviewsExtractComentsQuery");
+		QueriesSpec.reviewsExtractUsernameQuery = rulesCfg.queriesSpec.get("reviewsExtractUsernameQuery");
+		QueriesSpec.reviewsExtractLocationQuery = rulesCfg.queriesSpec.get("reviewsExtractLocationQuery");
+		QueriesSpec.reviewsExtractHpResponseQuery = rulesCfg.queriesSpec.get("reviewsExtractHpResponseQuery");
+		QueriesSpec.reviewsExtractHpResponseUserQuery = rulesCfg.queriesSpec.get("reviewsExtractHpResponseUserQuery");
+		QueriesSpec.reviewsExtractYesQuery = rulesCfg.queriesSpec.get("reviewsExtractYesQuery");
+		QueriesSpec.reviewsExtractYesPostQuery = rulesCfg.queriesSpec.get("reviewsExtractYesPostQuery");
+		QueriesSpec.reviewsExtractNoQuery = rulesCfg.queriesSpec.get("reviewsExtractNoQuery");
+		QueriesSpec.reviewsExtractNoPostQuery = rulesCfg.queriesSpec.get("reviewsExtractNoPostQuery");
+		
+	}
+	
 	protected static class QueriesSpec {
-		protected final static String productNumberQuery = "span.prodNum";
-		protected final static String productNameQuery = "span[itemprop=name]";
+		protected static String productNumberQuery; // = "span.prodNum";
+		protected static String productNameQuery; // = "span[itemprop=name]";
 
-		protected final static String currentPriceQueryVisible = "div[itemprop=offers] #price_value";
-		protected final static String currentPriceQuery = "div[itemprop=offers] span[itemprop=price]";
+		protected static String currentPriceQueryVisible; // = "div[itemprop=offers] #price_value";
+		protected static String currentPriceQuery; // = "div[itemprop=offers] span[itemprop=price]";
 
-		protected final static String currencyQuery = "div[itemprop=offers] meta[itemprop=priceCurrency]";
-		protected final static String strikedPriceQuery = "div[itemprop=offers] del";
+		protected static String currencyQuery; // = "div[itemprop=offers] meta[itemprop=priceCurrency]";
+		protected static String strikedPriceQuery; // = "div[itemprop=offers] del";
+
+		protected static Pattern reviewIdPattern; // = Pattern.compile("(\\d+)");
 
 		// protected final static String ratingQuery =
 		// "span[itemprop=aggregateRating] span[itemprop=ratingValue]";
-		protected final static String ratingQuery = "#BVSecondaryCustomerRatings div.BVRRRatingNormalOutOf span.BVRRRatingNumber";
+		protected static String ratingQuery; // = "#BVSecondaryCustomerRatings div.BVRRRatingNormalOutOf span.BVRRRatingNumber";
 
 		// protected final static String reviewsQuery =
 		// "span[itemprop=aggregateRating] meta[itemprop=reviewCount]";
-		protected final static String reviewsQuery = "#BVSecondaryCustomerRatings div.BVRRRatingSummaryLinks span.BVRRCount span.BVRRNumber";
+		protected static String reviewsQuery; // = "#BVSecondaryCustomerRatings div.BVRRRatingSummaryLinks span.BVRRCount span.BVRRNumber";
 
-		protected final static String comingSoonQuery = "div[itemprop=offers] span:contains(Out of stock)";
+		protected static String comingSoonQuery; // = "div[itemprop=offers] span:contains(Out of stock)";
+		
+		protected static String specQueryPrefix;
+		protected static String specQuerySuffix;
+		protected static String specQueryPostQuery;
+		
+		protected static String linkQueryPrefix;
+		protected static String linkQuerySuffix;
+		protected static String linkQueryPostQuery;
+		
+		protected static String accessoriesNameQuery;
+		protected static String accessoriesUrlQuery;
+		
+		
+		protected static String imagesSelectQuery;
+		protected static String imagesSelectPostQuery;
+		
+		
+		protected static String reviewsExtractQuery;
+		protected static String reviewsExtractDateFormat;
+		protected static String reviewsExtractPostDateQuery;
+		protected static String reviewsExtractHpResponseDateQuery;
+		protected static String reviewsExtractRatingQuery;
+		protected static String reviewsExtractScaleQuery;
+		protected static String reviewsExtractTitleQuery;
+		protected static String reviewsExtractComentsQuery;
+		protected static String reviewsExtractUsernameQuery;
+		protected static String reviewsExtractLocationQuery;
+		protected static String reviewsExtractHpResponseQuery;
+		protected static String reviewsExtractHpResponseUserQuery;
+
+		protected static String reviewsExtractYesQuery;
+		protected static String reviewsExtractYesPostQuery;
+		protected static String reviewsExtractNoQuery;
+		protected static String reviewsExtractNoPostQuery;
+
 	}
 
 	private IProduct parsingErrorsReceiver = null;
@@ -64,10 +163,19 @@ public abstract class DocumentParser {
 	 */
 	protected String listDelimiter = "";
 
+	/**
+	 * Properties threshold number
+	 */
+	protected Integer propertiesThreshold = 3;
+
 	protected Document doc;
 
 	Logger log = LoggerFactory.getLogger(LaptopParser.class);
 	protected Set<String> specParsed = new HashSet<>();
+
+	public int getSpecParsed() {
+		return specParsed.size();
+	}
 
 	protected Product definition;
 	protected ResultHandler resultHandler;
@@ -77,14 +185,16 @@ public abstract class DocumentParser {
 	 * rating, etc
 	 * 
 	 * @param product
+	 * @throws Exception 
 	 */
-	protected void extractCommonProps(AbstractProduct product) {
+	protected void extractCommonProps(AbstractProduct product) throws Exception {
 
 		product.setProductNumber(text(QueriesSpec.productNumberQuery));
 
 		definition.setProductNumber(product.getProductNumber());
 
 		listDelimiter = definition.getListDelimiter();
+		propertiesThreshold = definition.getPropertiesThreshold();
 
 		product.setParseDate(new Date());
 
@@ -126,12 +236,14 @@ public abstract class DocumentParser {
 		product.setImages(images());
 		product.setTopAccessories(accessories());
 
+		product.setReviews(reviews());
 	}
 
 	/**
 	 * Method to extract an IProduct from a Jsoup document node.
+	 * @throws Exception 
 	 */
-	public IProduct parse(Document doc, Product definition, ResultHandler resultHandler) {
+	public IProduct parse(Document doc, Product definition, ResultHandler resultHandler) throws Exception {
 		this.doc = doc;
 		this.definition = definition;
 		this.resultHandler = resultHandler;
@@ -153,7 +265,7 @@ public abstract class DocumentParser {
 	 *
 	 * @return A concrete IProduct resulting form extraction.
 	 */
-	protected abstract IProduct extract();
+	protected abstract IProduct extract() throws Exception;
 
 	/**
 	 * Detect document locale from meta tag, if possible. Else defaults to
@@ -180,7 +292,10 @@ public abstract class DocumentParser {
 				nonParsed.add(prop);
 			}
 		});
-		resultHandler.addNonParsedSpecItems(definition, this, nonParsed);
+
+		if (resultHandler != null) {
+			resultHandler.addNonParsedSpecItems(definition, this, nonParsed);
+		}
 	}
 
 	private static final Pattern dimensionsPattern = Pattern
@@ -301,6 +416,40 @@ public abstract class DocumentParser {
 			return null;
 		}
 		return i;
+	}
+
+	/**
+	 * Convert a numeric string to Integer
+	 */
+	protected Integer intVal(Elements elements) {
+		if (elements == null)
+			return null;
+		String text = elements.text();
+
+		if (text == null || text.trim().isEmpty())
+			return null;
+
+		Integer i;
+		try {
+			i = Integer.parseInt(text);
+		} catch (NumberFormatException ex) {
+			return null;
+		}
+		return i;
+	}
+
+	/**
+	 * Convert elements content to String
+	 */
+	protected String textVal(Elements elements) {
+		if (elements == null)
+			return null;
+		String text = elements.text();
+
+		if (text != null && text.isEmpty()) {
+			return null;
+		}
+		return text;
 	}
 
 	/**
@@ -475,9 +624,9 @@ public abstract class DocumentParser {
 	protected Elements propElem(String prop) {
 		String propQuoted = Pattern.quote(prop);
 
-		Element propElement = q("#specs h2:matchesOwn(" + propQuoted + ")").parents().get(2);
+		Element propElement = q(QueriesSpec.specQueryPrefix + propQuoted + QueriesSpec.specQuerySuffix).parents().get(2);
 
-		Elements res = propElement.select(".proc,.specsDescription");
+		Elements res = propElement.select(QueriesSpec.specQueryPostQuery);
 
 		// only add if there were no errors
 		specParsed.add(prop);
@@ -496,7 +645,7 @@ public abstract class DocumentParser {
 		try {
 
 			prop = Pattern.quote(prop);
-			String url = q("h2:matchesOwn(" + prop + ")").parents().select(".large-12 .large-7 a").attr("href");
+			String url = q(QueriesSpec.linkQueryPrefix + prop + QueriesSpec.linkQuerySuffix).parents().select(QueriesSpec.linkQueryPostQuery).attr("href");
 
 			if (url.isEmpty()) {
 				throw new NullPointerException();
@@ -551,8 +700,8 @@ public abstract class DocumentParser {
 	 * to ACCESSORIES_COUNT.
 	 */
 	protected Set<RelatedAccessory> accessories() {
-		String nameQuery = "#accessories div.items h3";
-		String urlQuery = "#accessories div.items .priceHolder div > div > a";
+		String nameQuery = QueriesSpec.accessoriesNameQuery; // "#accessories div.items h3";
+		String urlQuery = QueriesSpec.accessoriesUrlQuery; // "#accessories div.items .priceHolder div > div > a";
 
 		Set<RelatedAccessory> out = new HashSet<>();
 
@@ -578,7 +727,7 @@ public abstract class DocumentParser {
 	protected Set<ProductImage> images() {
 		Set<ProductImage> images = new HashSet<>();
 		// Images
-		doc.select("ul.pdp_featured_image").select("img[itemprop=image").forEach(img -> {
+		doc.select(QueriesSpec.imagesSelectQuery).select(QueriesSpec.imagesSelectPostQuery).forEach(img -> {
 			ProductImage prodImage = new ProductImage();
 			prodImage.setProductNumber(definition.getProductNumber());
 			String url = img.attr("src");
@@ -589,6 +738,89 @@ public abstract class DocumentParser {
 			images.add(prodImage);
 		});
 		return images;
+	}
+
+	/**
+	 * Extract product reviews
+	 */
+	protected Set<ProductReview> reviews() {
+		Set<ProductReview> reviews = new HashSet<>();
+		// Reviews
+		doc.select(QueriesSpec.reviewsExtractQuery).forEach(review -> {
+			ProductReview prodReview = new ProductReview();
+			prodReview.setSiteId(1);
+			prodReview.setProductNumber(definition.getProductNumber());
+
+			prodReview.setId(reviewId(review));
+			prodReview.setReviewDate(reviewPostDate(review));
+			prodReview.setRating(intVal(review.select(QueriesSpec.reviewsExtractRatingQuery)));
+			prodReview.setScale(intVal(review.select(QueriesSpec.reviewsExtractScaleQuery)));
+			prodReview.setTitle(textVal(review.select(QueriesSpec.reviewsExtractTitleQuery)));
+			prodReview.setComments(textVal(review.select(QueriesSpec.reviewsExtractComentsQuery)));
+			prodReview.setUsername(textVal(review.select(QueriesSpec.reviewsExtractUsernameQuery)));
+			prodReview.setLocation(textVal(review.select(QueriesSpec.reviewsExtractLocationQuery)));
+			prodReview.setHpResponse(textVal(review.select(QueriesSpec.reviewsExtractHpResponseQuery)));
+			prodReview.setHpResponseDate(reviewHpResponseDate(review));
+			prodReview.setHpResponseUser(textVal(review.select(QueriesSpec.reviewsExtractHpResponseUserQuery)));
+
+			Elements yesVote = review.select(QueriesSpec.reviewsExtractYesQuery);
+			if (yesVote != null && yesVote.size() > 0) {
+				yesVote = yesVote.parents();
+				if (yesVote != null && yesVote.get(0) != null) {
+					yesVote = yesVote.get(0).select(QueriesSpec.reviewsExtractYesPostQuery);
+					prodReview.setReviewHelpfulYesCount(intVal(yesVote));
+				}
+			}
+			Elements noVote = review.select(QueriesSpec.reviewsExtractNoQuery);
+			if (noVote != null && noVote.size() > 0) {
+				noVote = noVote.parents();
+				if (noVote != null && noVote.get(0) != null) {
+					noVote = noVote.get(0).select(QueriesSpec.reviewsExtractNoPostQuery);
+					prodReview.setReviewHelpfulNoCount(intVal(noVote));
+				}
+
+			}
+
+			reviews.add(prodReview);
+		});
+		return reviews;
+	}
+
+	private Integer reviewId(Element review) {
+		String id = review.attr("id");
+		if (id == null || id.isEmpty())
+			return null;
+
+		Matcher matcher;
+
+		if ((matcher = QueriesSpec.reviewIdPattern.matcher(id)).find()) {
+			return Integer.parseInt(matcher.group(1).toLowerCase());
+		}
+		return null;
+	}
+
+	private Date reviewPostDate(Element review) {
+		String dt = textVal(review.select(QueriesSpec.reviewsExtractPostDateQuery));
+
+		if(dt!=null) {
+			try {
+				return DateUtils.parseDateStrictly(dt, new String[] { QueriesSpec.reviewsExtractDateFormat });
+			} catch (ParseException ignored) {
+			}
+		}
+		return null;
+	}
+
+	private Date reviewHpResponseDate(Element review) {
+		String dt = textVal(review.select(QueriesSpec.reviewsExtractHpResponseDateQuery));
+
+		if(dt!=null) {
+			try {
+				return DateUtils.parseDateStrictly(dt, new String[] { QueriesSpec.reviewsExtractDateFormat });
+			} catch (ParseException ignored) {
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -642,7 +874,8 @@ public abstract class DocumentParser {
 		return text;
 	}
 
-	protected void checkParsedProps(int countExpected) {
+	protected void checkParsedProps() {
+		int countExpected = propertiesThreshold;
 		int parsed = specParsed.size();
 		if (parsed < countExpected) {
 			throw new DocumentParseException(

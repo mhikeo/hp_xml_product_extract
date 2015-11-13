@@ -7,6 +7,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
+import com.google.gson.annotations.Expose;
 import com.hp.inventory.audit.parser.model.annotation.SkipNullUpdate;
 import com.hp.inventory.audit.parser.model.annotation.TrackChanges;
 import com.hp.inventory.audit.parser.model.annotation.TrackChanges.TrackingTarget;
@@ -18,7 +19,7 @@ import java.util.Date;
  * Product entity
  *
  * @author TCDEVELOPER
- * @version 1.0.1
+ * @version 1.0.3
  * 
  */
 @Entity
@@ -32,6 +33,11 @@ public class Product implements IProduct{
     @Transient
     private String listDelimiter;
 	
+    /** @since 1.0.3
+     */
+    @Transient
+    private int propertiesThreshold;
+	
 	@Override
 	public StringBuilder getParsingErrors() {
 		return parsingErrors;
@@ -41,55 +47,78 @@ public class Product implements IProduct{
 		return listDelimiter;
 	}
 	
+    @Expose
     private Integer id;
 
     @Version
     private Long version;
 
     @Id
+    @Expose
     private String productNumber;
+
+    @Expose
     private String productUrl;
     
+    @Expose
     private String sourceFile;
+    
+    @Expose
     private Date auditTimeStamp;
 
     /** @since 1.0.1
      */
+    @Expose
     private String productType;
+    @Expose
     private String productName;
     
+    @Expose
     private String currency;
+    @Expose
     private BigDecimal strikedPrice;
     
     @SkipNullUpdate
+    @Expose
     private Date dateAdded;
     
     
     @TrackChanges(key="price", target=TrackingTarget.CURRENT)
+    @Expose
     private BigDecimal currentPrice;
     
     @TrackChanges(key="price", target=TrackingTarget.PREVIOUS)
+    @Expose
     private BigDecimal previousPrice;
     
     @TrackChanges(key="price", target=TrackingTarget.DATE)
+    @Expose
     private Date dateOfPriceChange;
     
     @TrackChanges(key="rating", target=TrackingTarget.CURRENT)
+    @Expose
     private Integer rating;
     
     @TrackChanges(key="rating", target=TrackingTarget.PREVIOUS)
+    @Expose
     private Integer previousRating;
     
     @TrackChanges(key="rating", target=TrackingTarget.DATE)
+    @Expose
     private Date dateOfRatingChange;
 
+    @Expose
     private Integer numberOfReviews;
+    @Expose
     private String parsingError;
+    @Expose
     private Date dateOfParsingError;
     
+    @Expose
     private Date comingSoonDate;
     
     @SkipNullUpdate
+    @Expose
     private Date availableForSaleDate;
     
     public Date getAuditTimeStamp() {
@@ -267,5 +296,13 @@ public class Product implements IProduct{
 
 	public void setListDelimiter(String listDelimiter) {
 		this.listDelimiter = listDelimiter;
+	}
+
+	public int getPropertiesThreshold() {
+		return propertiesThreshold;
+	}
+
+	public void setPropertiesThreshold(int propertiesThreshold) {
+		this.propertiesThreshold = propertiesThreshold;
 	}
 }

@@ -10,21 +10,21 @@ import java.util.Date;
  * !!Description
  *
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.3
  */
 public class TabletParser extends DocumentParser {
-	private final int TABLET_PARSED_THRESHOLD = 10;
-
+	
     /**
      * The number of accessories to add to "topAccessories" field
      */
     private static final int ACCESSORIES_COUNT = 3;
 
     /**
+     * @throws Exception 
      * @inheritDoc
      */
     @Override
-    public IProduct extract() {
+    public IProduct extract() throws Exception {
         Tablet p = new Tablet();
         
         setParsingErrorsReceiver(p);
@@ -74,7 +74,7 @@ public class TabletParser extends DocumentParser {
         p.setProcessorTechnology(prop("Processor technology", true, listDelimiter));
         p.setSecurityManagement(prop("Security management", true, listDelimiter));
 
-        checkParsedProps(TABLET_PARSED_THRESHOLD);
+        checkParsedProps();
         
         return p;
     }
