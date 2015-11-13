@@ -11,18 +11,17 @@
 		"-warranty"
 	],
 	"urlMatch" : [
-		{ "-tablet" : "com.hp.inventory.audit.parser.parsers.TabletParser" },
+		{ "-mobile-workstation" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+
 		{ "-small-form-factor-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
 		{ "-tower-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
 		{ "-all-in-one-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
 		{ "-desktop" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
 		{ "-workstation" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
 		
-		{ "-mobile-workstation" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
 		{ "-notebook" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
 		{ "hp-chromebook" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
 		{ "-laptop" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
-		{ "-touch" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
 		
 		{ "-printer" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
 		{ "-eprinter" : "com.hp.inventory.audit.parser.parsers.PrinterParser" }
