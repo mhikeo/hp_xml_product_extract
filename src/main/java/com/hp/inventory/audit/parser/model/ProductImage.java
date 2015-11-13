@@ -2,6 +2,9 @@ package com.hp.inventory.audit.parser.model;
 
 import javax.persistence.*;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * !!Description
  *
@@ -51,18 +54,24 @@ public class ProductImage {
 
     @Override
     public int hashCode() {
-        return getUrl().hashCode();
+    	return new HashCodeBuilder()
+    			.append(productNumber)
+    			.append(url).toHashCode();
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj)
+    	if (this == obj)
             return true;
 
         if (!(obj instanceof ProductImage))
             return false;
 
-        return getUrl().equals(((ProductImage) obj).getUrl());
+        ProductImage that = (ProductImage) obj;
+
+        return new EqualsBuilder()
+        		.append(productNumber, that.productNumber)
+        		.append(url, that.url).isEquals();
     }
 
     public Long getVersion() {

@@ -73,8 +73,7 @@ public class DBResultHandler implements ResultHandler {
      */
     @Override
     @Transactional
-    public void extractionSucceeded(Product productDefinition, IProduct extractedEntity) throws Exception {
-        synchronized (this) {
+    public synchronized void extractionSucceeded(Product productDefinition, IProduct extractedEntity) throws Exception {
         	
         	extractedEntity.populateCommonsToProduct(productDefinition);
         	
@@ -136,7 +135,9 @@ public class DBResultHandler implements ResultHandler {
                         .toJson(extractedEntity));
                 throw e;
             }
-        }
+            
+            try { rollbackTransaction(); } catch (Exception ignored) { }
+     
     }
 
 	private void rollbackTransaction() {

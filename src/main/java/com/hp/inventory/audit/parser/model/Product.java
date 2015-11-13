@@ -1,11 +1,17 @@
 package com.hp.inventory.audit.parser.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
+
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.google.gson.annotations.Expose;
 import com.hp.inventory.audit.parser.model.annotation.SkipNullUpdate;
@@ -14,6 +20,8 @@ import com.hp.inventory.audit.parser.model.annotation.TrackChanges.TrackingTarge
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Product entity
@@ -120,6 +128,42 @@ public class Product implements IProduct{
     @SkipNullUpdate
     @Expose
     private Date availableForSaleDate;
+    
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
+    @Fetch(FetchMode.JOIN)
+    @BatchSize(size=100)
+    private Set<ProductImage> images = new HashSet<ProductImage>();
+    
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
+    @Fetch(FetchMode.JOIN)
+    @BatchSize(size=100)
+    private Set<RelatedAccessory> topAccessories = new HashSet<RelatedAccessory>();
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
+    @Fetch(FetchMode.JOIN)
+    @BatchSize(size=100)
+    private Set<ProductReview> reviews = new HashSet<ProductReview>();
+
+
+    public Set<ProductImage> getImages() {
+        return images;
+    }
+
+    public void setImages(Set<ProductImage> images) throws Exception {
+    	updateSet(this.images, images, false, true);
+    }
+
+    public void setTopAccessories(Set<RelatedAccessory> topAccessories) throws Exception {
+    	updateSet(this.topAccessories, topAccessories, false, true);
+    }
+    
+    public void setReviews(Set<ProductReview> reviews) throws Exception {
+    	updateSet(this.reviews, reviews, true, false);
+    }
+    
+    public Set<RelatedAccessory> getTopAccessories() {
+        return topAccessories;
+    }
     
     public Date getAuditTimeStamp() {
         return auditTimeStamp;

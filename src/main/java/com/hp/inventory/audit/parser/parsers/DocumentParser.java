@@ -233,10 +233,10 @@ public abstract class DocumentParser {
 
 		product.setNumberOfReviews(reviews(q(QueriesSpec.reviewsQuery).text()));
 
-		product.setImages(images());
-		product.setTopAccessories(accessories());
+		definition.setImages(images());
+		definition.setTopAccessories(accessories());
 
-		product.setReviews(reviews());
+		definition.setReviews(reviews());
 	}
 
 	/**

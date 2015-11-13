@@ -176,7 +176,10 @@ public class ProductReview {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(siteId).append(productNumber).append(Id).toHashCode();
+        return new HashCodeBuilder()
+        		.append(siteId)
+        		.append(productNumber)
+        		.append(Id).toHashCode();
     }
 
     @Override
@@ -189,7 +192,8 @@ public class ProductReview {
 
         ProductReview that = (ProductReview) obj;
 
-        return new EqualsBuilder().append(siteId, that.siteId)
+        return new EqualsBuilder()
+        		.append(siteId, that.siteId)
         		.append(productNumber, that.productNumber)
         		.append(Id, that.Id).isEquals();
     }

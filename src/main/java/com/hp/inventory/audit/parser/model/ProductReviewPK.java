@@ -37,8 +37,9 @@ public class ProductReviewPK implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(siteId)
-        		.append(productNumber).append(Id).toHashCode();
+        return new HashCodeBuilder()
+        		.append(siteId)
+        		.append(Id).toHashCode();
     }
 
     @Override
@@ -51,8 +52,8 @@ public class ProductReviewPK implements Serializable {
 
         ProductReviewPK that = (ProductReviewPK) obj;
 
-        return new EqualsBuilder().append(siteId, that.siteId)
-        		.append(productNumber, that.productNumber)
+        return new EqualsBuilder()
+        		.append(siteId, that.siteId)
         		.append(Id, that.Id).isEquals();
     }
 
