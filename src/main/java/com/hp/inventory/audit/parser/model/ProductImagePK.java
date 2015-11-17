@@ -27,7 +27,9 @@ public class ProductImagePK implements Serializable {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(url).append(productNumber).toHashCode();
+        return new HashCodeBuilder()
+        		.append(productNumber)
+        		.append(url).toHashCode();
     }
 
     @Override
@@ -40,7 +42,9 @@ public class ProductImagePK implements Serializable {
 
         ProductImagePK that = (ProductImagePK) obj;
 
-        return new EqualsBuilder().append(url, that.url).append(productNumber, that.productNumber).isEquals();
+        return new EqualsBuilder()
+        		.append(productNumber, that.productNumber)
+        		.append(url, that.url).isEquals();
     }
 
     public String getProductNumber() {

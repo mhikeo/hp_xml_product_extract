@@ -12,16 +12,16 @@ import java.util.Date;
  * Document parser for "PDP" type Laptop pages
  *
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.3
  */
 public class LaptopParser extends DocumentParser {
-	private final int LAPTOP_PARSED_THRESHOLD = 10;
 	
     /**
+     * @throws Exception 
      * @inheritDoc
      */
     @Override
-    protected IProduct extract() {
+    protected IProduct extract() throws Exception {
 
         Laptop p = new Laptop();
         
@@ -101,7 +101,7 @@ public class LaptopParser extends DocumentParser {
 
         extractProcessorAndGraphics(p);
         
-        checkParsedProps(LAPTOP_PARSED_THRESHOLD);
+        checkParsedProps();
         
         return p;
     }

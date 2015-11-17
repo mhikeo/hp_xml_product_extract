@@ -1,12 +1,27 @@
 package com.hp.inventory.audit.parser.parsers;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import com.google.gson.Gson;
+import com.hp.inventory.audit.parser.RulesConfig;
+import com.hp.inventory.audit.parser.handlers.ResultHandler;
+import com.hp.inventory.audit.parser.model.IProduct;
+import com.hp.inventory.audit.parser.model.Product;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,152 +33,250 @@ import java.util.regex.Pattern;
  */
 public class DocumentParserDetector {
 
+	/**
+	 * Matches the URL.
+	 */
+	private static final Pattern urlPattern = Pattern.compile("/pdp/(.*)/");
 
-    /**
-     * Matches the URL.
-     */
-    private static final Pattern urlPattern = Pattern.compile("/pdp/(.*)/");
+	/**
+	 * Lowercase valid product type names
+	 */
+	private static Map<String, Class<? extends DocumentParser>> typeMap;
 
-    /**
-     * Matches a provided embedded JS code HP inserted for tracking purposes.
-     */
-    private static final Pattern sectionValuePattern = Pattern.compile("var sectionValue='(.*)';");
+	/**
+	 * URL patterns to help detecting some corner cases.
+	 */
+	private static Map<String, Class<? extends DocumentParser>> urlMatches;
 
-    /**
-     * For business solutions, matches a subgroup.
-     */
-    private static final Pattern subSectionPattern = Pattern.compile("~(.+)~By");
+	/**
+	 * URL patterns for exclusion
+	 */
+	private static Set<String> urlMatchesExcl;
 
-    /**
-     * Pattern for finding page title
-     */
-    private static final Pattern titlePattern = Pattern.compile("<title>(.*)</title>");
+	/**
+	 * URL patterns order
+	 */
+	private static List<String> urlMatchesOrder;
 
+	/**
+	 * Product name patterns to help detecting some corner cases.
+	 */
+	private static Map<String, Class<? extends DocumentParser>> prodNameMatches;
 
-    /**
-     * Lowercase valid product type names
-     */
-    private static final Map<String, Class<? extends DocumentParser>> typeMap;
+	/**
+	 * Product name patterns for exclusion
+	 */
+	private static Set<String> prodNameMatchesExcl;
 
-    /**
-     * URL patterns to help detecting some corner cases.
-     */
-    private static final Map<String, Class<? extends DocumentParser>> urlMatches;
-    private static Logger log = LoggerFactory.getLogger(DocumentParserDetector.class);
+	/**
+	 * Product name patterns order
+	 */
+	private static List<String> prodNameMatchesOrder;
 
-    static {
-        typeMap = new HashMap<>();
-        typeMap.put("laptops", LaptopParser.class);
-        typeMap.put("desktops", DesktopParser.class);
-        typeMap.put("printers", PrinterParser.class);
-        typeMap.put("laserjet", PrinterParser.class);
-        typeMap.put("designjet", PrinterParser.class);
-        typeMap.put("tablets", TabletParser.class);
+	/**
+	 * Content patterns for exclusion
+	 */
+	private static Set<String> contentMatchesExcl;
 
-        urlMatches = new HashMap<>();
-        urlMatches.put("-small-form-factor-pc", DesktopParser.class);
-        urlMatches.put("-desktop-mini-pc", DesktopParser.class);
-        urlMatches.put("-tower-pc", DesktopParser.class);
-        urlMatches.put("-all-in-one-pc", DesktopParser.class);
+	/**
+	 * Content patterns to help detecting some corner cases.
+	 */
+	private static Map<String, Class<? extends DocumentParser>> contentMatches;
 
-        urlMatches.put("-mobile-workstation", LaptopParser.class);
-        urlMatches.put("-notebook-pc", LaptopParser.class);
-        urlMatches.put("hp-chromebook", LaptopParser.class);
+	/**
+	 * Content patterns order
+	 */
+	private static List<String> contentMatchesOrder;
 
-        urlMatches.put("-tablet", TabletParser.class);
+	private static Logger log = LoggerFactory.getLogger(DocumentParserDetector.class);
 
-    }
+	/**
+	 * Uses a number of heuristics to detect the correct DocumentParser for the
+	 * page.
+	 * 
+	 * @param url
+	 *            The original URL of the page.
+	 * @param content
+	 *            The page content.
+	 * @return A DocumentParser instance or null if none could be found.
+	 */
+	public static DocumentParser detect(Product definition, String content, ResultHandler handler) {
 
-    /**
-     * Lowercase types that should be ignored
-     */
-    private static final List<String> ignoreTypes =
-            Arrays.asList("care packs", "accessories", "ink, toner & paper", "monitors", "case");
+		String url = definition.getProductUrl();
 
-    /**
-     * Lowercase strings that mark a page to be ignored when present in page title. Has the lowest priority.
-     */
-    private static final List<String> ignoreTitleContains =
-            Arrays.asList("post warranty", "wireless mouse", "dvdrw drive");
+		Matcher matcher;
+		String urlType, svType, subType, title;
 
+		try {
+			String loweredContent = content.toLowerCase();
+			
+			// disable parsing based on content
+			for (String contentPattern : contentMatchesExcl) {
+				if (loweredContent.contains(contentPattern.toLowerCase())) {
+					handler.addHit("contentExclusion");
+					return new IgnoringParser();
+				}
+			}
 
-    /**
-     * Uses a number of heuristics to detect the correct DocumentParser for the page.
-     * @param url The original URL of the page.
-     * @param content The page content.
-     * @return A DocumentParser instance or null if none could be found.
-     */
-    public static DocumentParser detect(String url, String content) {
-        Matcher matcher;
-        String urlType, svType , subType, title;
+			// Try the URL
+			if ((matcher = urlPattern.matcher(url.toLowerCase())).find()) {
+				urlType = matcher.group(1).toLowerCase();
 
-        try {
-            // Try the URL
-            if ((matcher = urlPattern.matcher(url.toLowerCase())).find()) {
-                urlType = matcher.group(1).toLowerCase();
-                log.debug(urlType);
-                if (typeMap.containsKey(urlType)) {
-                    return typeMap.get(urlType).newInstance();
-                } else if (ignoreTypes.contains(urlType)) {
-                	//TODO: this else is probably redundant. its cases fall into the next "else". need to check carefully
-                	
-                    return null;
-                }  else {
-                    for(String ignoreType:ignoreTypes){
-                    	if(urlType.contains(ignoreType)){
-                            return null;
-                    	}
-                    }
-                }
-            }
+				log.debug(urlType);
+				if (typeMap.containsKey(urlType)) {
+					handler.addHit("typeMap");
+					return typeMap.get(urlType).newInstance();
+				}
+			}
 
-            // Try the JS sectionValue string
-            if ((matcher = sectionValuePattern.matcher(content)).find()) {
-                svType = matcher.group(1).toLowerCase();
-                log.debug("\t\t" + svType);
-                if (typeMap.containsKey(svType)) {
-                    return typeMap.get(svType).newInstance();
-                } else if (ignoreTypes.contains(svType)) {
-                    return null;
-                }
-            }
+			// disable parsing of this url
+			for (String urlcase : urlMatchesExcl) {
+				if (url.contains(urlcase)) {
+					handler.addHit("urlExclusion");
+					return new IgnoringParser();
+				}
+			}
+			
+			// Try URL corner cases
+			for (String urlcase : urlMatchesOrder) {
+				if (url.contains(urlcase)) {
+					handler.addHit("urlMatch");
+					return urlMatches.get(urlcase).newInstance();
+				}
+			}
 
-            // Try the JS subgroup string
-            if ((matcher = subSectionPattern.matcher(content)).find()) {
-                subType = matcher.group(1).toLowerCase();
-                log.debug("\t\t\t\t" + subType);
-                if (typeMap.containsKey(subType)) {
-                    return typeMap.get(subType).newInstance();
-                } else if (ignoreTypes.contains(subType)) {
-                    return null;
-                }
-            }
+			// Try content-based matchings
+			for (String contentPattern : contentMatchesOrder) {
+				if (loweredContent.contains(contentPattern.toLowerCase())) {
+					handler.addHit("contentMatch");
+					return contentMatches.get(contentPattern).newInstance();
+				}
+			}
 
-            // Try URL corner cases
-            for (String urlcase : urlMatches.keySet()) {
-                if (url.contains(urlcase)) {
-                    return urlMatches.get(urlcase).newInstance();
-                }
-            }
+			String baseUrl = getBaseURL(definition.getProductUrl());
 
-            // Try title ignore corner cases
-            if ((matcher = titlePattern.matcher(content)).find()) {
-                title = matcher.group(1).toLowerCase();
-                log.debug("\t\t\t\t\t\t" + title);
-                for (String titleCase : ignoreTitleContains) {
-                    if (title.contains(titleCase)) {
-                        return null;
-                    }
-                }
-            }
+			Document doc = Jsoup.parse(content, baseUrl);
 
-            return null;
+			DocumentParser ret = detectFromGeneral(doc, definition, content, handler);
+			doc = null;
+			return ret;
 
+		} catch (Exception ex) {
+			throw new RuntimeException("Unexpected Exception", ex);
+		}
+	}
 
-        } catch (Exception ex) {
-            throw new RuntimeException("Unexpected Exception", ex);
-        }
-    }
+	private static String getBaseURL(String urlString) throws MalformedURLException {
+		URL url = new URL(urlString);
+		String path = url.getFile().substring(0, url.getFile().lastIndexOf('/'));
+		String base = url.getProtocol() + "://" + url.getHost() + path;
+		return base;
+	}
 
+	private static DocumentParser detectFromGeneral(Document doc, Product definition,
+			String content, ResultHandler handler)
+			throws Exception {
 
+		GeneralParser parser = new GeneralParser();
+
+		IProduct p = parser.parse(doc, definition, null);
+
+		if (p != null && p.getProductName() != null) {
+			String prodName = p.getProductName().toLowerCase();
+
+			// disable parsing of this url
+			for (String productNamePattern : prodNameMatchesExcl) {
+				if (prodName.contains(productNamePattern.toLowerCase())) {
+					handler.addHit("productNameExclusion");
+					return new IgnoringParser();
+				}
+			}
+
+			// Try URL corner cases
+			for (String productNamePattern : prodNameMatchesOrder) {
+				if (prodName.contains(productNamePattern.toLowerCase())) {
+					handler.addHit("productNameMatch");
+					return prodNameMatches.get(productNamePattern).newInstance();
+				}
+			}
+		}
+		return null;
+	}
+
+	private static <T extends DocumentParser> void addUrlMatch(String pattern, Class<T> clazz) {
+		urlMatches.put(pattern, clazz);
+		urlMatchesOrder.add(pattern);
+	}
+
+	private static <T extends DocumentParser> void addProdNameMatch(String pattern, Class<T> clazz) {
+		prodNameMatches.put(pattern, clazz);
+		prodNameMatchesOrder.add(pattern);
+	}
+
+	private static <T extends DocumentParser> void addContentMatch(String pattern, Class<T> clazz) {
+		contentMatches.put(pattern, clazz);
+		contentMatchesOrder.add(pattern);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static void init(File rulesConfig) throws IOException, ClassNotFoundException {
+		StringBuilder sb = new StringBuilder();
+
+		for (String line : Files.readAllLines(rulesConfig.toPath())) {
+			sb.append(line);
+			sb.append("\n");
+		}
+
+		RulesConfig rulesCfg = (new Gson()).fromJson(sb.toString(), RulesConfig.class);
+
+		typeMap = new HashMap<>();
+
+		for (String key : rulesCfg.typeMap.keySet()) {
+			typeMap.put(key, (Class<? extends DocumentParser>) Class.forName(rulesCfg.typeMap.get(key)));
+		}
+		
+		urlMatches = new HashMap<>();
+		urlMatchesOrder = new ArrayList<String>();
+		urlMatchesExcl = new HashSet<>();
+
+		for (String excludePattern : rulesCfg.urlExclude) {
+			urlMatchesExcl.add(excludePattern);
+		}
+
+		for (Map<String, String> urlMatch : rulesCfg.urlMatch) {
+			for (String key : urlMatch.keySet()) {
+				addUrlMatch(key, (Class<? extends DocumentParser>) Class.forName(urlMatch.get(key)));
+			}
+		}
+		
+		prodNameMatches = new HashMap<>();
+		prodNameMatchesOrder = new ArrayList<String>();
+		prodNameMatchesExcl = new HashSet<>();
+
+		for (String excludePattern : rulesCfg.productNameExclude) {
+			prodNameMatchesExcl.add(excludePattern);
+		}
+
+		for (Map<String, String> productNameMatch : rulesCfg.productNameMatch) {
+			for (String key : productNameMatch.keySet()) {
+				addProdNameMatch(key, (Class<? extends DocumentParser>) Class.forName(productNameMatch.get(key)));
+			}
+		}
+
+		contentMatches = new HashMap<>();
+		contentMatchesOrder = new ArrayList<String>();
+
+		// catGroupTraversalByName FIRST: Laptops
+		contentMatchesExcl = new HashSet<>();
+
+		for (String excludePattern : rulesCfg.contentExclude) {
+			contentMatchesExcl.add(excludePattern);
+		}
+
+		for (Map<String, String> contentMatch : rulesCfg.contentMatch) {
+			for (String key : contentMatch.keySet()) {
+				addContentMatch(key, (Class<? extends DocumentParser>) Class.forName(contentMatch.get(key)));
+			}
+		}
+	}
 }

@@ -1,0 +1,118 @@
+{
+	"typeMap" : {
+		"laptops" : "com.hp.inventory.audit.parser.parsers.LaptopParser",
+		"desktops" : "com.hp.inventory.audit.parser.parsers.DesktopParser",
+		"printers" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
+		"laserjet" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
+		"designjet" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
+		"tablets" : "com.hp.inventory.audit.parser.parsers.TabletParser"
+	},
+	"urlExclude" : [
+		"-warranty"
+	],
+	"urlMatch" : [
+		{ "-mobile-workstation" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+
+		{ "-small-form-factor-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		{ "-tower-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		{ "-all-in-one-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		{ "-desktop" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		{ "-workstation" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		
+		{ "-notebook" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+		{ "hp-chromebook" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+		{ "-laptop" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+		
+		{ "-printer" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
+		{ "-eprinter" : "com.hp.inventory.audit.parser.parsers.PrinterParser" }
+		
+	],
+	"productNameExclude" : [
+		"Warranty"
+	],
+	"productNameMatch" : [
+		{ " mobile workstation" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+
+		{ " Desktop PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		{ " Desktop Mini PC " : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		{ " Small Form Factor PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		
+		{ " workstation" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		{ " Microtower" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		{ " Tower" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		{ " All-in-One PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		
+		{ " laptop" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+		{ " notebook" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+		
+		{ " tablet" : "com.hp.inventory.audit.parser.parsers.TabletParser" },
+		
+		{ " printer" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
+		{ " LaserJet" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
+		{ " Inkjet" : "com.hp.inventory.audit.parser.parsers.PrinterParser" }
+	],
+	
+	"contentExclude" : [
+		"has been discontinued. Please shop for associated supplies",
+		"catGroupTraversalByName FIRST: Batteries & AC adapters",
+		"catGroupTraversalByName FIRST: Accessories",
+		"catGroupTraversalByName FIRST: Other accessories",
+		"catGroupTraversalByName FIRST: Care Packs",
+		"catGroupTraversalByName FIRST: Ink, toner & paper",
+		"catGroupTraversalByName FIRST: Servers, Storage",
+		"catGroupTraversalByName FIRST: Mounts & stands"
+	],
+	"contentMatch" : [
+		{ "catGroupTraversalByName FIRST: Laptops" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+		{ "catGroupTraversalByName FIRST: Desktops" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+		{ "catGroupTraversalByName FIRST: Printers" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
+		{ "catGroupTraversalByName FIRST: Tablets" : "com.hp.inventory.audit.parser.parsers.TabletParser" }
+	],
+	"queriesSpec" : {
+		"productNumberQuery" : "span.prodNum",
+		"productNameQuery" : "span[itemprop=name]",
+		"currentPriceQueryVisible" : "div[itemprop=offers] #price_value",
+		"currentPriceQuery" : "div[itemprop=offers] span[itemprop=price]",
+		"currencyQuery" : "div[itemprop=offers] meta[itemprop=priceCurrency]",
+		"strikedPriceQuery" : "div[itemprop=offers] del",
+		"reviewIdPattern" : "(\\d+)",
+		"ratingQuery" : "#BVSecondaryCustomerRatings div.BVRRRatingNormalOutOf span.BVRRRatingNumber",
+		"reviewsQuery" : "#BVSecondaryCustomerRatings div.BVRRRatingSummaryLinks span.BVRRCount span.BVRRNumber",
+		"comingSoonQuery" : "div[itemprop=offers] span:contains(Out of stock)",
+		
+		"specQueryPrefix" : "#specs h2:matchesOwn(",
+		"specQuerySuffix" : ")",
+		"specQueryPostQuery" : ".proc,.specsDescription",
+		
+		"linkQueryPrefix" : "h2:matchesOwn(",
+		"linkQuerySuffix" : ")",
+		"linkQueryPostQuery" : ".large-12 .large-7 a",
+		
+		"accessoriesNameQuery" : "#accessories div.items h3",
+		"accessoriesUrlQuery" : "#accessories div.items .priceHolder div > div > a",
+		
+		"imagesSelectQuery" : "ul.pdp_featured_image",
+		"imagesSelectPostQuery" : "img[itemprop=image",
+		
+		"reviewsExtractQuery" : "div.BVRRDisplayContentBody .BVRRContentReview",
+		"reviewsExtractDateFormat" : "MMM dd, yyyy",
+		"reviewsExtractPostDateQuery" : ".BVRRReviewDate",
+		"reviewsExtractHpResponseDateQuery" : ".BVRRReviewClientResponseSubtitleDate",
+		"reviewsExtractRatingQuery" : "span[itemprop=ratingValue]",
+		"reviewsExtractScaleQuery" : "span[itemprop=bestRating]",
+		"reviewsExtractTitleQuery" : ".BVRRReviewTitle",
+		"reviewsExtractComentsQuery" : ".BVRRReviewText",
+		"reviewsExtractUsernameQuery" : ".BVRRNickname",
+		"reviewsExtractLocationQuery" : ".BVRRUserLocation",
+		"reviewsExtractHpResponseQuery" : ".BVRRReviewClientResponseText",
+		"reviewsExtractHpResponseUserQuery" : ".BVRRReviewClientResponseSubtitleName",
+
+		"reviewsExtractYesQuery" : "div.BVDI_FVVotes span.BVDILabel:contains(yes)",
+		"reviewsExtractYesPostQuery" : ".BVDINumber",
+		
+		"reviewsExtractNoQuery" : "div.BVDI_FVVotes span.BVDILabel:contains(no)",
+		"reviewsExtractNoPostQuery" : ".BVDINumber"
+		
+	}
+	
+}

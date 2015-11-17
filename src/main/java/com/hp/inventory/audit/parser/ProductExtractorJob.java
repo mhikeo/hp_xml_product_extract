@@ -45,12 +45,20 @@ public class ProductExtractorJob implements Runnable {
             String baseUrl = getBaseURL(definition.getProductUrl());
             File f = new File(this.dataDir, definition.getSourceFile());
             String content = FileUtils.readFileToString(f);
-            DocumentParser parser = DocumentParserDetector.detect(definition.getProductUrl(), content);
+            DocumentParser parser = DocumentParserDetector.detect(definition, content, resultHandler);
+            
             if (parser != null) {
-                Document doc = Jsoup.parse(content, baseUrl);
-                IProduct extracted = parser.parse(doc, definition, resultHandler);
-                resultHandler.extractionSucceeded(definition, extracted);
-                doc = null; // Hint GC deallocation
+            	if(parser instanceof IgnoringParser) {
+            		resultHandler.addIgnored(definition);
+            	} else {
+	                Document doc = Jsoup.parse(content, baseUrl);
+	                IProduct extracted = parser.parse(doc, definition, resultHandler);
+	                resultHandler.extractionSucceeded(definition, extracted);
+	                doc = null; // Hint GC deallocation
+	                extracted = null; // Hint GC deallocation
+            	}
+            } else {
+            	resultHandler.detectParserFailed(definition);
             }
             content = null; // Hint GC deallocation
         } catch (Exception e) {

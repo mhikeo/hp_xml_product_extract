@@ -2,19 +2,23 @@ package com.hp.inventory.audit.parser;
 
 import com.hp.inventory.audit.parser.handlers.DBResultHandler;
 import com.hp.inventory.audit.parser.handlers.JSONResultHandler;
+import com.hp.inventory.audit.parser.parsers.DocumentParser;
+import com.hp.inventory.audit.parser.parsers.DocumentParserDetector;
+
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
  * Command-line application entry-point.
  *
  * @author TCDEVELOPER
- * @version 1.0
+ * @version 1.0.3
  */
 public class Main {
 
@@ -38,7 +42,10 @@ public class Main {
         }
     }
 
-    public static void start(Config config) {
+    public static void start(Config config) throws ClassNotFoundException, IOException {
+    	DocumentParserDetector.init(config.rulesConfig);
+    	DocumentParser.init(config.rulesConfig);
+    	
         ExtractionJobRunner parser = new ExtractionJobRunner();
         parser.setResultHandler(config.resultHandler);
         parser.setDataDir(config.dataDirectory);
@@ -46,6 +53,7 @@ public class Main {
         parser.setProductId(config.singleProductId);
         parser.setDefaultCurrency(config.defaultCurrency);
         parser.setListDelimiter(config.listDelimiter);
+        parser.setPropertiesThreshold(config.propertiesThreshold);
         parser.start();
     }
 
@@ -134,6 +142,24 @@ public class Main {
         } else {
         	config.listDelimiter = "\n";
         }
+        
+        /**@since 1.0.3
+         */
+        if (cmd.hasOption("t")) {
+        	config.propertiesThreshold = Integer.parseInt(cmd.getOptionValue("t"));
+        } else {
+        	config.propertiesThreshold = 3;
+        }
+        
+        /**@since 1.0.3
+         */
+        if (!cmd.hasOption("cfg")) {
+        	printHelpAndQuit();
+        } else {
+        	config.rulesConfig  = new File(cmd.getOptionValue("cfg"));
+            checkConfigReadable(config.rulesConfig);
+        }
+        
         return config;
 
     }
@@ -148,6 +174,15 @@ public class Main {
         }
     }
 
+    private static void checkConfigReadable(File file) throws ParseException {
+        if (!file.isFile()) {
+            throw new ParseException("File is not, in fact, a file: " + file.getAbsolutePath());
+        }
+
+        if (!file.canRead()) {
+            throw new ParseException("File is not readable: " + file.getAbsolutePath());
+        }
+    }
     private static void printHelpAndQuit() {
         HelpFormatter fmt = new HelpFormatter();
         fmt.printHelp(EXECUTABLE_NAME, options, true);
@@ -192,6 +227,14 @@ public class Main {
          */
         options.addOption("l", "delimiter", true, "Specify the delimiter to use for property list. " +
                 "Defaults to line feed (\\n)");
+        
+        /** @since 1.0.3
+         */
+        options.addOption("t", "threshold", true, "Specify the number of required properties to accept the page as a product description.");
+        
+        /** @since 1.0.3
+         */
+        options.addOption("cfg", "config", true, "Rules config file. Required.");
 }
 
 }

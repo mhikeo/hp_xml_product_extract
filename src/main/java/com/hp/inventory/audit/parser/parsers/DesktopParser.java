@@ -10,17 +10,16 @@ import com.hp.inventory.audit.parser.model.IProduct;
  * Document parser for "PDP" type Desktop pages
  *
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.3
  */
 public class DesktopParser extends DocumentParser {
 
-	private final int DESKTOP_PARSED_THRESHOLD = 10;
-	
     /**
+     * @throws Exception 
      * @inheritDoc
      */
     @Override
-    protected IProduct extract() {
+    protected IProduct extract() throws Exception {
 
     	Desktop p = new Desktop();
         
@@ -130,7 +129,7 @@ public class DesktopParser extends DocumentParser {
 
         extractProcessorAndGraphics(p);
 
-        checkParsedProps(DESKTOP_PARSED_THRESHOLD);
+        checkParsedProps();
         
         return p;
     }

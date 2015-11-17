@@ -39,6 +39,8 @@ public class ExtractionJobRunner {
     private String defaultCurrency = null;
     private String listDelimiter = null;
     
+    private int propertiesThreshold = 3;
+    
     /**
      * Iterate the source file, extract product information and adds to the database.
      */
@@ -62,6 +64,7 @@ public class ExtractionJobRunner {
             products = arr;
         }
 
+        int i=0;
         for (Product prod : products) {
             log.debug("Adding product Id:{} to parsing queue", prod.getId());
             ProductExtractorJob extractor  = new ProductExtractorJob(dataDir, prod, resultHandler);
@@ -93,7 +96,7 @@ public class ExtractionJobRunner {
 
 
     private Iterable<Product> parseProducts() {
-        return new ProductIterable(new File(getDataDir(), SOURCE_CSV), defaultCurrency, listDelimiter);
+        return new ProductIterable(new File(getDataDir(), SOURCE_CSV), defaultCurrency, listDelimiter, propertiesThreshold);
     }
 
 
@@ -177,4 +180,13 @@ public class ExtractionJobRunner {
 	public void setListDelimiter(String listDelimiter) {
 		this.listDelimiter = listDelimiter;
 	}
+
+	public int getPropertiesThreshold() {
+		return propertiesThreshold;
+	}
+
+	public void setPropertiesThreshold(int propertiesThreshold) {
+		this.propertiesThreshold = propertiesThreshold;
+	}
+	
 }

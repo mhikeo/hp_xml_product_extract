@@ -78,16 +78,6 @@ public abstract class AbstractProduct implements IProduct {
     @Transient
     private Product product;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
-    @Fetch(FetchMode.JOIN)
-    @BatchSize(size=100)
-    private Set<ProductImage> images = new HashSet<ProductImage>();
-    
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
-    @Fetch(FetchMode.JOIN)
-    @BatchSize(size=100)
-    private Set<RelatedAccessory> topAccessories = new HashSet<RelatedAccessory>();
-
     @Column(nullable = false)
     private Date parseDate;
 
@@ -183,22 +173,6 @@ public abstract class AbstractProduct implements IProduct {
         this.currentPrice = currentPrice;
     }
 
-    public Set<ProductImage> getImages() {
-        return images;
-    }
-
-    public void setImages(Set<ProductImage> images) {
-    	updateSet(this.images, images);
-    }
-
-    public void setTopAccessories(Set<RelatedAccessory> topAccessories) {
-    	updateSet(this.topAccessories, topAccessories);
-    }
-    
-    public Set<RelatedAccessory> getTopAccessories() {
-        return topAccessories;
-    }
-    
     @Override
     public BigDecimal getStrikedPrice() {
         return strikedPrice;
