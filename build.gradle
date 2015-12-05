@@ -1,6 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
+/*
+ * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ */
+
 // compileJava.options.fork = true
 // compileJava.options.forkOptions.executable = '/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/bin/java'
 

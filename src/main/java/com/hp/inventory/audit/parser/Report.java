@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ */
+
 package com.hp.inventory.audit.parser;
 
 import com.google.gson.annotations.Expose;

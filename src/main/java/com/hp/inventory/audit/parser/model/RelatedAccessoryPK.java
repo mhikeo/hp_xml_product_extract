@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ */
+
 package com.hp.inventory.audit.parser.model;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -6,7 +10,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.io.Serializable;
 
 /**
- * !!Description
+ * Primary key for related accessory
  *
  * @author TCDEVELOPER
  * @version 1.0.0
