@@ -4,11 +4,11 @@
 
 package com.hp.inventory.audit.parser.parsers;
 
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.IProduct;
 import com.hp.inventory.audit.parser.model.Tablet;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * !!Description
@@ -28,7 +28,7 @@ public class TabletParser extends DocumentParser {
      * @inheritDoc
      */
     @Override
-    public IProduct extract() throws Exception {
+    public AbstractProduct extract() throws Exception {
         Tablet p = new Tablet();
         
         setParsingErrorsReceiver(p);

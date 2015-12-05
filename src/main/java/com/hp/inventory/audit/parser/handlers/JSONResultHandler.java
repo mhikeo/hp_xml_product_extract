@@ -6,6 +6,7 @@ package com.hp.inventory.audit.parser.handlers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import com.hp.inventory.audit.parser.Report;
 import com.hp.inventory.audit.parser.model.IProduct;
 import com.hp.inventory.audit.parser.model.Product;
@@ -30,7 +31,10 @@ public class JSONResultHandler implements ResultHandler {
     private static final boolean PRETTY_PRINT = true;
 
     private Logger log = LoggerFactory.getLogger(DBResultHandler.class);
+
+    @Expose
     private List<IProduct> parsed = new ArrayList<>();
+
     private PrintWriter output;
     private Map<String, Set<String>> nonParsedAttrs = new HashMap<>();
 
@@ -77,7 +81,8 @@ public class JSONResultHandler implements ResultHandler {
         	gsonBuilder = new GsonBuilder();
         }
 
-        gsonBuilder = gsonBuilder.excludeFieldsWithoutExposeAnnotation();
+        // @Expose implementations is incomplete. I'm commenting it.
+        // gsonBuilder = gsonBuilder.excludeFieldsWithoutExposeAnnotation();
         
         gson = gsonBuilder.create();
         

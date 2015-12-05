@@ -4,38 +4,27 @@
 
 package com.hp.inventory.audit.parser.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
+import javax.persistence.*;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import com.google.gson.annotations.Expose;
 import com.hp.inventory.audit.parser.model.annotation.SkipNullUpdate;
-import com.hp.inventory.audit.parser.model.annotation.TrackChanges;
-import com.hp.inventory.audit.parser.model.annotation.TrackChanges.TrackingTarget;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Product entity
  *
  * @author TCDEVELOPER
- * @version 1.0.3
+ * @version 1.0.4
  * 
  */
 @Entity
-public class Product implements IProduct{
+public class Product implements IProduct {
 
 	@Transient
 	StringBuilder parsingErrors;
@@ -85,42 +74,9 @@ public class Product implements IProduct{
     @Expose
     private String productName;
     
-    @Expose
-    private String currency;
-    @Expose
-    private BigDecimal strikedPrice;
-    
     @SkipNullUpdate
     @Expose
     private Date dateAdded;
-    
-    
-    @TrackChanges(key="price", target=TrackingTarget.CURRENT)
-    @Expose
-    private BigDecimal currentPrice;
-    
-    @TrackChanges(key="price", target=TrackingTarget.PREVIOUS)
-    @Expose
-    private BigDecimal previousPrice;
-    
-    @TrackChanges(key="price", target=TrackingTarget.DATE)
-    @Expose
-    private Date dateOfPriceChange;
-    
-    @TrackChanges(key="rating", target=TrackingTarget.CURRENT)
-    @Expose
-    private Integer rating;
-    
-    @TrackChanges(key="rating", target=TrackingTarget.PREVIOUS)
-    @Expose
-    private Integer previousRating;
-    
-    @TrackChanges(key="rating", target=TrackingTarget.DATE)
-    @Expose
-    private Date dateOfRatingChange;
-
-    @Expose
-    private Integer numberOfReviews;
     @Expose
     private String parsingError;
     @Expose
@@ -147,6 +103,22 @@ public class Product implements IProduct{
     @Fetch(FetchMode.JOIN)
     @BatchSize(size=100)
     private Set<ProductReview> reviews = new HashSet<ProductReview>();
+
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
+	@MapKey(name="siteId")
+	private Map<Integer, ProductPrice> prices = new HashMap<>();
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
+    @MapKey(name="siteId")
+    private Map<Integer, ProductRating> ratings = new HashMap<>();
+
+    public Map<Integer, ProductRating> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(Map<Integer, ProductRating> ratings) throws Exception {
+        updateMap(this.ratings, ratings, false, true);
+    }
 
 
     public Set<ProductImage> getImages() {
@@ -222,65 +194,11 @@ public class Product implements IProduct{
 	public void setProductName(String productName) {
 		this.productName = productName;
 	}
-	public BigDecimal getCurrentPrice() {
-		return currentPrice;
-	}
-	public void setCurrentPrice(BigDecimal currentPrice) {
-		this.currentPrice = currentPrice;
-	}
-	public String getCurrency() {
-		return currency;
-	}
-	public void setCurrency(String currency) {
-		this.currency = currency;
-	}
-	public BigDecimal getStrikedPrice() {
-		return strikedPrice;
-	}
-	public void setStrikedPrice(BigDecimal strikedPrice) {
-		this.strikedPrice = strikedPrice;
-	}
 	public Date getDateAdded() {
 		return dateAdded;
 	}
 	public void setDateAdded(Date dateAdded) {
 		this.dateAdded = dateAdded;
-	}
-	public BigDecimal getPreviousPrice() {
-		return previousPrice;
-	}
-	public void setPreviousPrice(BigDecimal previousPrice) {
-		this.previousPrice = previousPrice;
-	}
-	public Date getDateOfPriceChange() {
-		return dateOfPriceChange;
-	}
-	public void setDateOfPriceChange(Date dateOfPriceChange) {
-		this.dateOfPriceChange = dateOfPriceChange;
-	}
-	public Integer getRating() {
-		return rating;
-	}
-	public void setRating(Integer rating) {
-		this.rating = rating;
-	}
-	public Integer getPreviousRating() {
-		return previousRating;
-	}
-	public void setPreviousRating(Integer previousRating) {
-		this.previousRating = previousRating;
-	}
-	public Integer getNumberOfReviews() {
-		return numberOfReviews;
-	}
-	public void setNumberOfReviews(Integer numberOfReviews) {
-		this.numberOfReviews = numberOfReviews;
-	}
-	public Date getDateOfRatingChange() {
-		return dateOfRatingChange;
-	}
-	public void setDateOfRatingChange(Date dateOfRatingChange) {
-		this.dateOfRatingChange = dateOfRatingChange;
 	}
 	public String getParsingError() {
 		return parsingError;
@@ -313,6 +231,20 @@ public class Product implements IProduct{
 		this.productType = productType;
 	}
 
+
+	public Set<ProductReview> getReviews() {
+		return reviews;
+	}
+
+	public Map<Integer, ProductPrice> getPrices() {
+		return prices;
+	}
+
+	public void setPrices(Map<Integer, ProductPrice> prices) throws Exception {
+		updateMap(this.prices, prices, false, true);
+	}
+
+
 	@Override
 	public void initNewEntity() {
 		Date now = new Date();
@@ -322,10 +254,40 @@ public class Product implements IProduct{
 		}
 	}
 
-	@Override
-	public void upgradeEntityFrom(IProduct from) throws Exception {
+    @Override
+	public void upgradeEntityFrom(IProduct fromIFace) throws Exception {
 		Date now = new Date();
-		this.updateFrom(from);
+        Product from = (Product) fromIFace;
+
+
+        // Iterate over prices to check for changes
+        for (ProductPrice thisPrice : prices.values()) {
+            ProductPrice fromPrice = from.prices.get(thisPrice.getSiteId());
+            if (fromPrice != null) {
+                boolean isEquals = new EqualsBuilder()
+                        .append(fromPrice.getCurrency(), thisPrice.getCurrency())
+                        .append(fromPrice.getCurrentPrice(), thisPrice.getCurrentPrice())
+                        .isEquals();
+                if (!isEquals)
+                    IProduct.updateEntity(fromPrice, thisPrice);
+            }
+        }
+
+        // Iterate over ratings to check for changes
+        for (ProductRating thisRating : ratings.values()) {
+            ProductRating fromRating = from.ratings.get(thisRating.getSiteId());
+            if (fromRating != null) {
+                boolean isEquals = new EqualsBuilder()
+                        .append(fromRating.getRating(), thisRating.getRating())
+                        .isEquals();
+                if (!isEquals)
+                    IProduct.updateEntity(fromRating, thisRating);
+            }
+        }
+
+        // Execute update
+        IProduct.updateEntity(from, this);
+
 		if(this.getComingSoonDate()==null) {
 			//no 'coming soon' date
 			if(this.getAvailableForSaleDate()==null) {
@@ -340,6 +302,7 @@ public class Product implements IProduct{
 				this.setAvailableForSaleDate(null);
 			}
 		}
+
 	}
 
 	public void setListDelimiter(String listDelimiter) {

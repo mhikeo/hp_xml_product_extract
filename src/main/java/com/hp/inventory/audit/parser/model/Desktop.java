@@ -895,7 +895,7 @@ public class Desktop extends AbstractProduct implements ProcessorGraphicsMixin {
 
 	@Override
 	public void upgradeEntityFrom(IProduct from) throws Exception {
-		this.updateFrom(from);
+		IProduct.updateEntity(from, this);
 	}
 
 }

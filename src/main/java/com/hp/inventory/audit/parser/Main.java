@@ -49,15 +49,9 @@ public class Main {
     public static void start(Config config) throws ClassNotFoundException, IOException {
     	DocumentParserDetector.init(config.rulesConfig);
     	DocumentParser.init(config.rulesConfig);
-    	
+
         ExtractionJobRunner parser = new ExtractionJobRunner();
-        parser.setResultHandler(config.resultHandler);
-        parser.setDataDir(config.dataDirectory);
-        parser.setMaxJobs(config.maxJobs);
-        parser.setProductId(config.singleProductId);
-        parser.setDefaultCurrency(config.defaultCurrency);
-        parser.setListDelimiter(config.listDelimiter);
-        parser.setPropertiesThreshold(config.propertiesThreshold);
+        parser.setConfig(config);
         parser.start();
     }
 
@@ -74,6 +68,10 @@ public class Main {
         Config config = new Config();
         if (cmd.hasOption("h")) {
             printHelpAndQuit();
+        }
+
+        if (cmd.hasOption("i")) {
+            config.siteId = Integer.parseInt(cmd.getOptionValue("i"));
         }
 
         if (!cmd.hasOption("d")) {
@@ -239,6 +237,8 @@ public class Main {
         /** @since 1.0.3
          */
         options.addOption("cfg", "config", true, "Rules config file. Required.");
+
+        options.addOption("i","site-id", true, "The siteId value to use. Check your database for valid values. Default to 1");
 }
 
 }

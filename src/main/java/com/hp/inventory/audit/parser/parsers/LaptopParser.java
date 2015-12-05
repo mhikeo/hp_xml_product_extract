@@ -4,13 +4,11 @@
 
 package com.hp.inventory.audit.parser.parsers;
 
-import ch.qos.logback.classic.Logger;
-
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.IProduct;
 import com.hp.inventory.audit.parser.model.Laptop;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * Document parser for "PDP" type Laptop pages
@@ -25,7 +23,7 @@ public class LaptopParser extends DocumentParser {
      * @inheritDoc
      */
     @Override
-    protected IProduct extract() throws Exception {
+    protected AbstractProduct extract() throws Exception {
 
         Laptop p = new Laptop();
         

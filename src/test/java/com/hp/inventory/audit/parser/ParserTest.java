@@ -6,7 +6,7 @@ package com.hp.inventory.audit.parser;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
@@ -15,6 +15,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import com.hp.inventory.audit.parser.parsers.DocumentParser;
+import com.hp.inventory.audit.parser.parsers.DocumentParserDetector;
 import org.apache.commons.io.IOUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,7 +28,13 @@ public abstract class ParserTest {
 	private static List<Product> products;
 	
 	@BeforeClass
-	public static void initClass() {
+	public static void initClass() throws Exception {
+		ByteArrayInputStream rulesConfig = new ByteArrayInputStream(IOUtils.toByteArray(ParserTest.class.getResourceAsStream("rules.json")));
+		DocumentParserDetector.init(new InputStreamReader(rulesConfig));
+		rulesConfig.reset();
+		DocumentParser.init(new InputStreamReader(rulesConfig));
+		rulesConfig.close();
+
 		products = ProductsUtil.loadProducts(DesktopParserTest.class.getResourceAsStream("source.csv"));
 		products.sort(new Comparator<Product>() {
 			@Override

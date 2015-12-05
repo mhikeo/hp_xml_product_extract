@@ -54,22 +54,7 @@ public abstract class AbstractProduct implements IProduct {
 	public void setComingSoonDate(Date comingSoonDate) {
 		this.prvComingSoonDate = comingSoonDate;
 	}
-	/** @since 1.0.1
-	 * Stores number of reviews
-	 * Non-transient only exists in Product entity
-	 */
-	@Transient
-	private Integer prvNumberOfReviews;
-	
-	@Override
-    public Integer getNumberOfReviews() {
-        return prvNumberOfReviews;
-    }
 
-    public void setNumberOfReviews(Integer numberOfReviews) {
-        this.prvNumberOfReviews = numberOfReviews;
-    }
-	
 	@Id
     private String productNumber;
 
@@ -91,33 +76,9 @@ public abstract class AbstractProduct implements IProduct {
     @Column(nullable = false)
     private String productUrl;
 
-    private BigDecimal currentPrice;
-
-    private BigDecimal strikedPrice;
-
-    private String currency;
-
-    private Integer rating;
-
 	private String hpDataSheet;
 	
-    @Override
-    public String getCurrency() {
-        return currency;
-    }
 
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    @Override
-    public Integer getRating() {
-		return rating;
-	}
-
-	public void setRating(Integer rating) {
-		this.rating = rating;
-	}
 
 	public String getHpDataSheet() {
         return hpDataSheet;
@@ -168,24 +129,6 @@ public abstract class AbstractProduct implements IProduct {
         this.productUrl = productUrl;
     }
 
-    @Override
-    public BigDecimal getCurrentPrice() {
-        return currentPrice;
-    }
-
-    public void setCurrentPrice(BigDecimal currentPrice) {
-        this.currentPrice = currentPrice;
-    }
-
-    @Override
-    public BigDecimal getStrikedPrice() {
-        return strikedPrice;
-    }
-
-    public void setStrikedPrice(BigDecimal strikedPrice) {
-        this.strikedPrice = strikedPrice;
-    }
-    
     public Long getVersion() {
         return version;
     }

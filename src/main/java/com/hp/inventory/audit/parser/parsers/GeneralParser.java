@@ -4,10 +4,7 @@
 
 package com.hp.inventory.audit.parser.parsers;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import com.hp.inventory.audit.parser.model.Desktop;
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.GeneralProduct;
 import com.hp.inventory.audit.parser.model.IProduct;
 
@@ -27,7 +24,7 @@ public class GeneralParser extends DocumentParser {
      * @inheritDoc
      */
     @Override
-    protected IProduct extract() throws Exception {
+    protected AbstractProduct extract() throws Exception {
     	
     	GeneralProduct p = new GeneralProduct();
     	

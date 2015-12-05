@@ -5,12 +5,8 @@
 package com.hp.inventory.audit.parser.model;
 
 import java.math.BigDecimal;
-import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
 
 /**
  * Entity representing a Laptop
@@ -352,6 +348,6 @@ public class Tablet extends AbstractProduct{
 
 	@Override
 	public void upgradeEntityFrom(IProduct from) throws Exception {
-		this.updateFrom(from);
+        IProduct.updateEntity(from, this);
 	}
 }

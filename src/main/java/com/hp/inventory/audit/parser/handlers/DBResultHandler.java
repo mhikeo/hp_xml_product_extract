@@ -8,7 +8,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hp.inventory.audit.parser.Report;
 import com.hp.inventory.audit.parser.model.IProduct;
-import com.hp.inventory.audit.parser.model.Printer;
 import com.hp.inventory.audit.parser.model.Product;
 import com.hp.inventory.audit.parser.parsers.DocumentParser;
 
@@ -20,17 +19,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.transaction.Transactional;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigDecimal;
-import java.nio.file.CopyOption;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -91,36 +81,11 @@ public class DBResultHandler implements ResultHandler {
                             productDefinition.getProductNumber(),
                             productDefinition.getParsingError());
                 }
-            	Product existingDefinition = getEntityManager().find(Product.class, productDefinition.getProductNumber());
-            	
-            	Date now = new Date();
-            	
-            	if(existingDefinition!=null) {
-            		//existing Product
-            		existingDefinition.upgradeEntityFrom(productDefinition);
-            		
-            		getEntityManager().merge(existingDefinition);
-            		
-            	} else {
-            		//new Product
-            		productDefinition.initNewEntity();
-            		
-            		getEntityManager().persist(productDefinition);
-            	}
-            	
-            	IProduct existingExtracted = getEntityManager().find(extractedEntity.getClass(), extractedEntity.getProductNumber());
-            	if(existingExtracted!=null) {
-            		//existing entity
-            		existingExtracted.upgradeEntityFrom(extractedEntity);
-            		
-            		getEntityManager().merge(existingExtracted);
-            	} else {
-            		//new entity
-            		extractedEntity.initNewEntity();
-            		
-            		getEntityManager().persist(extractedEntity);
-            	}
-                
+
+                upgradeDefinitionIfExisting(productDefinition);
+
+                upgradeProductIfExisting(extractedEntity);
+
             	getEntityManager().flush();
 
             	commitTransaction();
@@ -144,7 +109,43 @@ public class DBResultHandler implements ResultHandler {
      
     }
 
-	private void rollbackTransaction() {
+    private void upgradeProductIfExisting(IProduct extractedEntity) throws Exception {
+        IProduct existingExtracted = getEntityManager().find(extractedEntity.getClass(), extractedEntity.getProductNumber());
+        if(existingExtracted!=null) {
+            //existing entity
+            existingExtracted.upgradeEntityFrom(extractedEntity);
+
+            getEntityManager().merge(existingExtracted);
+        } else {
+            //new entity
+            extractedEntity.initNewEntity();
+
+            getEntityManager().persist(extractedEntity);
+        }
+    }
+
+    private void upgradeDefinitionIfExisting(Product productDefinition) throws Exception {
+        Product existingDefinition = getEntityManager().find(Product.class, productDefinition.getProductNumber());
+
+        Date now = new Date();
+
+        if(existingDefinition!=null) {
+            //existing Product
+            existingDefinition.upgradeEntityFrom(productDefinition);
+
+            //
+
+            getEntityManager().merge(existingDefinition);
+
+        } else {
+            //new Product
+            productDefinition.initNewEntity();
+
+            getEntityManager().persist(productDefinition);
+        }
+    }
+
+    private void rollbackTransaction() {
         getEntityManager().getTransaction().rollback();
     }
 

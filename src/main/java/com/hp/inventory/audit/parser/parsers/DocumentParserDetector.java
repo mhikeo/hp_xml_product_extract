@@ -4,6 +4,7 @@
 
 package com.hp.inventory.audit.parser.parsers;
 
+import com.hp.inventory.audit.parser.Config;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -15,8 +16,7 @@ import com.hp.inventory.audit.parser.handlers.ResultHandler;
 import com.hp.inventory.audit.parser.model.IProduct;
 import com.hp.inventory.audit.parser.model.Product;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -98,13 +98,13 @@ public class DocumentParserDetector {
 	 * Uses a number of heuristics to detect the correct DocumentParser for the
 	 * page.
 	 * 
-	 * @param url
-	 *            The original URL of the page.
+	 * @param definition
+	 *            The product definition
 	 * @param content
 	 *            The page content.
 	 * @return A DocumentParser instance or null if none could be found.
 	 */
-	public static DocumentParser detect(Product definition, String content, ResultHandler handler) {
+	public static DocumentParser detect(Product definition, String content, Config config) {
 
 		String url = definition.getProductUrl();
 
@@ -117,7 +117,7 @@ public class DocumentParserDetector {
 			// disable parsing based on content
 			for (String contentPattern : contentMatchesExcl) {
 				if (loweredContent.contains(contentPattern.toLowerCase())) {
-					handler.addHit("contentExclusion");
+					config.resultHandler.addHit("contentExclusion");
 					return new IgnoringParser();
 				}
 			}
@@ -128,7 +128,7 @@ public class DocumentParserDetector {
 
 				log.debug(urlType);
 				if (typeMap.containsKey(urlType)) {
-					handler.addHit("typeMap");
+					config.resultHandler.addHit("typeMap");
 					return typeMap.get(urlType).newInstance();
 				}
 			}
@@ -136,7 +136,7 @@ public class DocumentParserDetector {
 			// disable parsing of this url
 			for (String urlcase : urlMatchesExcl) {
 				if (url.contains(urlcase)) {
-					handler.addHit("urlExclusion");
+					config.resultHandler.addHit("urlExclusion");
 					return new IgnoringParser();
 				}
 			}
@@ -144,7 +144,7 @@ public class DocumentParserDetector {
 			// Try URL corner cases
 			for (String urlcase : urlMatchesOrder) {
 				if (url.contains(urlcase)) {
-					handler.addHit("urlMatch");
+					config.resultHandler.addHit("urlMatch");
 					return urlMatches.get(urlcase).newInstance();
 				}
 			}
@@ -152,7 +152,7 @@ public class DocumentParserDetector {
 			// Try content-based matchings
 			for (String contentPattern : contentMatchesOrder) {
 				if (loweredContent.contains(contentPattern.toLowerCase())) {
-					handler.addHit("contentMatch");
+					config.resultHandler.addHit("contentMatch");
 					return contentMatches.get(contentPattern).newInstance();
 				}
 			}
@@ -161,7 +161,7 @@ public class DocumentParserDetector {
 
 			Document doc = Jsoup.parse(content, baseUrl);
 
-			DocumentParser ret = detectFromGeneral(doc, definition, content, handler);
+			DocumentParser ret = detectFromGeneral(doc, definition, content, config);
 			doc = null;
 			return ret;
 
@@ -177,13 +177,11 @@ public class DocumentParserDetector {
 		return base;
 	}
 
-	private static DocumentParser detectFromGeneral(Document doc, Product definition,
-			String content, ResultHandler handler)
-			throws Exception {
+	private static DocumentParser detectFromGeneral(Document doc, Product definition, String content, Config config) throws Exception {
 
 		GeneralParser parser = new GeneralParser();
 
-		IProduct p = parser.parse(doc, definition, null);
+		IProduct p = parser.parse(doc, definition, config);
 
 		if (p != null && p.getProductName() != null) {
 			String prodName = p.getProductName().toLowerCase();
@@ -191,7 +189,7 @@ public class DocumentParserDetector {
 			// disable parsing of this url
 			for (String productNamePattern : prodNameMatchesExcl) {
 				if (prodName.contains(productNamePattern.toLowerCase())) {
-					handler.addHit("productNameExclusion");
+					config.resultHandler.addHit("productNameExclusion");
 					return new IgnoringParser();
 				}
 			}
@@ -199,7 +197,7 @@ public class DocumentParserDetector {
 			// Try URL corner cases
 			for (String productNamePattern : prodNameMatchesOrder) {
 				if (prodName.contains(productNamePattern.toLowerCase())) {
-					handler.addHit("productNameMatch");
+					config.resultHandler.addHit("productNameMatch");
 					return prodNameMatches.get(productNamePattern).newInstance();
 				}
 			}
@@ -223,15 +221,12 @@ public class DocumentParserDetector {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void init(File rulesConfig) throws IOException, ClassNotFoundException {
-		StringBuilder sb = new StringBuilder();
+	public static void init(Reader rulesConfig) throws IOException, ClassNotFoundException {
 
-		for (String line : Files.readAllLines(rulesConfig.toPath())) {
-			sb.append(line);
-			sb.append("\n");
+		RulesConfig rulesCfg;
+		try(BufferedReader reader = new BufferedReader(rulesConfig)) {
+			rulesCfg = (new Gson()).fromJson(reader, RulesConfig.class);
 		}
-
-		RulesConfig rulesCfg = (new Gson()).fromJson(sb.toString(), RulesConfig.class);
 
 		typeMap = new HashMap<>();
 
@@ -282,5 +277,9 @@ public class DocumentParserDetector {
 				addContentMatch(key, (Class<? extends DocumentParser>) Class.forName(contentMatch.get(key)));
 			}
 		}
+	}
+
+	public static void init(File rulesConfig) throws IOException, ClassNotFoundException {
+		init(new FileReader(rulesConfig));
 	}
 }

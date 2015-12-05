@@ -5,6 +5,7 @@
 package com.hp.inventory.audit.parser.parsers;
 
 import com.google.gson.Gson;
+import com.hp.inventory.audit.parser.Config;
 import com.hp.inventory.audit.parser.RulesConfig;
 import com.hp.inventory.audit.parser.handlers.ResultHandler;
 import com.hp.inventory.audit.parser.model.*;
@@ -17,11 +18,8 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -35,16 +33,12 @@ import java.util.regex.Pattern;
  */
 public abstract class DocumentParser {
 
-	@SuppressWarnings("unchecked")
-	public static void init(File rulesConfig) throws IOException, ClassNotFoundException {
-		StringBuilder sb = new StringBuilder();
-
-		for (String line : Files.readAllLines(rulesConfig.toPath())) {
-			sb.append(line);
-			sb.append("\n");
-		}
-
-		RulesConfig rulesCfg = (new Gson()).fromJson(sb.toString(), RulesConfig.class);
+		@SuppressWarnings("unchecked")
+	public static void init(Reader rulesConfig) throws IOException, ClassNotFoundException {
+        RulesConfig rulesCfg;
+        try(BufferedReader reader = new BufferedReader(rulesConfig)) {
+            rulesCfg = (new Gson()).fromJson(reader, RulesConfig.class);
+        }
 		
 		QueriesSpec.productNumberQuery = rulesCfg.queriesSpec.get("productNumberQuery");
 		QueriesSpec.productNameQuery = rulesCfg.queriesSpec.get("productNameQuery");
@@ -90,8 +84,12 @@ public abstract class DocumentParser {
 		QueriesSpec.reviewsExtractNoPostQuery = rulesCfg.queriesSpec.get("reviewsExtractNoPostQuery");
 		
 	}
-	
-	protected static class QueriesSpec {
+
+    public static void init(File rulesConfig) throws IOException, ClassNotFoundException {
+        init(new FileReader(rulesConfig));
+    }
+
+    protected static class QueriesSpec {
 		protected static String productNumberQuery; // = "span.prodNum";
 		protected static String productNameQuery; // = "span[itemprop=name]";
 
@@ -174,6 +172,8 @@ public abstract class DocumentParser {
 
 	protected Document doc;
 
+    private Config config;
+
 	Logger log = LoggerFactory.getLogger(LaptopParser.class);
 	protected Set<String> specParsed = new HashSet<>();
 
@@ -194,6 +194,7 @@ public abstract class DocumentParser {
 	protected void extractCommonProps(AbstractProduct product) throws Exception {
 
 		product.setProductNumber(text(QueriesSpec.productNumberQuery));
+        product.setProduct(definition);
 
 		definition.setProductNumber(product.getProductNumber());
 
@@ -205,37 +206,50 @@ public abstract class DocumentParser {
 		product.setProductName(text(QueriesSpec.productNameQuery));
 		product.setProductUrl(definition.getProductUrl());
 
-		product.setRating(rating(q(QueriesSpec.ratingQuery).text()));
+		// Product ratings
+		ProductRating rating = new ProductRating();
+		rating.setProductNumber(definition.getProductNumber());
+		rating.setSiteId(config.siteId);
+		rating.setRating(rating(q(QueriesSpec.ratingQuery).text()));
+		rating.setNumberOfReviews(reviews(q(QueriesSpec.reviewsQuery).text()));
+		if(rating.getRating() != null || rating.getNumberOfReviews() != null)
+			definition.getRatings().put(rating.getSiteId(), rating);
 
-		product.setStrikedPrice(cur(q(QueriesSpec.strikedPriceQuery).text()));
+
+		// Product prices
+		ProductPrice price = new ProductPrice();
+		price.setProductNumber(definition.getProductNumber());
+		price.setSiteId(config.siteId);
+		price.setStrikedPrice(cur(q(QueriesSpec.strikedPriceQuery).text()));
 
 		String currentPriceVisible = q(QueriesSpec.currentPriceQueryVisible).text();
 		String currentPrice = q(QueriesSpec.currentPriceQuery).text();
 
 		// First try to parse price from { id="price_value" } tag
 		if (currentPriceVisible != null && !currentPriceVisible.isEmpty()) {
-			product.setCurrentPrice(cur(currentPriceVisible));
+			price.setCurrentPrice(cur(currentPriceVisible));
 		}
 		// If we were unable to parce the price, then try to parse it from {
 		// itemprop="price" }
-		if (product.getCurrentPrice() == null) {
-			product.setCurrentPrice(cur(currentPrice));
+		if (price.getCurrentPrice() == null) {
+			price.setCurrentPrice(cur(currentPrice));
 		}
+
+		if (config.defaultCurrency == null) {
+			// only if default currency hasn't been set yet
+			price.setCurrency(nullIfEmpty(q(QueriesSpec.currencyQuery).attr("content")));
+		} else {
+			// otherwise set it to default
+			price.setCurrency(config.defaultCurrency);
+		}
+		if (price.getCurrentPrice() != null)
+			definition.getPrices().put(price.getSiteId(), price);
 
 		// set comingSoonDate
 		Elements comingSoon = q(QueriesSpec.comingSoonQuery);
 		if (comingSoon.size() > 0) {
 			product.setComingSoonDate(new Date());
 		}
-		if (definition.getCurrency() == null) {
-			// only if default currency hasn't been set yet
-			product.setCurrency(nullIfEmpty(q(QueriesSpec.currencyQuery).attr("content")));
-		} else {
-			// otherwise set it to default
-			product.setCurrency(definition.getCurrency());
-		}
-
-		product.setNumberOfReviews(reviews(q(QueriesSpec.reviewsQuery).text()));
 
 		definition.setImages(images());
 		definition.setTopAccessories(accessories());
@@ -247,29 +261,30 @@ public abstract class DocumentParser {
 	 * Method to extract an IProduct from a Jsoup document node.
 	 * @throws Exception 
 	 */
-	public IProduct parse(Document doc, Product definition, ResultHandler resultHandler) throws Exception {
+	public IProduct parse(Document doc, Product definition, Config config) throws Exception {
 		this.doc = doc;
 		this.definition = definition;
-		this.resultHandler = resultHandler;
-		Locale locale = getLocale();
-		IProduct result = extract();
+		this.config = config;
+        this.resultHandler = config.resultHandler;
+        AbstractProduct result = extract();
 		checkForNonParsedSpecItems(definition, resultHandler);
 		return result;
 	}
 
 	/**
-	 * Implements the specific document extraction logic. Check the
-	 * DocumentParser protected fields "definition", "doc", "resultHandler"
-	 * expose respectively current product definition, document and result
-	 * handler.
+	 * Implements the specific document extraction logic. The
+	 * DocumentParser protected fields "definition", "doc", "resultHandler" and "config"
+	 * expose respectively current product definition, document, result
+	 * handler and app configuration.
 	 *
-	 * The product number should be the first field to be extracted the
+	 * The product number should be the first field to be extracted and the
 	 * implementation must call "definition.setProductNumber" as soon as
-	 * possible.
+	 * possible. The implementation should also bind the returned IProduct and the
+     * definition by calling AbstractProduct.setProduct early.
 	 *
-	 * @return A concrete IProduct resulting form extraction.
+	 * @return A concrete AbstractProduct resulting form extraction.
 	 */
-	protected abstract IProduct extract() throws Exception;
+	protected abstract AbstractProduct extract() throws Exception;
 
 	/**
 	 * Detect document locale from meta tag, if possible. Else defaults to
@@ -763,9 +778,9 @@ public abstract class DocumentParser {
 			prodReview.setComments(textVal(review.select(QueriesSpec.reviewsExtractComentsQuery)));
 			prodReview.setUsername(textVal(review.select(QueriesSpec.reviewsExtractUsernameQuery)));
 			prodReview.setLocation(textVal(review.select(QueriesSpec.reviewsExtractLocationQuery)));
-			prodReview.setHpResponse(textVal(review.select(QueriesSpec.reviewsExtractHpResponseQuery)));
-			prodReview.setHpResponseDate(reviewHpResponseDate(review));
-			prodReview.setHpResponseUser(textVal(review.select(QueriesSpec.reviewsExtractHpResponseUserQuery)));
+			prodReview.setResponse(textVal(review.select(QueriesSpec.reviewsExtractHpResponseQuery)));
+			prodReview.setResponseDate(reviewHpResponseDate(review));
+			prodReview.setResponseUser(textVal(review.select(QueriesSpec.reviewsExtractHpResponseUserQuery)));
 
 			Elements yesVote = review.select(QueriesSpec.reviewsExtractYesQuery);
 			if (yesVote != null && yesVote.size() > 0) {
@@ -804,7 +819,7 @@ public abstract class DocumentParser {
 	}
 
 	private Date reviewPostDate(Element review) {
-		String dt = textVal(review.select(QueriesSpec.reviewsExtractPostDateQuery));
+		String dt = review.select(QueriesSpec.reviewsExtractPostDateQuery).attr("content");
 
 		if(dt!=null) {
 			try {

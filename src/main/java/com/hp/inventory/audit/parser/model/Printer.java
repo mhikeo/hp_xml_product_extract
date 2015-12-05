@@ -1266,6 +1266,6 @@ public class Printer extends AbstractProduct {
 
 	@Override
 	public void upgradeEntityFrom(IProduct from) throws Exception {
-		this.updateFrom(from);
+		IProduct.updateEntity(from, this);
 	}
 }

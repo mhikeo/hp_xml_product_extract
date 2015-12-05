@@ -7,7 +7,9 @@ package com.hp.inventory.audit.parser;
 import com.hp.inventory.audit.parser.handlers.ResultHandler;
 import com.hp.inventory.audit.parser.model.IProduct;
 import com.hp.inventory.audit.parser.model.Product;
-import com.hp.inventory.audit.parser.parsers.*;
+import com.hp.inventory.audit.parser.parsers.DocumentParser;
+import com.hp.inventory.audit.parser.parsers.DocumentParserDetector;
+import com.hp.inventory.audit.parser.parsers.IgnoringParser;
 import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,16 +28,14 @@ import java.net.URL;
  */
 public class ProductExtractorJob implements Runnable {
     private final Product definition;
-    private final File dataDir;
-    private final ResultHandler resultHandler;
+    private final Config config;
 
     Logger log = LoggerFactory.getLogger(ProductExtractorJob.class);
 
 
-    public ProductExtractorJob(File dataDir, Product definition, ResultHandler resultHandler) {
-        this.dataDir = dataDir;
+    public ProductExtractorJob(Config config, Product definition) {
+        this.config = config;
         this.definition = definition;
-        this.resultHandler = resultHandler;
     }
 
     /**
@@ -44,19 +44,21 @@ public class ProductExtractorJob implements Runnable {
      */
     @Override
     public void run() {
+        ResultHandler resultHandler = config.resultHandler;
+
         try {
             log.info("Parsing html file: {}", definition.getSourceFile());
             String baseUrl = getBaseURL(definition.getProductUrl());
-            File f = new File(this.dataDir, definition.getSourceFile());
+            File f = new File(config.dataDirectory, definition.getSourceFile());
             String content = FileUtils.readFileToString(f);
-            DocumentParser parser = DocumentParserDetector.detect(definition, content, resultHandler);
+            DocumentParser parser = DocumentParserDetector.detect(definition, content, config);
             
             if (parser != null) {
             	if(parser instanceof IgnoringParser) {
             		resultHandler.addIgnored(definition);
             	} else {
 	                Document doc = Jsoup.parse(content, baseUrl);
-	                IProduct extracted = parser.parse(doc, definition, resultHandler);
+	                IProduct extracted = parser.parse(doc, definition, config);
 	                resultHandler.extractionSucceeded(definition, extracted);
 	                doc = null; // Hint GC deallocation
 	                extracted = null; // Hint GC deallocation

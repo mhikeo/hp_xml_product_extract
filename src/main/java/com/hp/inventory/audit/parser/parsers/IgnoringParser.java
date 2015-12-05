@@ -4,10 +4,7 @@
 
 package com.hp.inventory.audit.parser.parsers;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
-import com.hp.inventory.audit.parser.model.Desktop;
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.IProduct;
 
 /**
@@ -22,7 +19,7 @@ public class IgnoringParser extends DocumentParser {
      * @inheritDoc
      */
     @Override
-    protected IProduct extract() {
+    protected AbstractProduct extract() {
     	 
     	return null;
     	

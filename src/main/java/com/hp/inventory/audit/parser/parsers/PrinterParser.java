@@ -9,7 +9,6 @@ import com.hp.inventory.audit.parser.model.IProduct;
 import com.hp.inventory.audit.parser.model.Printer;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 public class PrinterParser extends DocumentParser {
 	
 	@Override
-	protected IProduct extract() throws Exception {
+	protected AbstractProduct extract() throws Exception {
 		Printer p = new Printer();
 
 		setParsingErrorsReceiver(p);

@@ -9,8 +9,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
 
-import javax.persistence.Id;
-
 /**
  * !!Description
  *
@@ -28,22 +26,22 @@ public class ProductReviewPK implements Serializable {
 	
     private String productNumber;
 
-    private Integer Id;
+    private Integer id;
 
     public ProductReviewPK() {
     }
 
-    public ProductReviewPK(Integer siteId, String productNumber, Integer Id) {
+    public ProductReviewPK(Integer siteId, String productNumber, Integer id) {
         this.siteId = siteId;
         this.productNumber = productNumber;
-        this.Id = Id;
+        this.id = id;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
         		.append(siteId)
-        		.append(Id).toHashCode();
+        		.append(id).toHashCode();
     }
 
     @Override
@@ -58,7 +56,7 @@ public class ProductReviewPK implements Serializable {
 
         return new EqualsBuilder()
         		.append(siteId, that.siteId)
-        		.append(Id, that.Id).isEquals();
+        		.append(id, that.id).isEquals();
     }
 
 	public Integer getSiteId() {
@@ -78,11 +76,11 @@ public class ProductReviewPK implements Serializable {
 	}
 
 	public Integer getId() {
-		return Id;
+		return id;
 	}
 
 	public void setId(Integer id) {
-		Id = id;
+		this.id = id;
 	}
 
 }

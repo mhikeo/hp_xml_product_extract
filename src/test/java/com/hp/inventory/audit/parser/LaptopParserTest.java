@@ -6,7 +6,6 @@ package com.hp.inventory.audit.parser;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 
 import org.junit.Before;
@@ -19,20 +18,23 @@ import com.hp.inventory.audit.parser.parsers.LaptopParser;
 
 public class LaptopParserTest extends ParserTest {
 	private LaptopParser parser;
-	private JSONResultHandler rh;
+	private Config rh;
+	private int HP = 1;
 
 	@Before
 	public void init() {
 		parser = new LaptopParser();
-		rh = new JSONResultHandler();
-		rh.beforeStart();
+		rh = new Config();
+		rh.siteId = HP;
+		rh.resultHandler = new JSONResultHandler();
+		rh.resultHandler.beforeStart();
 	}
 
 	@Test
-	public void shouldParseCurrency() throws IOException {
+	public void shouldParseCurrency() throws Exception {
 		Product product = findProduct("productPage39.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
-		assertEquals("USD", laptop.getCurrency());
+		assertEquals("USD", laptop.getProduct().getPrices().get(HP).getCurrency());
 	}
 
 	@Test
@@ -54,44 +56,7 @@ public class LaptopParserTest extends ParserTest {
 	}
 	
 	@Test
-	public void shouldParseAndPopulateCurrentPrice() throws IOException {
-		Product product = findProduct("productPage39.html");
-		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
-		
-		assertEquals(new BigDecimal("659.99"), laptop.getCurrentPrice());
-		
-		laptop.populateCommonsToProduct(product);
-		
-		assertEquals(new BigDecimal("659.99"), product.getCurrentPrice());
-	}
-	
-	@Test
-	public void shouldParseAndPopulateStrikedPrice() throws IOException {
-		Product product = findProduct("productPage1743.html");
-		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
-		
-		assertEquals(new BigDecimal("2930.00"), laptop.getStrikedPrice());
-		
-		laptop.populateCommonsToProduct(product);
-		
-		assertEquals(new BigDecimal("2930.00"), product.getStrikedPrice());
-	}
-	
-	@Test
-	public void shouldParseAndPopulateRatingAndReviewsCount() throws IOException {
-		Product product = findProduct("productPage347.html");
-		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
-		
-		assertEquals(new Integer(3), laptop.getRating());
-		
-		laptop.populateCommonsToProduct(product);
-		
-		assertEquals(new Integer(3), product.getRating());
-		assertEquals(Integer.valueOf(5), product.getNumberOfReviews());
-	}
-	
-	@Test
-	public void shouldContainParsingError() throws IOException {
+	public void shouldContainParsingError() throws Exception {
 		Product product = findProduct("productPage168.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		
@@ -113,27 +78,27 @@ public class LaptopParserTest extends ParserTest {
 		laptopOriginal.populateCommonsToProduct(productOriginal);
 		laptopUpdated.populateCommonsToProduct(productUpdated);
 		
-		assertEquals(new BigDecimal("1694.00"), productOriginal.getCurrentPrice());
-		assertEquals(new BigDecimal("1594.00"), productUpdated.getCurrentPrice());
+		assertEquals(new BigDecimal("1694.00"), productOriginal.getPrices().get(HP).getCurrentPrice());
+		assertEquals(new BigDecimal("1594.00"), productUpdated.getPrices().get(HP).getCurrentPrice());
 
 		//now updating
 		productOriginal.upgradeEntityFrom(productUpdated);
 		
-		assertEquals(new BigDecimal("1594.00"), productOriginal.getCurrentPrice());
-		assertEquals(new BigDecimal("1694.00"), productOriginal.getPreviousPrice());
-		checkIsToday(productOriginal.getDateOfPriceChange());
+		assertEquals(new BigDecimal("1594.00"), productOriginal.getPrices().get(HP).getCurrentPrice());
+		assertEquals(new BigDecimal("1694.00"), productOriginal.getPrices().get(HP).getPreviousPrice());
+		checkIsToday(productOriginal.getPrices().get(HP).getDateOfPriceChange());
 
 	}
 	
 	@Test
-	public void shouldParseAcAdapter() throws IOException {
+	public void shouldParseAcAdapter() throws Exception {
 		Product product = findProduct("productPage616.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("45 Watt Smart nPFC AC Adapter", laptop.getAcAdapter());
 	}
 
 	@Test
-	public void shouldParseAccessories() throws IOException {
+	public void shouldParseAccessories() throws Exception {
 		Product product = findProduct("productPage616.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 
@@ -143,7 +108,7 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseAdditionalBay() throws IOException {
+	public void shouldParseAdditionalBay() throws Exception {
 		Product product = findProduct("productPage1040.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 
@@ -153,7 +118,7 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseBroadbandServiceProvider() throws IOException {
+	public void shouldParseBroadbandServiceProvider() throws Exception {
 		Product product = findProduct("productPage616.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 
@@ -161,7 +126,7 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseAudio() throws IOException {
+	public void shouldParseAudio() throws Exception {
 		Product product = findProduct("productPage125.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 
@@ -169,7 +134,7 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseBluetooth() throws IOException {
+	public void shouldParseBluetooth() throws Exception {
 		Product product = findProduct("productPage1025.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 
@@ -177,7 +142,7 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseChipset() throws IOException {
+	public void shouldParseChipset() throws Exception {
 		Product product = findProduct("productPage28.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 
@@ -185,7 +150,7 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseExternalIOPorts() throws IOException {
+	public void shouldParseExternalIOPorts() throws Exception {
 		Product product = findProduct("productPage125.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 
@@ -194,7 +159,7 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseFingerPrintReader() throws IOException {
+	public void shouldParseFingerPrintReader() throws Exception {
 		Product product = findProduct("productPage1036.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 
@@ -202,28 +167,28 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseFlashCache() throws IOException {
+	public void shouldParseFlashCache() throws Exception {
 		Product product = findProduct("productPage1036.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("No Flash Cache 32GB Flash Cache", laptop.getFlashCache());
 	}
 
 	@Test
-	public void shouldParseHpMobileBroadband() throws IOException {
+	public void shouldParseHpMobileBroadband() throws Exception {
 		Product product = findProduct("productPage616.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("No HP Mobile Broadband HP hs3110 HSPA+ w/GPS Huawei MU736 - 3G HP lt4211 LTE HSPA+ EVDO w/GPS Foxconn NA-1-S3 - 4G", laptop.getHpMobileBroadband());
 	}
 
 	@Test
-	public void shouldParseLabelEnergyStar() throws IOException {
+	public void shouldParseLabelEnergyStar() throws Exception {
 		Product product = findProduct("productPage616.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("ENERGY STAR Qualified Configuration", laptop.getLabelEnergyStar());
 	}
 
 	@Test
-	public void shouldParseLaplinkPcmoverSoftware() throws IOException {
+	public void shouldParseLaplinkPcmoverSoftware() throws Exception {
 		Product product = findProduct("productPage125.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("Laplink PCmover CD only -The easiest way to moves your programs, files and settings",
@@ -231,7 +196,7 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseSecuritySoftware() throws IOException {
+	public void shouldParseSecuritySoftware() throws Exception {
 		Product product = findProduct("productPage125.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals(
@@ -240,21 +205,21 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseMemorySlots() throws IOException {
+	public void shouldParseMemorySlots() throws Exception {
 		Product product = findProduct("productPage23.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("1 user-accessible", laptop.getMemorySlots());
 	}
 
 	@Test
-	public void shouldParseMiniCard() throws IOException {
+	public void shouldParseMiniCard() throws Exception {
 		Product product = findProduct("productPage675.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("128GB Z Turbo Drive PCIe Solid-State Drive (SSD) 256GB Z Turbo Drive PCIe Solid-State Drive (SSD)", laptop.getMiniCard());
 	}
 
 	@Test
-	public void shouldParseMiniCardSsd() throws IOException {
+	public void shouldParseMiniCardSsd() throws Exception {
 		Product product = findProduct("productPage1040.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals(
@@ -263,35 +228,35 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseMiscWarrantyDocumentation() throws IOException {
+	public void shouldParseMiscWarrantyDocumentation() throws Exception {
 		Product product = findProduct("productPage1025.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("No Extended Warranty Service Selected", laptop.getMiscWarrantyDocumentation());
 	}
 
 	@Test
-	public void shouldParseModem() throws IOException {
+	public void shouldParseModem() throws Exception {
 		Product product = findProduct("productPage1090.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("No Modem 56K v.92 Modem", laptop.getModem());
 	}
 
 	@Test
-	public void shouldParseNearFieldCommunication() throws IOException {
+	public void shouldParseNearFieldCommunication() throws Exception {
 		Product product = findProduct("productPage1025.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("No Near Field Communication Near Field Communication Module", laptop.getNearFieldCommunication());
 	}
 
 	@Test
-	public void shouldParseOsRecoveryCd() throws IOException {
+	public void shouldParseOsRecoveryCd() throws Exception {
 		Product product = findProduct("productPage1025.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("System Recovery DVD for Windows 7 Professional 32-bit System Recovery DVD for Windows 7 Professional 64-bit", laptop.getOsRecoveryCd());
 	}
 
 	@Test
-	public void shouldParseOfficeSoftware() throws IOException {
+	public void shouldParseOfficeSoftware() throws Exception {
 		Product product = findProduct("productPage125.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals(
@@ -300,98 +265,98 @@ public class LaptopParserTest extends ParserTest {
 	}
 
 	@Test
-	public void shouldParseOpticalDrive() throws IOException {
+	public void shouldParseOpticalDrive() throws Exception {
 		Product product = findProduct("productPage28.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("DVD+/-RW SuperMulti DL", laptop.getOpticalDrive());
 	}
 
 	@Test
-	public void shouldParseOutOfBandManagement() throws IOException {
+	public void shouldParseOutOfBandManagement() throws Exception {
 		Product product = findProduct("productPage616.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("No Intel(R) vPro(TM) Technology", laptop.getOutOfBandManagement());
 	}
 
 	@Test
-	public void shouldParsePersonalization() throws IOException {
+	public void shouldParsePersonalization() throws Exception {
 		Product product = findProduct("productPage125.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("HP TrueVision HD Webcam with Digital Microphone (natural silver) HP TrueVision HD Webcam with Digital Microphone (vibrant red)", laptop.getPersonalization());
 	}
 
 	@Test
-	public void shouldParsePowerCord() throws IOException {
+	public void shouldParsePowerCord() throws Exception {
 		Product product = findProduct("productPage616.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("Power Cord - 1.0 Meters Power Cord - 1.8 Meters", laptop.getPowerCord());
 	}
 
 	@Test
-	public void shouldParseProcessorFamily() throws IOException {
+	public void shouldParseProcessorFamily() throws Exception {
 		Product product = findProduct("productPage28.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("Intel® Core™ i7 processor", laptop.getProcessorFamily());
 	}
 	
 	@Test
-	public void shouldParseOperatingSystem() throws IOException {
+	public void shouldParseOperatingSystem() throws Exception {
 		Product product = findProduct("productPage39.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("Windows 10 Home 64", laptop.getOperatingSystem());
 	}
 	
 	@Test
-	public void shouldParseProcessorTechnology() throws IOException {
+	public void shouldParseProcessorTechnology() throws Exception {
 		Product product = findProduct("productPage20.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("Intel Turbo Boost Technology", laptop.getProcessorTechnology());
 	}
 
 	@Test
-	public void shouldParseRecoveryMediaDriver() throws IOException {
+	public void shouldParseRecoveryMediaDriver() throws Exception {
 		Product product = findProduct("productPage616.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("Driver DVD for Windows 7 without OS Media Driver DVD for Windows 8.1 without OS Media", laptop.getRecoveryMediaDriver());
 	}
 
 	@Test
-	public void shouldParseSecurityManagement() throws IOException {
+	public void shouldParseSecurityManagement() throws Exception {
 		Product product = findProduct("productPage28.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("Standard: HP Client Security (Windows 7 & 8 only); HP Sure Start; HP Fingerprint Sensor; Integrated Smart Card Reader; Enhanced Pre-Boot Security (multiuser/multifactor); HP Spare Key (requires initial user setup); One-Step Logon; Common Criteria EAL4+ Augmented Certified Discrete TPM 1.2 Embedded Security Chip; Security lock slot; Support for Intel AT; Optional: Computrace with GPS Tracking (sold separately and requires the purchase of subscription)", laptop.getSecurityManagement());
 	}
 
 	@Test
-	public void shouldParseSensors() throws IOException {
+	public void shouldParseSensors() throws Exception {
 		Product product = findProduct("productPage3.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("Accelerometer", laptop.getSensors());
 	}
 
 	@Test
-	public void shouldParseTheftProtection() throws IOException {
+	public void shouldParseTheftProtection() throws Exception {
 		Product product = findProduct("productPage125.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("Computrace LoJack for Laptops, One Year Computrace LoJack for Laptops, Two Years Computrace LoJack for Laptops, Four Years ($60 savings)", laptop.getTheftProtection());
 	}
 
 	@Test
-	public void shouldParseWarrantyBattery() throws IOException {
+	public void shouldParseWarrantyBattery() throws Exception {
 		Product product = findProduct("productPage675.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("3 year Battery Warranty Card", laptop.getWarrantyBattery());
 	}
 
 	@Test
-	public void shouldParseBoxContents() throws IOException {
+	public void shouldParseBoxContents() throws Exception {
 		Product product = findProduct("productPage2.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals("Gift card", laptop.getBoxContents());
 	}
 
 	@Test
-	public void shouldParseWirelessLan() throws IOException {
+	public void shouldParseWirelessLan() throws Exception {
 		Product product = findProduct("productPage616.html");
 		Laptop laptop = (Laptop) parser.parse(parseHtml(product), product, rh);
 		assertEquals(

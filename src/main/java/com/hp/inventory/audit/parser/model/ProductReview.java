@@ -21,6 +21,59 @@ import javax.persistence.*;
 @IdClass(ProductReviewPK.class)
 public class ProductReview {
 
+	@Id
+	private Integer siteId;
+
+	@Id
+	private String productNumber;
+
+	@Id
+	private Integer id;
+
+	private Date reviewDate;
+
+	private Integer rating;
+	private Integer scale;
+
+	private String title;
+	private String comments;
+	private String username;
+	private String location;
+
+	private String response;
+	private Date responseDate;
+	private String responseUser;
+	private Integer reviewHelpfulYesCount;
+	private Integer reviewHelpfulNoCount;
+
+	@ManyToOne
+	@JoinColumn(name="productNumber", insertable = false, updatable = false)
+	private Product product;
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder()
+				.append(siteId)
+				.append(productNumber)
+				.append(id).toHashCode();
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj)
+			return true;
+
+		if (!(obj instanceof ProductReview))
+			return false;
+
+		ProductReview that = (ProductReview) obj;
+
+		return new EqualsBuilder()
+				.append(siteId, that.siteId)
+				.append(productNumber, that.productNumber)
+				.append(id, that.id).isEquals();
+	}
+
 	public Integer getSiteId() {
 		return siteId;
 	}
@@ -38,11 +91,11 @@ public class ProductReview {
 	}
 
 	public Integer getId() {
-		return Id;
+		return id;
 	}
 
 	public void setId(Integer id) {
-		Id = id;
+		this.id = id;
 	}
 
 	public Date getReviewDate() {
@@ -101,28 +154,28 @@ public class ProductReview {
 		this.location = location;
 	}
 
-	public String getHpResponse() {
-		return hpResponse;
+	public String getResponse() {
+		return response;
 	}
 
-	public void setHpResponse(String hpResponse) {
-		this.hpResponse = hpResponse;
+	public void setResponse(String response) {
+		this.response = response;
 	}
 
-	public Date getHpResponseDate() {
-		return hpResponseDate;
+	public Date getResponseDate() {
+		return responseDate;
 	}
 
-	public void setHpResponseDate(Date hpResponseDate) {
-		this.hpResponseDate = hpResponseDate;
+	public void setResponseDate(Date responseDate) {
+		this.responseDate = responseDate;
 	}
 
-	public String getHpResponseUser() {
-		return hpResponseUser;
+	public String getResponseUser() {
+		return responseUser;
 	}
 
-	public void setHpResponseUser(String hpResponseUser) {
-		this.hpResponseUser = hpResponseUser;
+	public void setResponseUser(String responseUser) {
+		this.responseUser = responseUser;
 	}
 
 	public Integer getReviewHelpfulYesCount() {
@@ -148,58 +201,5 @@ public class ProductReview {
 	public void setProduct(Product product) {
 		this.product = product;
 	}
-
-	@Id
-    private Integer siteId;
-	
-	@Id
-    private String productNumber;
-
-	@Id
-    private Integer Id;
-
-    private Date reviewDate;
-
-    private Integer rating;
-    private Integer scale;
-
-    private String title;
-    private String comments;
-    private String username;
-    private String location;
-
-    private String hpResponse;
-    private Date hpResponseDate;
-    private String hpResponseUser;
-    private Integer reviewHelpfulYesCount;
-    private Integer reviewHelpfulNoCount;
-
-    @ManyToOne
-    @JoinColumn(name="productNumber", insertable = false, updatable = false)
-    private Product product;
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder()
-        		.append(siteId)
-        		.append(productNumber)
-        		.append(Id).toHashCode();
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj)
-            return true;
-
-        if (!(obj instanceof ProductReview))
-            return false;
-
-        ProductReview that = (ProductReview) obj;
-
-        return new EqualsBuilder()
-        		.append(siteId, that.siteId)
-        		.append(productNumber, that.productNumber)
-        		.append(Id, that.Id).isEquals();
-    }
 
 }

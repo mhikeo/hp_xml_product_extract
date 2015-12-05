@@ -5,10 +5,9 @@
 package com.hp.inventory.audit.parser.parsers;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.Desktop;
-import com.hp.inventory.audit.parser.model.IProduct;
 
 /**
  * Document parser for "PDP" type Desktop pages
@@ -23,7 +22,7 @@ public class DesktopParser extends DocumentParser {
      * @inheritDoc
      */
     @Override
-    protected IProduct extract() throws Exception {
+    protected AbstractProduct extract() throws Exception {
 
     	Desktop p = new Desktop();
         

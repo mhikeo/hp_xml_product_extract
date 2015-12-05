@@ -95,8 +95,8 @@
 		"imagesSelectPostQuery" : "img[itemprop=image",
 		
 		"reviewsExtractQuery" : "div.BVRRDisplayContentBody .BVRRContentReview",
-		"reviewsExtractDateFormat" : "yyyy-MM-dd",
-		"reviewsExtractPostDateQuery" : "meta[itemprop=datePublished]",
+		"reviewsExtractDateFormat" : "MMM dd, yyyy",
+		"reviewsExtractPostDateQuery" : ".BVRRReviewDate",
 		"reviewsExtractHpResponseDateQuery" : ".BVRRReviewClientResponseSubtitleDate",
 		"reviewsExtractRatingQuery" : "span[itemprop=ratingValue]",
 		"reviewsExtractScaleQuery" : "span[itemprop=bestRating]",

@@ -32,10 +32,6 @@ public class ProductIterable implements Iterable<Product>, Iterator<Product> {
     private String[] row;
     private final DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.localDateOptionalTimeParser();
 
-    /**@since 1.0.1
-     */
-    private String defaultCurrency;
-
     /**@since 1.0.2
      */
     private String listDelimiter;
@@ -44,13 +40,10 @@ public class ProductIterable implements Iterable<Product>, Iterator<Product> {
      */
     private Integer propertiesThreshold;
 
-    public ProductIterable(File source, String defaultCurrency,
-    		String listDelimiter,
-    		Integer propertiesThreshold) {
+    public ProductIterable(File source, Config config) {
         this.source = source;
-        this.defaultCurrency = defaultCurrency;
-        this.listDelimiter = listDelimiter;
-        this.propertiesThreshold = propertiesThreshold;
+        this.listDelimiter = config.listDelimiter;
+        this.propertiesThreshold = config.propertiesThreshold;
     }
 
     @Override
@@ -111,7 +104,6 @@ public class ProductIterable implements Iterable<Product>, Iterator<Product> {
         p.setSourceFile(file);
         p.setProductUrl(url);
         p.setAuditTimeStamp(extractionTimeStamp);
-        p.setCurrency(defaultCurrency);
         p.setListDelimiter(listDelimiter);
         p.setPropertiesThreshold(propertiesThreshold);
         return p;
