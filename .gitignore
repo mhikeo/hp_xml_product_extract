@@ -6,3 +6,5 @@ parser.log
 .gradle
 *.iml
 report.json
+.DS_Store
+~$*.doc
