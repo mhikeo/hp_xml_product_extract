@@ -5,6 +5,9 @@ parser.log
 .idea
 .gradle
 *.iml
+*.iws
+*.ipr
+*.ids
 report.json
 .DS_Store
 ~$*.doc

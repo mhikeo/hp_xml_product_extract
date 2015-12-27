@@ -49,7 +49,7 @@ public class Laptop extends AbstractProduct implements  ProcessorGraphicsMixin {
 
     private String color;
 
-    private String poitingDevices;
+    private String pointingDevices;
 
     private String keyboard;
 
@@ -516,12 +516,12 @@ public class Laptop extends AbstractProduct implements  ProcessorGraphicsMixin {
         this.operatingSystem = operatingSystem;
     }
 
-    public String getPoitingDevices() {
-        return poitingDevices;
+    public String getPointingDevices() {
+        return pointingDevices;
     }
 
-    public void setPoitingDevices(String poitingDevices) {
-        this.poitingDevices = poitingDevices;
+    public void setPointingDevices(String pointingDevices) {
+        this.pointingDevices = pointingDevices;
     }
 
     public String getPorts() {

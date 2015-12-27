@@ -16,6 +16,8 @@
         <class>com.hp.inventory.audit.parser.model.Desktop</class>
         <class>com.hp.inventory.audit.parser.model.Tablet</class>
         <class>com.hp.inventory.audit.parser.model.Printer</class>
+        <class>com.hp.inventory.audit.parser.model.InkAndToner</class>
+        <class>com.hp.inventory.audit.parser.model.Monitor</class>
         <class>com.hp.inventory.audit.parser.model.ProductImage</class>
         <class>com.hp.inventory.audit.parser.model.RelatedAccessory</class>
         <class>com.hp.inventory.audit.parser.model.ProductReview</class>
@@ -26,9 +28,9 @@
         <properties>
 
             <!-- Change these properties for your environment -->
-            <property name="javax.persistence.jdbc.url" value="jdbc:vertica://127.0.0.1:5433/hp_product_extract" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:vertica://127.0.0.1:5433/hp_product_audit" />
             <property name="javax.persistence.jdbc.user" value="dbadmin" />
-            <property name="javax.persistence.jdbc.password" value="hp_quality" />
+            <property name="javax.persistence.jdbc.password" value="password" />
             <property name="javax.persistence.jdbc.driver" value="com.vertica.jdbc.Driver" />
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL81Dialect" />

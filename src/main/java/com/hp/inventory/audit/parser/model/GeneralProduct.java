@@ -21,6 +21,7 @@ import java.util.Set;
  * @author TCDEVELOPER
  * @version 1.0.0
  */
+@Entity
 public class GeneralProduct extends AbstractProduct {
 
 	@Override

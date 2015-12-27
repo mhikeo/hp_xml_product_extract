@@ -5,6 +5,7 @@
 package com.hp.inventory.audit.parser;
 
 import com.hp.inventory.audit.parser.handlers.DBResultHandler;
+import com.hp.inventory.audit.parser.handlers.DetectOnlyHandler;
 import com.hp.inventory.audit.parser.handlers.JSONResultHandler;
 import com.hp.inventory.audit.parser.parsers.DocumentParser;
 import com.hp.inventory.audit.parser.parsers.DocumentParserDetector;
@@ -47,8 +48,8 @@ public class Main {
     }
 
     public static void start(Config config) throws ClassNotFoundException, IOException {
-    	DocumentParserDetector.init(config.rulesConfig);
-    	DocumentParser.init(config.rulesConfig);
+        DocumentParserDetector.init(config.rulesConfig);
+        DocumentParser.init(config.rulesConfig);
 
         ExtractionJobRunner parser = new ExtractionJobRunner();
         parser.setConfig(config);
@@ -58,6 +59,7 @@ public class Main {
     /**
      * Create configuration options, parse the command-line arguments and return a Config object with the
      * parsed parameters.
+     *
      * @param args The command-line args from "main".
      * @return a configured Config object.
      * @throws Exception
@@ -89,28 +91,38 @@ public class Main {
             }
         } else {
             config.maxJobs = Runtime.getRuntime().availableProcessors();
-            //config.maxJobs = 1;
         }
 
         if (cmd.hasOption("r")) {
-            if (cmd.getOptionValue("r").toLowerCase().equals("db")) {
+            String val = cmd.getOptionValue("r").toLowerCase();
+            String file = cmd.getOptionValue("f", null);
+            PrintWriter output = file == null ? new PrintWriter(System.out) : new PrintWriter(new FileWriter(file));
+
+            // Disable progress-bar display if we're outputting to stdout.
+            if (file == null)
+                config.showProgressBar = false;
+
+            if (val.equals("db")) {
                 config.resultHandler = new DBResultHandler();
 
-            } else if (cmd.getOptionValue("r").toLowerCase().equals("json")) {
-                PrintWriter output = new PrintWriter(System.out);
-                if (cmd.hasOption("f")) {
-                    output = new PrintWriter(new FileWriter(cmd.getOptionValue("f")));
-                }
-
+            } else if (val.equals("json")) {
                 JSONResultHandler h = new JSONResultHandler();
                 h.setOutput(output);
                 config.resultHandler = h;
+
+            } else if (val.equals("detect")) {
+                DetectOnlyHandler h = new DetectOnlyHandler();
+                h.setOutput(output);
+                config.resultHandler = h;
+
             } else {
-                throw new ParseException("Output should be either 'db' or 'json': " + cmd.getOptionValue("o"));
+                throw new ParseException("Output should be one of 'db', 'json', 'detect': " + val);
             }
         } else {
             config.resultHandler = new DBResultHandler();
         }
+        config.resultHandler.setConfig(config);
+
 
         if (cmd.hasOption("s")) {
             try {
@@ -132,36 +144,36 @@ public class Main {
         /**@since 1.0.1
          */
         if (cmd.hasOption("c")) {
-        	config.defaultCurrency = cmd.getOptionValue("c");
+            config.defaultCurrency = cmd.getOptionValue("c");
         } else {
-        	config.defaultCurrency = null;
+            config.defaultCurrency = null;
         }
-        
+
         /**@since 1.0.2
          */
         if (cmd.hasOption("l")) {
-        	config.listDelimiter = cmd.getOptionValue("l");
+            config.listDelimiter = cmd.getOptionValue("l");
         } else {
-        	config.listDelimiter = "\n";
+            config.listDelimiter = "\n";
         }
-        
+
         /**@since 1.0.3
          */
         if (cmd.hasOption("t")) {
-        	config.propertiesThreshold = Integer.parseInt(cmd.getOptionValue("t"));
+            config.propertiesThreshold = Integer.parseInt(cmd.getOptionValue("t"));
         } else {
-        	config.propertiesThreshold = 3;
+            config.propertiesThreshold = 3;
         }
-        
+
         /**@since 1.0.3
          */
         if (!cmd.hasOption("cfg")) {
-        	printHelpAndQuit();
+            printHelpAndQuit();
         } else {
-        	config.rulesConfig  = new File(cmd.getOptionValue("cfg"));
+            config.rulesConfig = new File(cmd.getOptionValue("cfg"));
             checkConfigReadable(config.rulesConfig);
         }
-        
+
         return config;
 
     }
@@ -185,6 +197,7 @@ public class Main {
             throw new ParseException("File is not readable: " + file.getAbsolutePath());
         }
     }
+
     private static void printHelpAndQuit() {
         HelpFormatter fmt = new HelpFormatter();
         fmt.printHelp(EXECUTABLE_NAME, options, true);
@@ -207,19 +220,22 @@ public class Main {
         options.addOption("d", "data", true, "Data directory. Required.");
         options.getOption("d").setRequired(true);
 
-        options.addOption("r", "result-handler", true, "Result handler type. 'db' for writing to the database, " +
-                "'json' for outputting a JSON representation of the extracted products. Defaults to 'db'.");
+        options.addOption("r", "result-handler", true, "Result handler type. " +
+                "'db' for writing to the database, " +
+                "'json' for outputting a JSON representation of the extracted products, " +
+                "'detect' for running only the parser detection phase and reporting the results as CSV." +
+                "Defaults to 'db'.");
 
         options.addOption("j", "jobs", true, "Max number of parallel jobs. Defaults to number of cores.");
 
         options.addOption("h", "Show this help file.");
 
-        options.addOption("f", "file", true, "(JSON only) specify the output file. Defaults to console.");
+        options.addOption("f", "file", true, "Specify the output file for 'json' and 'detect' handlers. Defaults to console.");
 
         options.addOption("p", "report-file", true, "Specify the extraction report output file. Defaults to 'report.json'.");
 
         options.addOption("s", "single", true, "If present, extracts a single page with the given number instead of all pages.");
-        
+
         /** @since 1.0.1
          */
         options.addOption("c", "currency", true, "Specify the currency to set to all parsed products. " +
@@ -229,16 +245,16 @@ public class Main {
          */
         options.addOption("l", "delimiter", true, "Specify the delimiter to use for property list. " +
                 "Defaults to line feed (\\n)");
-        
+
         /** @since 1.0.3
          */
         options.addOption("t", "threshold", true, "Specify the number of required properties to accept the page as a product description.");
-        
+
         /** @since 1.0.3
          */
         options.addOption("cfg", "config", true, "Rules config file. Required.");
 
-        options.addOption("i","site-id", true, "The siteId value to use. Check your database for valid values. Default to 1");
-}
+        options.addOption("i", "site-id", true, "The siteId value to use. Check your database for valid values. Default to 1");
+    }
 
 }

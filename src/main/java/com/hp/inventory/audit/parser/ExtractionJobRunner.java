@@ -6,34 +6,43 @@ package com.hp.inventory.audit.parser;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hp.inventory.audit.parser.handlers.ResultHandler;
 import com.hp.inventory.audit.parser.model.Product;
 
 /**
  * Main class for running HP Product page parsing jobs.
+ *
  * @author TCDEVELOPER
  * @version 1.0.0
  */
 public class ExtractionJobRunner {
 
 
-    /**
-     * The location of the source CSV file within data directory
-     */
-    private static final String SOURCE_CSV = "source.csv";
-
     Logger log = LoggerFactory.getLogger(ExtractionJobRunner.class);
 
     private Config config;
+
+    private int doneCount;
+    private int futureCount;
+    private long startTime;
+    private PeriodFormatter periodFormatter = new PeriodFormatterBuilder()
+            .appendHours()
+            .appendSuffix("h")
+            .appendMinutes()
+            .appendSuffix("m")
+            .minimumPrintedDigits(2)
+            .printZeroAlways()
+            .appendSeconds()
+            .appendSuffix("s")
+            .toFormatter();
 
     /**
      * Iterate the source file, extract product information and adds to the database.
@@ -44,52 +53,63 @@ public class ExtractionJobRunner {
         log.info("Maximum of jobs: {}", config.maxJobs);
         ExecutorService executorService = Executors.newFixedThreadPool(config.maxJobs);
 
-        List<Future> futures = new LinkedList<>();
-
         config.resultHandler.beforeStart();
 
-        Iterable<Product> products;
-        if (config.singleProductId == -1) {
-            products = parseProducts();
-        } else {
-            ArrayList<Product> arr = new ArrayList<>();
-            Product p = getProduct();
-            if (p != null) arr.add(p);
-            products = arr;
-        }
-
+        startTime = System.currentTimeMillis();
+        Iterable<Product> products = new ProductIterable(config);
         for (Product prod : products) {
+            if (config.singleProductId != -1 && prod.getId() != config.singleProductId) {
+                continue;
+            }
+
             log.debug("Adding product Id:{} to parsing queue", prod.getId());
-            ProductExtractorJob extractor  = new ProductExtractorJob(config, prod);
-            futures.add(executorService.submit(extractor));
+            ProductExtractorJob extractor = new ProductExtractorJob(config, prod);
+            CompletableFuture future = CompletableFuture.runAsync(extractor, executorService);
+            //noinspection unchecked
+            future
+                    .thenRun(ExtractionJobRunner.this::tick)
+                    .exceptionally((e) -> {
+                        log.error("Unexpected exception when running the extraction job", e);
+                        return null;
+                    });
+            futureCount++;
         }
 
         // Wait for all the futures to return
-        for(Future f : futures) {
-            try {
-                f.get();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ignored) {
+
         }
 
-        executorService.shutdown();
+        config.resultHandler.afterFinish();
 
         config.resultHandler.reportResults();
     }
 
-    private Product getProduct() {
-        for (Product prod : parseProducts()) {
-            if (prod.getId() == config.singleProductId) {
-                return prod;
-            }
-        }
-        return null;
+    private void tick() {
+        doneCount++;
+
+        if (futureCount == 0) return;
+        if (doneCount % 10 != 0) return;
+
+        double progressPercent = ((double) doneCount / (double)futureCount) * 100.0;
+
+        long ctime = System.currentTimeMillis();
+        long elapsed = (ctime - startTime);
+
+        double speed = (double) doneCount / (double)elapsed;
+
+        long eta = (int)Math.round((futureCount- doneCount) / speed);
+        String etaString = periodFormatter.print(new Period(eta));
+
+        log.info(String.format("PROGRESS: %.2f%% [%s/%s]. %.2f per sec. ETA: %s",
+                progressPercent, doneCount, futureCount, speed * 1000d, etaString));
     }
 
-
     private Iterable<Product> parseProducts() {
-        return new ProductIterable(new File(config.dataDirectory, SOURCE_CSV), config);
+        return new ProductIterable(config);
     }
 
     /**

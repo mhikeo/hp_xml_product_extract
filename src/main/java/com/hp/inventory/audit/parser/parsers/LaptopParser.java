@@ -5,7 +5,6 @@
 package com.hp.inventory.audit.parser.parsers;
 
 import com.hp.inventory.audit.parser.model.AbstractProduct;
-import com.hp.inventory.audit.parser.model.IProduct;
 import com.hp.inventory.audit.parser.model.Laptop;
 
 import java.math.BigDecimal;
@@ -54,7 +53,7 @@ public class LaptopParser extends DocumentParser {
         p.setMemory(prop("Memory", listDelimiter));
         p.setModelNumber(prop("Model number", listDelimiter));
         p.setOperatingSystem(prop("Operating system", listDelimiter));
-        p.setPoitingDevices(prop("Pointing devices", listDelimiter));
+        p.setPointingDevices(prop("Pointing devices", listDelimiter));
         p.setPorts(prop("Ports", listDelimiter));
         p.setPowerSupply(prop("Power supply", listDelimiter));
         p.setSoftwareIncluded(any(prop("Software included", listDelimiter), prop("Software", listDelimiter)));

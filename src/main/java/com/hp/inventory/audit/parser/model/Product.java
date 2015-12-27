@@ -63,6 +63,8 @@ public class Product implements IProduct {
     
     @Expose
     private String sourceFile;
+
+    private String fullText;
     
     @Expose
     private Date auditTimeStamp;
@@ -97,7 +99,7 @@ public class Product implements IProduct {
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
     @Fetch(FetchMode.JOIN)
     @BatchSize(size=100)
-    private Set<RelatedAccessory> topAccessories = new HashSet<RelatedAccessory>();
+    private Set<RelatedAccessory> accessories = new HashSet<RelatedAccessory>();
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
     @Fetch(FetchMode.JOIN)
@@ -129,16 +131,16 @@ public class Product implements IProduct {
     	updateSet(this.images, images, false, true);
     }
 
-    public void setTopAccessories(Set<RelatedAccessory> topAccessories) throws Exception {
-    	updateSet(this.topAccessories, topAccessories, false, true);
+    public void setAccessories(Set<RelatedAccessory> topAccessories) throws Exception {
+    	updateSet(this.accessories, topAccessories, false, true);
     }
     
     public void setReviews(Set<ProductReview> reviews) throws Exception {
     	updateSet(this.reviews, reviews, true, false);
     }
     
-    public Set<RelatedAccessory> getTopAccessories() {
-        return topAccessories;
+    public Set<RelatedAccessory> getAccessories() {
+        return accessories;
     }
     
     public Date getAuditTimeStamp() {
@@ -231,8 +233,15 @@ public class Product implements IProduct {
 		this.productType = productType;
 	}
 
+    public String getFullText() {
+        return fullText;
+    }
 
-	public Set<ProductReview> getReviews() {
+    public void setFullText(String fullText) {
+        this.fullText = fullText;
+    }
+
+    public Set<ProductReview> getReviews() {
 		return reviews;
 	}
 

@@ -32,6 +32,12 @@ public class ProductIterable implements Iterable<Product>, Iterator<Product> {
     private String[] row;
     private final DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.localDateOptionalTimeParser();
 
+    /**
+     * The location of the source CSV file within data directory
+     */
+    public static final String SOURCE_CSV = "source.csv";
+
+
     /**@since 1.0.2
      */
     private String listDelimiter;
@@ -40,8 +46,8 @@ public class ProductIterable implements Iterable<Product>, Iterator<Product> {
      */
     private Integer propertiesThreshold;
 
-    public ProductIterable(File source, Config config) {
-        this.source = source;
+    public ProductIterable(Config config) {
+        this.source = new File(config.dataDirectory, SOURCE_CSV);
         this.listDelimiter = config.listDelimiter;
         this.propertiesThreshold = config.propertiesThreshold;
     }

@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.persistence.*;
 
 /**
- * !!Description
+ * Model for related accessories.
  *
  * @author TCDEVELOPER
  * @version 1.0.0
@@ -20,36 +20,22 @@ import javax.persistence.*;
 public class RelatedAccessory {
 
     @Id
-    private String url;
+    private String productNumber;
 
     @Id
-    private String productNumber;
+    private String accessoryProductNumber;
 
     @Version
     private Long version;
 
-
-    private String name;
+    // When persisting to database, the URL won't be saved, but replaced by the proper accessory product
+    // number. This, this field is marked transient
+    @Transient
+    private String url;
 
     @ManyToOne
     @JoinColumn(name="productNumber", insertable = false, updatable = false)
     private Product product;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getProductNumber() {
-        return productNumber;
-    }
-
-    public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
-    }
 
     public String getUrl() {
         return url;
@@ -57,6 +43,23 @@ public class RelatedAccessory {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getAccessoryProductNumber() {
+        return accessoryProductNumber;
+    }
+
+    public void setAccessoryProductNumber(String accessoryProductNumber) {
+        this.accessoryProductNumber = accessoryProductNumber;
+    }
+
+
+    public String getProductNumber() {
+        return productNumber;
+    }
+
+    public void setProductNumber(String productNumber) {
+        this.productNumber = productNumber;
     }
 
     public Product getProduct() {
@@ -69,7 +72,10 @@ public class RelatedAccessory {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(url).append(productNumber).toHashCode();
+        return new HashCodeBuilder()
+                .append(accessoryProductNumber)
+                .append(productNumber)
+                .append(url).toHashCode();
     }
 
     @Override
@@ -82,7 +88,11 @@ public class RelatedAccessory {
 
         RelatedAccessory that = (RelatedAccessory) obj;
 
-        return new EqualsBuilder().append(url, that.url).append(productNumber, that.productNumber).isEquals();
+        return new EqualsBuilder()
+                .append(accessoryProductNumber, that.accessoryProductNumber)
+                .append(productNumber, that.productNumber)
+                .append(url, that.url)
+                .isEquals();
     }
 
     public Long getVersion() {

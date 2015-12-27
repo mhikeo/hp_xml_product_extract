@@ -9,6 +9,7 @@ import com.hp.inventory.audit.parser.model.IProduct;
 import com.hp.inventory.audit.parser.model.Printer;
 
 import java.math.BigDecimal;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +22,9 @@ import org.apache.commons.lang3.StringUtils;
  * @version 1.0.3
  */
 public class PrinterParser extends DocumentParser {
-	
+
+	private Pattern highEndPrinterPattern = Pattern.compile("Designjet|Latex|PageWide|Scitex");
+
 	@Override
 	protected AbstractProduct extract() throws Exception {
 		Printer p = new Printer();
@@ -100,7 +103,9 @@ public class PrinterParser extends DocumentParser {
 		/**
 		 * @since 1.0.1 Printer type
 		 */
-		if (p.getPrintTechnology() != null
+		if (highEndPrinterPattern.matcher(p.getProductName()).find()) {
+			p.setType("HighEnd");
+		} else if (p.getPrintTechnology() != null
 				&& p.getPrintTechnology().contains("Laser")) {
 			p.setType("Laser");
 		} else {

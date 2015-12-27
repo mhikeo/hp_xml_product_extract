@@ -4,8 +4,10 @@
 
 package com.hp.inventory.audit.parser.handlers;
 
+import com.hp.inventory.audit.parser.Config;
 import com.hp.inventory.audit.parser.model.IProduct;
 import com.hp.inventory.audit.parser.model.Product;
+import com.hp.inventory.audit.parser.parsers.DetectionResult;
 import com.hp.inventory.audit.parser.parsers.DocumentParser;
 
 import java.io.PrintWriter;
@@ -18,6 +20,11 @@ import java.util.Set;
  * @version 1.0.0
  */
 public interface ResultHandler {
+
+    /**
+     * Passes the config object.
+     */
+    void setConfig(Config config);
 
     /**
      * Called when a product extraction fails.
@@ -47,6 +54,11 @@ public interface ResultHandler {
      */
     default void beforeStart(){ }
 
+    /**
+     * Method called after finishing the job.
+     */
+    default void afterFinish(){ }
+
 
     /**
      * Method called after job finish, to report errors to the user.
@@ -56,13 +68,15 @@ public interface ResultHandler {
     /**
      * Sets the execution report output.
      */
-    void setReportOutput(PrintWriter printWriter);
+    default void setReportOutput(PrintWriter printWriter) { }
 
-    void addParserNotFound(Product definition);
+    /**
+     * Called when a parser detection succeeded;
+     */
+    void detectionSucceeded(DetectionResult detectionResult, Product definition, IProduct extracted);
 
-	void detectParserFailed(Product definition);
-
-	void addIgnored(Product definition);
-
-	void addHit(String string);
+    /**
+     * Called when a parser detection throws an exception;
+     */
+    void detectionFailed(Product definition, Exception e);
 }

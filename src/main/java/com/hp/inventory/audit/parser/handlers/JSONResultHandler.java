@@ -7,10 +7,13 @@ package com.hp.inventory.audit.parser.handlers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import com.hp.inventory.audit.parser.Config;
 import com.hp.inventory.audit.parser.Report;
 import com.hp.inventory.audit.parser.model.IProduct;
 import com.hp.inventory.audit.parser.model.Product;
+import com.hp.inventory.audit.parser.parsers.DetectionResult;
 import com.hp.inventory.audit.parser.parsers.DocumentParser;
+import com.hp.inventory.audit.parser.parsers.IgnoringParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +43,15 @@ public class JSONResultHandler implements ResultHandler {
 
     private Report report;
     private PrintWriter reportOutput;
+    private Config config;
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public void setConfig(Config config) {
+        this.config = config;
+    }
 
     /**
      * @inheritDoc
@@ -137,22 +149,23 @@ public class JSONResultHandler implements ResultHandler {
      * @inheritDoc
      */
     @Override
-    public void addParserNotFound(Product definition) {
-        report.addParserNotFound(definition);
+    public void detectionSucceeded(DetectionResult detectionResult, Product definition, IProduct extracted) {
+        if (extracted == null) {
+            report.addParserNotFound(definition);
+
+        } else if (detectionResult.parser instanceof IgnoringParser) {
+            report.addIgnored(definition);
+        } else {
+            report.addHit(detectionResult.ruleHit);
+        }
     }
 
-	@Override
-	public void detectParserFailed(Product definition) {
-		report.addDetectFailed(definition);
-	}
-	
-	@Override
-	public void addIgnored(Product definition) {
-		report.addIgnored(definition);
-	}
-	
-	@Override
-	public void addHit(String ruleHit) {
-		report.addHit(ruleHit);
-	}
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public void detectionFailed(Product definition, Exception e) {
+        log.error("Error on parser detection", e);
+        report.addDetectFailed(definition);
+    }
 }

@@ -60,4 +60,9 @@ public class Config {
      * that site might be.
      */
     public Integer siteId = 1;
+
+    /**
+     * If the application should show a progress-bar to stdout.
+     */
+    public boolean showProgressBar = true;
 }

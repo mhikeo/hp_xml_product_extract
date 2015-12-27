@@ -17,7 +17,7 @@ import java.io.Serializable;
  */
 public class RelatedAccessoryPK implements Serializable {
 
-    private String url;
+    private String accessoryProductNumber;
 
     private String productNumber;
 
@@ -26,12 +26,12 @@ public class RelatedAccessoryPK implements Serializable {
 
     public RelatedAccessoryPK(String productNumber, String url) {
         this.productNumber = productNumber;
-        this.url = url;
+        this.accessoryProductNumber = url;
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(url).append(productNumber).toHashCode();
+        return new HashCodeBuilder().append(accessoryProductNumber).append(productNumber).toHashCode();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class RelatedAccessoryPK implements Serializable {
 
         RelatedAccessoryPK that = (RelatedAccessoryPK) obj;
 
-        return new EqualsBuilder().append(url, that.url).append(productNumber, that.productNumber).isEquals();
+        return new EqualsBuilder().append(accessoryProductNumber, that.accessoryProductNumber).append(productNumber, that.productNumber).isEquals();
     }
 
     public String getProductNumber() {
@@ -55,11 +55,11 @@ public class RelatedAccessoryPK implements Serializable {
         this.productNumber = productNumber;
     }
 
-    public String getUrl() {
-        return url;
+    public String getAccessoryProductNumber() {
+        return accessoryProductNumber;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setAccessoryProductNumber(String accessoryProductNumber) {
+        this.accessoryProductNumber = accessoryProductNumber;
     }
 }
