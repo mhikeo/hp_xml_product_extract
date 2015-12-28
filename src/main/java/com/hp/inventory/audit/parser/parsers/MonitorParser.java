@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ */
+
 package com.hp.inventory.audit.parser.parsers;
 
 import com.hp.inventory.audit.parser.model.AbstractProduct;
@@ -7,7 +11,7 @@ import com.hp.inventory.audit.parser.model.Monitor;
  * Document parser for "PDP" type Monitor pages
  *
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.5
  */
 public class MonitorParser extends DocumentParser {
 

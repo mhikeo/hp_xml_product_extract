@@ -10,20 +10,19 @@ import com.hp.inventory.audit.parser.RulesConfig;
 import com.hp.inventory.audit.parser.handlers.ResultHandler;
 import com.hp.inventory.audit.parser.model.*;
 
+import com.hp.inventory.audit.parser.parsers.extractors.FullTextExtractor;
+import com.hp.inventory.audit.parser.parsers.extractors.ReviewsExtractor;
+import com.hp.inventory.audit.parser.parsers.rules.QueriesSpec;
+import com.hp.inventory.audit.parser.parsers.rules.TypeSpec;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
-import org.jsoup.select.NodeVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,126 +35,21 @@ import java.util.regex.Pattern;
  */
 public abstract class DocumentParser {
 
-    @SuppressWarnings("unchecked")
     public static void init(Reader rulesConfig) throws IOException, ClassNotFoundException {
         RulesConfig rulesCfg;
         try (BufferedReader reader = new BufferedReader(rulesConfig)) {
             rulesCfg = (new Gson()).fromJson(reader, RulesConfig.class);
         }
 
-        QueriesSpec.productNumberQuery = rulesCfg.queriesSpec.get("productNumberQuery");
-        QueriesSpec.productNameQuery = rulesCfg.queriesSpec.get("productNameQuery");
-        QueriesSpec.currentPriceQueryVisible = rulesCfg.queriesSpec.get("currentPriceQueryVisible");
-        QueriesSpec.currentPriceQuery = rulesCfg.queriesSpec.get("currentPriceQuery");
-        QueriesSpec.currencyQuery = rulesCfg.queriesSpec.get("currencyQuery");
-        QueriesSpec.strikedPriceQuery = rulesCfg.queriesSpec.get("strikedPriceQuery");
-        QueriesSpec.reviewIdPattern = Pattern.compile(rulesCfg.queriesSpec.get("reviewIdPattern"));
-        QueriesSpec.ratingQuery = rulesCfg.queriesSpec.get("ratingQuery");
-        QueriesSpec.reviewsQuery = rulesCfg.queriesSpec.get("reviewsQuery");
-        QueriesSpec.comingSoonQuery = rulesCfg.queriesSpec.get("comingSoonQuery");
-
-        QueriesSpec.specQueryPrefix = rulesCfg.queriesSpec.get("specQueryPrefix");
-        QueriesSpec.specQuerySuffix = rulesCfg.queriesSpec.get("specQuerySuffix");
-        QueriesSpec.specQueryPostQuery = rulesCfg.queriesSpec.get("specQueryPostQuery");
-
-        QueriesSpec.linkQueryPrefix = rulesCfg.queriesSpec.get("linkQueryPrefix");
-        QueriesSpec.linkQuerySuffix = rulesCfg.queriesSpec.get("linkQuerySuffix");
-        QueriesSpec.linkQueryPostQuery = rulesCfg.queriesSpec.get("linkQueryPostQuery");
-
-        QueriesSpec.accessoriesNameQuery = rulesCfg.queriesSpec.get("accessoriesNameQuery");
-        QueriesSpec.accessoriesUrlQuery = rulesCfg.queriesSpec.get("accessoriesUrlQuery");
-
-        QueriesSpec.imagesSelectQuery = rulesCfg.queriesSpec.get("imagesSelectQuery");
-        QueriesSpec.imagesSelectPostQuery = rulesCfg.queriesSpec.get("imagesSelectPostQuery");
-
-
-        QueriesSpec.reviewsExtractQuery = rulesCfg.queriesSpec.get("reviewsExtractQuery");
-        QueriesSpec.reviewsExtractDateFormat = rulesCfg.queriesSpec.get("reviewsExtractDateFormat");
-        QueriesSpec.reviewsExtractPostDateQuery = rulesCfg.queriesSpec.get("reviewsExtractPostDateQuery");
-        QueriesSpec.reviewsExtractHpResponseDateQuery = rulesCfg.queriesSpec.get("reviewsExtractHpResponseDateQuery");
-        QueriesSpec.reviewsExtractRatingQuery = rulesCfg.queriesSpec.get("reviewsExtractRatingQuery");
-        QueriesSpec.reviewsExtractScaleQuery = rulesCfg.queriesSpec.get("reviewsExtractScaleQuery");
-        QueriesSpec.reviewsExtractTitleQuery = rulesCfg.queriesSpec.get("reviewsExtractTitleQuery");
-        QueriesSpec.reviewsExtractComentsQuery = rulesCfg.queriesSpec.get("reviewsExtractComentsQuery");
-        QueriesSpec.reviewsExtractUsernameQuery = rulesCfg.queriesSpec.get("reviewsExtractUsernameQuery");
-        QueriesSpec.reviewsExtractLocationQuery = rulesCfg.queriesSpec.get("reviewsExtractLocationQuery");
-        QueriesSpec.reviewsExtractHpResponseQuery = rulesCfg.queriesSpec.get("reviewsExtractHpResponseQuery");
-        QueriesSpec.reviewsExtractHpResponseUserQuery = rulesCfg.queriesSpec.get("reviewsExtractHpResponseUserQuery");
-        QueriesSpec.reviewsExtractYesQuery = rulesCfg.queriesSpec.get("reviewsExtractYesQuery");
-        QueriesSpec.reviewsExtractYesPostQuery = rulesCfg.queriesSpec.get("reviewsExtractYesPostQuery");
-        QueriesSpec.reviewsExtractNoQuery = rulesCfg.queriesSpec.get("reviewsExtractNoQuery");
-        QueriesSpec.reviewsExtractNoPostQuery = rulesCfg.queriesSpec.get("reviewsExtractNoPostQuery");
-
-        QueriesSpec.fullTextExtractStartQuery = rulesCfg.queriesSpec.get("fullTextExtractStartQuery");
-        QueriesSpec.fullTextExtractExcludes = rulesCfg.queriesSpec.get("fullTextExtractExcludes");
-
+        QueriesSpec.init(rulesCfg);
+        TypeSpec.init(rulesCfg);
     }
 
     public static void init(File rulesConfig) throws IOException, ClassNotFoundException {
         init(new FileReader(rulesConfig));
     }
 
-    protected static class QueriesSpec {
-        protected static String productNumberQuery; // = "span.prodNum";
-        protected static String productNameQuery; // = "span[itemprop=name]";
-
-        protected static String currentPriceQueryVisible; // = "div[itemprop=offers] #price_value";
-        protected static String currentPriceQuery; // = "div[itemprop=offers] span[itemprop=price]";
-
-        protected static String currencyQuery; // = "div[itemprop=offers] meta[itemprop=priceCurrency]";
-        protected static String strikedPriceQuery; // = "div[itemprop=offers] del";
-
-        protected static Pattern reviewIdPattern; // = Pattern.compile("(\\d+)");
-
-        // protected final static String ratingQuery =
-        // "span[itemprop=aggregateRating] span[itemprop=ratingValue]";
-        protected static String ratingQuery; // = "#BVSecondaryCustomerRatings div.BVRRRatingNormalOutOf span.BVRRRatingNumber";
-
-        // protected final static String reviewsQuery =
-        // "span[itemprop=aggregateRating] meta[itemprop=reviewCount]";
-        protected static String reviewsQuery; // = "#BVSecondaryCustomerRatings div.BVRRRatingSummaryLinks span.BVRRCount span.BVRRNumber";
-
-        protected static String comingSoonQuery; // = "div[itemprop=offers] span:contains(Out of stock)";
-
-        protected static String specQueryPrefix;
-        protected static String specQuerySuffix;
-        protected static String specQueryPostQuery;
-
-        protected static String linkQueryPrefix;
-        protected static String linkQuerySuffix;
-        protected static String linkQueryPostQuery;
-
-        protected static String accessoriesNameQuery;
-        protected static String accessoriesUrlQuery;
-
-
-        protected static String imagesSelectQuery;
-        protected static String imagesSelectPostQuery;
-
-
-        protected static String reviewsExtractQuery;
-        protected static String reviewsExtractDateFormat;
-        protected static String reviewsExtractPostDateQuery;
-        protected static String reviewsExtractHpResponseDateQuery;
-        protected static String reviewsExtractRatingQuery;
-        protected static String reviewsExtractScaleQuery;
-        protected static String reviewsExtractTitleQuery;
-        protected static String reviewsExtractComentsQuery;
-        protected static String reviewsExtractUsernameQuery;
-        protected static String reviewsExtractLocationQuery;
-        protected static String reviewsExtractHpResponseQuery;
-        protected static String reviewsExtractHpResponseUserQuery;
-
-        protected static String reviewsExtractYesQuery;
-        protected static String reviewsExtractYesPostQuery;
-        protected static String reviewsExtractNoQuery;
-        protected static String reviewsExtractNoPostQuery;
-
-        protected static String fullTextExtractStartQuery;
-        protected static String fullTextExtractExcludes;
-    }
-
-    private IProduct parsingErrorsReceiver = null;
+    private AbstractProduct parsingErrorsReceiver = null;
 
 
     /**
@@ -215,7 +109,7 @@ public abstract class DocumentParser {
         rating.setProductNumber(definition.getProductNumber());
         rating.setSiteId(config.siteId);
         rating.setRating(rating(q(QueriesSpec.ratingQuery).text()));
-        rating.setNumberOfReviews(reviews(q(QueriesSpec.reviewsQuery).text()));
+        rating.setNumberOfReviews(reviewsCount(q(QueriesSpec.reviewsQuery).text()));
         if (rating.getRating() != null || rating.getNumberOfReviews() != null)
             definition.getRatings().put(rating.getSiteId(), rating);
 
@@ -256,91 +150,32 @@ public abstract class DocumentParser {
         }
 
         definition.setImages(images());
-        definition.setAccessories(accessories());
 
-        definition.setReviews(reviews());
+        if (config.resultHandler.shouldExtractAccessories())
+            definition.setAccessories(accessories());
+
+        definition.setReviews(new ReviewsExtractor(this).extract());
     }
 
     /**
-     * Method to extract an IProduct from a Jsoup document node.
+     * Method to extract an AbstractProduct from a Jsoup document node.
      *
      * @throws Exception
      */
-    public IProduct parse(Document doc, Product definition, Config config) throws Exception {
+    public AbstractProduct parse(Document doc, Product definition, Config config) throws Exception {
         this.doc = doc;
         this.definition = definition;
         this.config = config;
         this.resultHandler = config.resultHandler;
-        extractFullText();
+
+        this.definition.setFullText(new FullTextExtractor(this).extract());
+
         AbstractProduct result = extract();
         checkForNonParsedSpecItems(definition, resultHandler);
         return result;
     }
 
-    /**
-     * Extract the full text of the page to support advanced page search. To do this
-     * we traverse the DOM tree, starting at a custom selector extracting all "text" values,
-     * except for "script" and "style" tags.
-     *
-     * The start selector is configurable by changing the "queriesSpec.fullTextExtractStartQuery" key in
-     * the rules.json file.
-     */
-    protected void extractFullText() {
-        StringBuilder s = new StringBuilder();
-        final Stack<Node> stack = new Stack<>();
-        Element start = doc.select(QueriesSpec.fullTextExtractStartQuery).first();
-        if (start == null) {
-            return;
-        }
 
-        final Elements excluded;
-        if (QueriesSpec.fullTextExtractExcludes != null) {
-            excluded = start.select(QueriesSpec.fullTextExtractExcludes);
-        } else {
-            excluded = new Elements();
-        };
-
-        stack.push(start.parent());
-        start.traverse(new NodeVisitor() {
-
-            Element excludedTree = null;
-
-            @Override
-            public void head(Node node, int depth) {
-                if (excludedTree != null) {
-                    return;
-                } else if (node instanceof Element && excluded.contains(node)) {
-                    excludedTree = (Element) node;
-                } else {
-                    Node parent = stack.peek();
-                    if (node instanceof TextNode && parent != null &&
-                            !parent.nodeName().equals("script") &&
-                            !parent.nodeName().equals("style") &&
-                            !parent.nodeName().equals("noscript")) {
-
-                        TextNode t = (TextNode) node;
-                        String content = t.text().trim();
-                        if (!content.equals("")) {
-                            if (content.contains("class="))
-                                System.out.println("hello");
-                            s.append(content).append(" ");
-                        }
-                    }
-                    stack.push(node);
-                }
-            }
-
-            @Override
-            public void tail(Node node, int depth) {
-                if (excludedTree == null) {
-                    stack.pop();
-                } else if (excludedTree.equals(node)) {
-                    excludedTree = null;
-                }
-            }
-        });
-        this.definition.setFullText(s.toString());
-    }
 
     /**
      * Implements the specific document extraction logic. The
@@ -350,7 +185,7 @@ public abstract class DocumentParser {
      * <p>
      * The product number should be the first field to be extracted and the
      * implementation must call "definition.setProductNumber" as soon as
-     * possible. The implementation should also bind the returned IProduct and the
+     * possible. The implementation should also bind the returned AbstractProduct and the
      * definition by calling AbstractProduct.setProduct early.
      *
      * @return A concrete AbstractProduct resulting form extraction.
@@ -418,7 +253,7 @@ public abstract class DocumentParser {
      *
      * @param p
      */
-    protected void setParsingErrorsReceiver(IProduct p) {
+    protected void setParsingErrorsReceiver(AbstractProduct p) {
         this.parsingErrorsReceiver = p;
     }
 
@@ -493,7 +328,7 @@ public abstract class DocumentParser {
     /**
      * Convert a numeric string to Integer
      */
-    protected Integer reviews(String text) {
+    protected Integer reviewsCount(String text) {
         if (text == null || text.trim().isEmpty())
             return null;
 
@@ -507,39 +342,6 @@ public abstract class DocumentParser {
         return i;
     }
 
-    /**
-     * Convert a numeric string to Integer
-     */
-    protected Integer intVal(Elements elements) {
-        if (elements == null)
-            return null;
-        String text = elements.text();
-
-        if (text == null || text.trim().isEmpty())
-            return null;
-
-        Integer i;
-        try {
-            i = Integer.parseInt(text);
-        } catch (NumberFormatException ex) {
-            return null;
-        }
-        return i;
-    }
-
-    /**
-     * Convert elements content to String
-     */
-    protected String textVal(Elements elements) {
-        if (elements == null)
-            return null;
-        String text = elements.text();
-
-        if (text != null && text.isEmpty()) {
-            return null;
-        }
-        return text;
-    }
 
     /**
      * Convert a currency string into BigDecimal
@@ -817,88 +619,6 @@ public abstract class DocumentParser {
         return images;
     }
 
-    /**
-     * Extract product reviews
-     */
-    protected Set<ProductReview> reviews() {
-        Set<ProductReview> reviews = new HashSet<>();
-        // Reviews
-        doc.select(QueriesSpec.reviewsExtractQuery).forEach(review -> {
-            ProductReview prodReview = new ProductReview();
-            prodReview.setSiteId(1);
-            prodReview.setProductNumber(definition.getProductNumber());
-
-            prodReview.setId(reviewId(review));
-            prodReview.setReviewDate(reviewPostDate(review));
-            prodReview.setRating(intVal(review.select(QueriesSpec.reviewsExtractRatingQuery)));
-            prodReview.setScale(intVal(review.select(QueriesSpec.reviewsExtractScaleQuery)));
-            prodReview.setTitle(textVal(review.select(QueriesSpec.reviewsExtractTitleQuery)));
-            prodReview.setComments(textVal(review.select(QueriesSpec.reviewsExtractComentsQuery)));
-            prodReview.setUsername(textVal(review.select(QueriesSpec.reviewsExtractUsernameQuery)));
-            prodReview.setLocation(textVal(review.select(QueriesSpec.reviewsExtractLocationQuery)));
-            prodReview.setResponse(textVal(review.select(QueriesSpec.reviewsExtractHpResponseQuery)));
-            prodReview.setResponseDate(reviewHpResponseDate(review));
-            prodReview.setResponseUser(textVal(review.select(QueriesSpec.reviewsExtractHpResponseUserQuery)));
-
-            Elements yesVote = review.select(QueriesSpec.reviewsExtractYesQuery);
-            if (yesVote != null && yesVote.size() > 0) {
-                yesVote = yesVote.parents();
-                if (yesVote != null && yesVote.get(0) != null) {
-                    yesVote = yesVote.get(0).select(QueriesSpec.reviewsExtractYesPostQuery);
-                    prodReview.setReviewHelpfulYesCount(intVal(yesVote));
-                }
-            }
-            Elements noVote = review.select(QueriesSpec.reviewsExtractNoQuery);
-            if (noVote != null && noVote.size() > 0) {
-                noVote = noVote.parents();
-                if (noVote != null && noVote.get(0) != null) {
-                    noVote = noVote.get(0).select(QueriesSpec.reviewsExtractNoPostQuery);
-                    prodReview.setReviewHelpfulNoCount(intVal(noVote));
-                }
-
-            }
-
-            reviews.add(prodReview);
-        });
-        return reviews;
-    }
-
-    private Integer reviewId(Element review) {
-        String id = review.attr("id");
-        if (id == null || id.isEmpty())
-            return null;
-
-        Matcher matcher;
-
-        if ((matcher = QueriesSpec.reviewIdPattern.matcher(id)).find()) {
-            return Integer.parseInt(matcher.group(1).toLowerCase());
-        }
-        return null;
-    }
-
-    private Date reviewPostDate(Element review) {
-        String dt = review.select(QueriesSpec.reviewsExtractPostDateQuery).attr("content");
-
-        if (dt != null) {
-            try {
-                return DateUtils.parseDateStrictly(dt, new String[]{QueriesSpec.reviewsExtractDateFormat});
-            } catch (ParseException ignored) {
-            }
-        }
-        return null;
-    }
-
-    private Date reviewHpResponseDate(Element review) {
-        String dt = textVal(review.select(QueriesSpec.reviewsExtractHpResponseDateQuery));
-
-        if (dt != null) {
-            try {
-                return DateUtils.parseDateStrictly(dt, new String[]{QueriesSpec.reviewsExtractDateFormat});
-            } catch (ParseException ignored) {
-            }
-        }
-        return null;
-    }
 
     /**
      * Extract processor and graphics fields, accounting for some variations.
@@ -960,5 +680,13 @@ public abstract class DocumentParser {
                             parsed, countExpected));
         }
 
+    }
+
+    public Document getDoc() {
+        return doc;
+    }
+
+    public Product getDefinition() {
+        return definition;
     }
 }

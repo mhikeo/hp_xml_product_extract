@@ -4,6 +4,8 @@
 
 package com.hp.inventory.audit.parser.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -12,13 +14,14 @@ import java.util.Date;
 import javax.persistence.*;
 
 /**
- * !!Description
+ * Product review model.
  *
  * @author TCDEVELOPER
  * @version 1.0.4
  */
 @Entity
 @IdClass(ProductReviewPK.class)
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
 public class ProductReview {
 
 	@Id

@@ -5,7 +5,7 @@
 package com.hp.inventory.audit.parser.parsers;
 
 /**
- * !!Description
+ * Non-fatal exception thrown when parsing a document.
  *
  * @author TCDEVELOPER
  * @version 1.0.0

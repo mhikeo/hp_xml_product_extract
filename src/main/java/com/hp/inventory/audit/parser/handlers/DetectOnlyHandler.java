@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ */
+
 package com.hp.inventory.audit.parser.handlers;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import com.hp.inventory.audit.parser.Config;
-import com.hp.inventory.audit.parser.model.IProduct;
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.Product;
 import com.hp.inventory.audit.parser.parsers.DetectionResult;
 import org.slf4j.Logger;
@@ -15,7 +19,7 @@ import java.io.PrintWriter;
  * Result handler that just outputs the detection phase results into a CSV file.
  *
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.5
  */
 public class DetectOnlyHandler implements ResultHandler {
 
@@ -32,16 +36,33 @@ public class DetectOnlyHandler implements ResultHandler {
         this.config = config;
     }
 
+    /**
+     * Do nothing
+     */
     @Override
     public void extractionFailed(Product definition, Exception e) {
 
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
-    public void extractionSucceeded(Product definition, IProduct extracted) throws Exception {
+    public boolean shouldExtractAccessories() {
+        return false;
+    }
+
+    /**
+     * Do nothing
+     */
+    @Override
+    public void extractionSucceeded(Product definition, AbstractProduct extracted) throws Exception {
 
     }
 
+    /**
+     * Setup the output CSV writer.
+     */
     @Override
     public void beforeStart() {
         this.writer = new CSVWriter(this.output);
@@ -62,7 +83,7 @@ public class DetectOnlyHandler implements ResultHandler {
     }
 
     @Override
-    public void detectionSucceeded(DetectionResult detectionResult, Product definition, IProduct extracted) {
+    public void detectionSucceeded(DetectionResult detectionResult, Product definition, AbstractProduct extracted) {
         try {
             String parserName = null, patternType = null, patternMatch = null;
 

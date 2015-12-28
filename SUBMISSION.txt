@@ -1,9 +1,12 @@
 Product Inventory Audit Data Extraction Application
 ===================================================
-Deployment guide remained intact, as the deployment steps haven't changed.
 
----------------------------------------
-The Deployment Guide is located in the "doc" directory of the submission.
+Submission for challenge #30052521:
+  "HP PRODUCT INVENTORY AUDIT DATA EXTRACTION - PRODUCT AND SEARCH ENHANCEMENTS"
+
+
+The Deployment Guide is located in the "doc" directory of the submission. For this submission, we're using
+schema version number "3", located under the schema directory.
 
 A video instruction on how to deploy and run the application is located at:
 
@@ -13,43 +16,90 @@ http://youtu.be/BbwsGE6D7aM
 to run unit tests:
 ./gradlew test
 --------------------------
-run the solution with data files "day1.zip", then with "day2.zip" provided in forum
-some interesting products to look at:
-J5P80UT#ABA  look for the price change from 1694 to 1594, at the same time strikedPrice should become 1694
-A8P79A#BGJ  look for rating and numberOfReviews
-F5S23A#B1H  parsing error
-L4R64AV_1	parsing error
-N0X20AV#ABA_1	parsing error
-K4U29AA#ABA	parsing error
-F1M22UT#ABA coming soon
---------------------------
-Changes in current submission
-- Implemeted all requirements
-- Changed schema schema.sql as per http://apps.topcoder.com/forums/?module=Thread&threadID=866515&start=0
-- Fixed currentPrice parsing
-- Fixed strikedPrice parsing
-- Moved parsing of all common fields(which are ultimately populated to the Product entity) to DocumentParser class
-- Added new command-liine parameter (-c, --currency) to specify the default currency.
-  If that currency is specified, parser will not try to parse the currency from html files,
-  instead it will put this specified currency to the "currency" filed in the database
-- Added null-value checking for productNumber field, since it is a primary key
-- Added unittests for correct parsing:
-	All documents : currentPrice, strikedPrice, currency, rating, numberOfReviews, productType, productName
-	Printer : type, technology(as it as crucial for determining the type of the printer)
-- Added unittests for correct Current -> Previous value migration(since the implementation doesn't depend on the type of the document added it only in one document type):
-    - currentPrice for Laptop Document
-	- rating for Desktop document
-- Added unittest for (the following tests done without parsing)
-  - correct setting of dateAdded for new products
-  - correct setting of availableForSaleDate for new product, depending on comingSoonDate
-  - correct changing of availableForSaleDate to null, when comingSoonDate is set
-  - correct changing of availableForSaleDate current date, when comingSoonDate is not set, and availableForSaleDate is not set yet
-  - correct behavior of not changing of availableForSaleDate, when comingSoonDate is not set and availableForSaleDate was already set
-  
-- Price and rating tracking implemented with the help of new added annotation @TrackChanges
-- Added parsed properties count threshold checking, to avoid updating of a completely changed document(for example due to major html format changes)
 
-----------------
-Regards,
+To test this submission requirements:
+  - load schema version 2 (schema/2/schema.sql)
+  - upgrade using schema version 3 upgrade script (schema/3/upgrade.sql)
+  - follow deployment guide
+  - inspect the Vertica tables
+  - repeat using the schema version 3 (schema/3/upgrade.sql)
 
-TCDEVELOPER
+Notes:
+  - All challenge requirements implemented.
+
+  - To accommodate generic products, we create "parseDate" and "hpDataSheet" in the Product table.
+
+  - Created a "fullText" field in Product for the first requirement. The full text root element and excluded elements
+    are configurable. It may include common template text like "Please enter your email ...". That shouldn't be an
+    issue since any decent search engine will regard those as irrelevant.
+
+  - Because multiple URL refer to a single product we have duplicate pages in data directory. I added a feature
+    to avoid processing the same product multiple times. **This is enabled by default**. To disable this feature
+    and return to old behavior, just pass the "--parse-duplicates" in the command-line.
+
+  - Created a new "detect" result handler. It works similarly to the JSON one, but outputs only the parser detection
+    results to a CSV file.
+
+  - Implemented a progress logger, more useful for iterative execution. The default logger level for
+    DBResultHandler was changed to WARN to avoid too much data in the console.
+
+  - Generic products (those without a dedicated parser) are categorized using the categories embedded in the
+    HTML page.
+
+  - We removed the redundant IProduct interface, replacing by an AbstractProduct class. There are a number of
+    recommended refactorings that could be made to avoid data duplication in the DB but as these might affect
+    other applications those refactorings were not made.
+
+  - Improved some JavaDoc documentation in general.
+
+  - Refactored rules configuration out of DocumentParser. Some more complex extraction logic was split into
+    more manageable "Extractor" classes. The DocumentParser class was becoming a monster...
+
+SQL queries suggested to check for requirements:
+
+  - Check full page text:
+      select productNumber, productName, fullText from Product where productNumber = 'A0X35AA#ABA';
+
+  - Check typo fix:
+      select productNumber, productName, productUrl, pointingDevices
+      from Laptop
+      where pointingDevices is not null;
+
+  - Check generic products were added (pricing, availability and rating):
+      select  p.productNumber, p.productName, p.productType,
+              coalesce(p.availableForSaleDate, p.comingSoonDate) as inStoreDate
+      from Product as p
+      where productNumber in ('A0X35AA#ABA', 'E5M78AA#ABL', 'H1D24UT', 'G1K47AA#ABL', 'H5W94AA#ABA', 'J0J89AA#ABA', 'QZ6078');
+
+  - Check generic products were added (reviews):
+      select productNumber, username, location, rating, title, comments
+      from ProductReview
+      where productNumber in ('A0X35AA#ABA', 'E5M78AA#ABL');
+
+  - Check related accessories:
+      select p.productNumber, p.productName, p.productType,
+             a.productNumber as accNumber, a.productName as accName, a.productType as accType
+      from Product as p
+      join RelatedAccessory ra on p.productNumber = ra.productNumber
+      join Product as a on ra.accessoryProductNumber = a.productNumber
+      where p.productNumber in ('A7F64A#B1H', 'N1N00AV#ABA_1')
+
+  - Check monitors:
+      select * from Monitor;
+
+  - Check inks and toners:
+      select * from InkAndToner;
+
+  - Check high-end printers (note: no Scitex or PageWide printers found in data):
+      select * from Printer where
+        productName like '%Latex%' or
+        productName ilike '%designjet%' or
+        productName ilike '%scitex%' or
+        productName ilike '%pagewide%'
+
+  - Check generic product type classification:
+      select productNumber, productName, productType, productUrl from Product
+      where
+        productType not in ('Destkop', 'Laptop', 'Tablet', 'Inkjet Printer',
+                            'Laser Printer', 'HighEnd Printer', 'Monitor', 'InkAndToner')
+      order by productName

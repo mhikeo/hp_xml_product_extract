@@ -9,7 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.hp.inventory.audit.parser.Config;
 import com.hp.inventory.audit.parser.Report;
-import com.hp.inventory.audit.parser.model.IProduct;
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.Product;
 import com.hp.inventory.audit.parser.parsers.DetectionResult;
 import com.hp.inventory.audit.parser.parsers.DocumentParser;
@@ -24,7 +24,7 @@ import java.util.*;
  * Writes the extracted products to the output file.
  *
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.5
  */
 public class JSONResultHandler implements ResultHandler {
 
@@ -36,7 +36,7 @@ public class JSONResultHandler implements ResultHandler {
     private Logger log = LoggerFactory.getLogger(DBResultHandler.class);
 
     @Expose
-    private List<IProduct> parsed = new ArrayList<>();
+    private List<AbstractProduct> parsed = new ArrayList<>();
 
     private PrintWriter output;
     private Map<String, Set<String>> nonParsedAttrs = new HashMap<>();
@@ -74,7 +74,7 @@ public class JSONResultHandler implements ResultHandler {
      * @inheritDoc
      */
     @Override
-    public void extractionSucceeded(Product definition, IProduct extracted) {
+    public void extractionSucceeded(Product definition, AbstractProduct extracted) {
         parsed.add(extracted);
         report.addProductCount(extracted.getClass().getSimpleName(), extracted.getProductNumber());
     }
@@ -149,7 +149,7 @@ public class JSONResultHandler implements ResultHandler {
      * @inheritDoc
      */
     @Override
-    public void detectionSucceeded(DetectionResult detectionResult, Product definition, IProduct extracted) {
+    public void detectionSucceeded(DetectionResult detectionResult, Product definition, AbstractProduct extracted) {
         if (extracted == null) {
             report.addParserNotFound(definition);
 

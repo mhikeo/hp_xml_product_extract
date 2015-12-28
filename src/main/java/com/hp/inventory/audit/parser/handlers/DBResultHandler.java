@@ -4,45 +4,35 @@
 
 package com.hp.inventory.audit.parser.handlers;
 
-import ch.qos.logback.core.encoder.ByteArrayUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.hp.inventory.audit.parser.Config;
-import com.hp.inventory.audit.parser.ProductIterable;
 import com.hp.inventory.audit.parser.Report;
-import com.hp.inventory.audit.parser.model.IProduct;
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.Product;
 import com.hp.inventory.audit.parser.model.RelatedAccessory;
 import com.hp.inventory.audit.parser.parsers.DetectionResult;
 import com.hp.inventory.audit.parser.parsers.DocumentParser;
-
 import com.hp.inventory.audit.parser.parsers.IgnoringParser;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.riversun.finbin.BinarySearcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.transaction.Transactional;
-
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.PrintWriter;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Result handler that writes products to the configured database.
  *
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.5
  */
 public class DBResultHandler implements ResultHandler {
 
@@ -59,12 +49,20 @@ public class DBResultHandler implements ResultHandler {
     private Report report;
     private Config config;
 
-    private Map<String, String> urlProdNumberMap = new HashMap<>();
+    ObjectMapper jsonMapper = new ObjectMapper();
 
 
-    private byte[] prodNumberStart = "<span class=\"prodNum\">".getBytes();
-    private byte[] prodNumberEnd = "</span>".getBytes();
-    private BinarySearcher binarySearcher = new BinarySearcher();
+    private Set<String> unknownAccessoryURLs = new HashSet<>();
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public void unknownAccessory(RelatedAccessory ra) {
+        boolean isNew = unknownAccessoryURLs.add(ra.getUrl());
+        if (isNew)
+            log.warn("Could not find the product number for accessory with URL {}", ra.getUrl());
+    }
 
     /**
      * @inheritDoc
@@ -80,107 +78,11 @@ public class DBResultHandler implements ResultHandler {
     @Override
     public void beforeStart() {
         this.entityManagerFactory = Persistence.createEntityManagerFactory("hp-product-parser");
+        jsonMapper.enable(SerializationFeature.INDENT_OUTPUT);
         report = new Report();
-        collectProductNumbers();
-    }
-
-    /**
-     * Collects URL-to-productNumber associations from both the DB and data files to
-     * resolve RelatedAccessory.
-     */
-    @SuppressWarnings("unchecked")
-    private void collectProductNumbers() {
-        log.info("Retrieving URL-productNumber map from DB");
-        // Get from DB first
-        String q = "SELECT productUrl, productNumber from Product";
-        List<Object[]> res = getEntityManager().createNativeQuery(q).getResultList();
-        for (Object[] r : res) {
-            urlProdNumberMap.put(r[0].toString(), r[1].toString());
-        }
-
-        // Get from pages
-        log.info("Retrieving URL-productNumber map from files.");
-        for (Product p : new ProductIterable(config)) {
-            try {
-                File page = new File(config.dataDirectory, p.getSourceFile());
-                String prodNum = extractNumber(page);
-                if (prodNum == null) continue;
-                urlProdNumberMap.put(p.getProductUrl(), prodNum);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        log.info("Done retrieving URL-productNumber map from files.");
-    }
-
-    /**
-     * Extract of product number from a file. It uses binary search and partial file read to make the process very fast.
-     *
-     * @throws IOException
-     */
-    private String extractNumber(File page) throws IOException {
-        FileInputStream f = new FileInputStream(page);
-
-        // Those numbers were obtained via testing and should
-        // extract most files in a single pass while reading a small
-        // amount of data;
-        byte[] data = new byte[65000];
-        f.skip(75000);
-
-        f.read(data);
-        int start = binarySearcher.indexOf(data, prodNumberStart);
-        if (start == -1) {
-            // fall back to full file read
-            f.close();
-            f = new FileInputStream(page);
-            data = new byte[(int)page.length()];
-            f.read(data);
-            start = binarySearcher.indexOf(data, prodNumberStart);
-        }
-
-        if (start == -1) {
-            f.close();
-            return null;
-        }
-
-        start += prodNumberStart.length;
-        int end = binarySearcher.indexOf(data, prodNumberEnd, start);
-        byte[] numberBytes = new byte[end - start];
-        System.arraycopy(data, start, numberBytes, 0, numberBytes.length);
-
-        String prodNum = new String(numberBytes);
-        f.close();
-        return prodNum;
     }
 
 
-    /**
-     * Associates records within the RelatedAccessory table with their products
-     * in Product table.
-     */
-    private void associateRelatedAccessories(Product product) {
-        Set<RelatedAccessory> toRemove = new HashSet<>();
-        for (RelatedAccessory ra : product.getAccessories()) {
-            if (ra.getAccessoryProductNumber() == null) {
-                String url = ra.getUrl();
-                String number = urlProdNumberMap.get(url);
-                if (number == null) {
-                    // When we can't find the product number it means that the URL was never
-                    // downloaded and that's most likely a mistake. We'll remove the related
-                    // accessory since the schema requires the product number.
-
-                    // An improvement would be to fetch the URL and extract the number but that could impact
-                    // processing time - better to check with management first.
-
-                    log.warn("Could not find the product number for accessory with URL {}", url);
-                    toRemove.add(ra);
-                } else {
-                    ra.setProductNumber(number);
-                }
-            }
-        }
-        product.getAccessories().removeAll(toRemove);
-    }
 
     /**
      * @inheritDoc
@@ -197,11 +99,9 @@ public class DBResultHandler implements ResultHandler {
      */
     @Override
     @Transactional
-    public synchronized void extractionSucceeded(Product productDefinition, IProduct extractedEntity) throws Exception {
+    public synchronized void extractionSucceeded(Product productDefinition, AbstractProduct extractedEntity) throws Exception {
 
         extractedEntity.populateCommonsToProduct(productDefinition);
-
-        associateRelatedAccessories(productDefinition);
 
         getEntityManager().clear();
 
@@ -214,26 +114,26 @@ public class DBResultHandler implements ResultHandler {
                         productDefinition.getParsingError());
             }
 
-            upgradeDefinitionIfExisting(productDefinition);
+            productDefinition = upgradeDefinitionIfExisting(productDefinition);
 
-            upgradeProductIfExisting(extractedEntity);
+            // If the same object, avoid persisting the definition and extracted entity twice
+            if (!(extractedEntity instanceof Product))
+                upgradeProductIfExisting(extractedEntity);
 
             getEntityManager().flush();
 
             commitTransaction();
 
-            log.info("Processed product Id: {}, #: {}, Type: {}",
+            log.info("Processed product {}: SKU: {}, Class: {}, ProdType: {}",
                     productDefinition.getId(),
                     productDefinition.getProductNumber(),
-                    extractedEntity.getClass().getSimpleName());
+                    extractedEntity.getClass().getSimpleName(),
+                    productDefinition.getProductType());
             report.addProductCount(extractedEntity.getClass().getSimpleName(), productDefinition.getProductNumber());
         } catch (Exception e) {
             try { rollbackTransaction(); } catch (Exception ignored) { }
-            log.error("Offending product: " + new GsonBuilder()
-                    .setPrettyPrinting()
-                    .serializeNulls()
-                    .create()
-                    .toJson(extractedEntity));
+            String json = jsonMapper.writeValueAsString(extractedEntity);
+            log.error("Offending product: {}", json);
             throw e;
         }
 
@@ -241,8 +141,8 @@ public class DBResultHandler implements ResultHandler {
 
     }
 
-    private void upgradeProductIfExisting(IProduct extractedEntity) throws Exception {
-        IProduct existingExtracted = getEntityManager().find(extractedEntity.getClass(), extractedEntity.getProductNumber());
+    private void upgradeProductIfExisting(AbstractProduct extractedEntity) throws Exception {
+        AbstractProduct existingExtracted = getEntityManager().find(extractedEntity.getClass(), extractedEntity.getProductNumber());
         if(existingExtracted!=null) {
             //existing entity
             existingExtracted.upgradeEntityFrom(extractedEntity);
@@ -256,25 +156,25 @@ public class DBResultHandler implements ResultHandler {
         }
     }
 
-    private void upgradeDefinitionIfExisting(Product productDefinition) throws Exception {
+    private Product upgradeDefinitionIfExisting(Product productDefinition) throws Exception {
         Product existingDefinition = getEntityManager().find(Product.class, productDefinition.getProductNumber());
 
         Date now = new Date();
 
-        if(existingDefinition!=null) {
+        if(existingDefinition != null) {
             //existing Product
             existingDefinition.upgradeEntityFrom(productDefinition);
 
-            //
-
-            getEntityManager().merge(existingDefinition);
+            return getEntityManager().merge(existingDefinition);
 
         } else {
             //new Product
             productDefinition.initNewEntity();
 
             getEntityManager().persist(productDefinition);
+            return productDefinition;
         }
+
     }
 
     private void rollbackTransaction() {
@@ -362,7 +262,7 @@ public class DBResultHandler implements ResultHandler {
      * @inheritDoc
      */
     @Override
-    public void detectionSucceeded(DetectionResult detectionResult, Product definition, IProduct extracted) {
+    public void detectionSucceeded(DetectionResult detectionResult, Product definition, AbstractProduct extracted) {
         if (extracted == null) {
             report.addParserNotFound(definition);
 

@@ -22,6 +22,6 @@
         <appender-ref ref="FILE"  />
     </root>
 
-    <logger name="com.hp.inventory.audit.parser.parsers.DocumentParserDetector" level="INFO" />
+    <logger name="com.hp.inventory.audit.parser.handlers.DBResultHandler" level="WARN" />
 
 </configuration>

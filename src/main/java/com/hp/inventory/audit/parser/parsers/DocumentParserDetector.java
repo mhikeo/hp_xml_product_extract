@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.hp.inventory.audit.parser.RulesConfig;
-import com.hp.inventory.audit.parser.model.IProduct;
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.Product;
 
 import java.io.*;
@@ -95,8 +95,6 @@ public class DocumentParserDetector {
 		String baseUrl = getBaseURL(definition.getProductUrl());
 		Document doc = Jsoup.parse(content, baseUrl);
 
-		if (url.contains("hp-21-compact-speaker"))
-			System.out.println("here");
 		Matcher matcher;
 		String urlType, svType, subType, title;
 
@@ -169,7 +167,8 @@ public class DocumentParserDetector {
 
 		GeneralParser parser = new GeneralParser();
 
-		IProduct extracted = parser.parse(doc, definition, config);
+		parser.setSkipExtractProductType(true);
+		AbstractProduct extracted = parser.parse(doc, definition, config);
 
 		if (extracted != null && extracted.getProductName() != null) {
 			String prodName = extracted.getProductName().toLowerCase();
@@ -193,7 +192,7 @@ public class DocumentParserDetector {
 			}
 		}
 
-		return new DetectionResult(parser, doc, "default", null);
+		return new DetectionResult(new GeneralParser(), doc, "default", null);
 	}
 
 	private static <T extends DocumentParser> void addUrlMatch(String pattern, Class<T> clazz) {

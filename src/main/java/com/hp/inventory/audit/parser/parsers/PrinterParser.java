@@ -5,7 +5,7 @@
 package com.hp.inventory.audit.parser.parsers;
 
 import com.hp.inventory.audit.parser.model.AbstractProduct;
-import com.hp.inventory.audit.parser.model.IProduct;
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.Printer;
 
 import java.math.BigDecimal;
@@ -16,14 +16,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * !!Description
+ * Parser for printer products.
  *
  * @author TCDEVELOPER
  * @version 1.0.3
  */
 public class PrinterParser extends DocumentParser {
 
-	private Pattern highEndPrinterPattern = Pattern.compile("Designjet|Latex|PageWide|Scitex");
+	private Pattern highEndPrinterPattern = Pattern.compile("DesignJet|Latex|PageWide|Scitex", Pattern.CASE_INSENSITIVE);
 
 	@Override
 	protected AbstractProduct extract() throws Exception {
@@ -219,8 +219,6 @@ public class PrinterParser extends DocumentParser {
 				"US D color line drawings/hr, draft mode, plain", true, listDelimiter));
 
 		recommendedMonthlyPageVolume(p);
-
-		checkParsedProps();
 
 		return p;
 	}

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ */
+
 package com.hp.inventory.audit.parser.model;
 
 import javax.persistence.Entity;
@@ -9,10 +13,10 @@ import javax.persistence.Entity;
  * @version 1.0.0
  */
 @Entity
-public class InkAndToner extends AbstractProduct implements IProduct {
+public class InkAndToner extends AbstractProduct {
 
     public String colorsOfPrintCartridges;
-    public String pageYieldBlackAndWhite;
+    public String pageYield;
     public String pageYieldFootnote;
     public String inkDrop;
     public String compatibleInkTypes;
@@ -34,12 +38,12 @@ public class InkAndToner extends AbstractProduct implements IProduct {
         this.colorsOfPrintCartridges = colorsOfPrintCartridges;
     }
 
-    public String getPageYieldBlackAndWhite() {
-        return pageYieldBlackAndWhite;
+    public String getPageYield() {
+        return pageYield;
     }
 
-    public void setPageYieldBlackAndWhite(String pageYieldBlackAndWhite) {
-        this.pageYieldBlackAndWhite = pageYieldBlackAndWhite;
+    public void setPageYield(String pageYieldBlackAndWhite) {
+        this.pageYield = pageYieldBlackAndWhite;
     }
 
     public String getPageYieldFootnote() {
@@ -130,13 +134,19 @@ public class InkAndToner extends AbstractProduct implements IProduct {
         this.whatsInTheBox = whatsInTheBox;
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
     public void initNewEntity() {
 
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
-    public void upgradeEntityFrom(IProduct from) throws Exception {
-        IProduct.updateEntity(from, this);
+    public void upgradeEntityFrom(AbstractProduct from) throws Exception {
+        AbstractProduct.updateEntity(from, this);
     }
 }

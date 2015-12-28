@@ -98,10 +98,6 @@ public class Main {
             String file = cmd.getOptionValue("f", null);
             PrintWriter output = file == null ? new PrintWriter(System.out) : new PrintWriter(new FileWriter(file));
 
-            // Disable progress-bar display if we're outputting to stdout.
-            if (file == null)
-                config.showProgressBar = false;
-
             if (val.equals("db")) {
                 config.resultHandler = new DBResultHandler();
 
@@ -174,6 +170,9 @@ public class Main {
             checkConfigReadable(config.rulesConfig);
         }
 
+        if (cmd.hasOption("parse-duplicates")) {
+            config.parseDuplicates = true;
+        }
         return config;
 
     }
@@ -254,7 +253,14 @@ public class Main {
          */
         options.addOption("cfg", "config", true, "Rules config file. Required.");
 
-        options.addOption("i", "site-id", true, "The siteId value to use. Check your database for valid values. Default to 1");
+        options.addOption("i", "site-id", true, "The siteId value to use. Check your database for valid values. Defaults to 1.");
+
+        options.addOption(Option
+                .builder()
+                .longOpt("parse-duplicates")
+                .desc("Parses a page even if the product was already parsed in this run. Disabled by default, if two pages " +
+                        "refers to the same product, only one of them is parsed.")
+                .build());
     }
 
 }

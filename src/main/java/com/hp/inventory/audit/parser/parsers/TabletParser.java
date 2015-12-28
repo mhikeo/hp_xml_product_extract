@@ -5,13 +5,13 @@
 package com.hp.inventory.audit.parser.parsers;
 
 import com.hp.inventory.audit.parser.model.AbstractProduct;
-import com.hp.inventory.audit.parser.model.IProduct;
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.Tablet;
 
 import java.math.BigDecimal;
 
 /**
- * !!Description
+ * Parser for Tablet products
  *
  * @author TCDEVELOPER
  * @version 1.0.3

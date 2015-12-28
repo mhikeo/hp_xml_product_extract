@@ -4,6 +4,9 @@
 
 package com.hp.inventory.audit.parser.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.math.BigDecimal;
 
 import javax.persistence.Entity;
@@ -15,6 +18,7 @@ import javax.persistence.Entity;
  * @version 1.0.0
  */
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="productNumber")
 public class Tablet extends AbstractProduct{
 
     private String operatingSystem;
@@ -340,14 +344,20 @@ public class Tablet extends AbstractProduct{
     public void setWireless(String wireless) {
         this.wireless = wireless;
     }
-    
+
+    /**
+     * @inheritDoc
+     */
     @Override
 	public void initNewEntity() {
 		// currently no initializations
 	}
 
+    /**
+     * @inheritDoc
+     */
 	@Override
-	public void upgradeEntityFrom(IProduct from) throws Exception {
-        IProduct.updateEntity(from, this);
+	public void upgradeEntityFrom(AbstractProduct from) throws Exception {
+        AbstractProduct.updateEntity(from, this);
 	}
 }

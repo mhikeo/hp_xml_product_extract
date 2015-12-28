@@ -2,21 +2,17 @@ ALTER TABLE Product ADD fullText LONG VARCHAR(1000000);
 
 ALTER TABLE Laptop RENAME COLUMN poitingDevices TO pointingDevices;
 
-ALTER TABLE RelatedAccessory ADD accessoryProductNumber VARCHAR(5000);
-ALTER TABLE RelatedAccessory DROP COLUMN url;
-ALTER TABLE RelatedAccessory DROP COLUMN name;
+ALTER TABLE RelatedAccessory ADD accessoryProductNumber VARCHAR(5000) NOT NULL;
 ALTER TABLE RelatedAccessory DROP CONSTRAINT "C_PRIMARY";
 ALTER TABLE RelatedAccessory ADD PRIMARY KEY ("productNumber", "accessoryProductNumber");
+ALTER TABLE RelatedAccessory DROP COLUMN url;
+ALTER TABLE RelatedAccessory DROP COLUMN name;
+ALTER TABLE RelatedAccessory DROP COLUMN version;
 
-CREATE TABLE GeneralProduct (
-  productNumber                      VARCHAR(5000) NOT NULL REFERENCES Product,
-  version                            INTEGER       NOT NULL,
-  hpDataSheet                        VARCHAR(5000),
-  parseDate                          TIMESTAMP     NOT NULL,
-  productName                        VARCHAR(5000) NOT NULL,
-  productUrl                         VARCHAR(5000) NOT NULL,
-)
+ALTER TABLE Product ADD hpDataSheet VARCHAR(5000);
+ALTER TABLE Product ADD parseDate TIMESTAMP NOT NULL;
 
+DROP TABLE IF EXISTS Monitor;
 CREATE TABLE Monitor (
   productNumber                      VARCHAR(5000) NOT NULL REFERENCES Product,
   version                            INTEGER       NOT NULL,
@@ -37,6 +33,7 @@ CREATE TABLE Monitor (
   PRIMARY KEY (productNumber)
 );
 
+DROP TABLE IF EXISTS InkAndToner;
 CREATE TABLE InkAndToner (
   productNumber                      VARCHAR(5000) NOT NULL REFERENCES Product,
   version                            INTEGER       NOT NULL,
@@ -45,7 +42,7 @@ CREATE TABLE InkAndToner (
   productName                        VARCHAR(5000) NOT NULL,
   productUrl                         VARCHAR(5000) NOT NULL,
   colorsOfPrintCartridges            VARCHAR(5000),
-  pageYieldBlackAndWhite             VARCHAR(5000),
+  pageYield                          VARCHAR(5000),
   pageYieldFootnote                  VARCHAR(5000),
   inkDrop                            VARCHAR(5000),
   compatibleInkTypes                 VARCHAR(5000),

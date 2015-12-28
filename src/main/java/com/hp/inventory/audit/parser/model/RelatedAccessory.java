@@ -4,6 +4,8 @@
 
 package com.hp.inventory.audit.parser.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -17,6 +19,7 @@ import javax.persistence.*;
  */
 @Entity
 @IdClass(RelatedAccessoryPK.class)
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
 public class RelatedAccessory {
 
     @Id
@@ -25,16 +28,13 @@ public class RelatedAccessory {
     @Id
     private String accessoryProductNumber;
 
-    @Version
-    private Long version;
-
     // When persisting to database, the URL won't be saved, but replaced by the proper accessory product
     // number. This, this field is marked transient
     @Transient
     private String url;
 
-    @ManyToOne
-    @JoinColumn(name="productNumber", insertable = false, updatable = false)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name="productNumber", referencedColumnName = "productNumber", insertable = false, updatable = false)
     private Product product;
 
     public String getUrl() {
@@ -66,7 +66,7 @@ public class RelatedAccessory {
         return product;
     }
 
-    public void setProduct(Product product) {
+    protected void setProduct(Product product) {
         this.product = product;
     }
 
@@ -93,14 +93,6 @@ public class RelatedAccessory {
                 .append(productNumber, that.productNumber)
                 .append(url, that.url)
                 .isEquals();
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 
 }

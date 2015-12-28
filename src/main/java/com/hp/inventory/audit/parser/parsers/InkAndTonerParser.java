@@ -1,14 +1,17 @@
+/*
+ * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ */
+
 package com.hp.inventory.audit.parser.parsers;
 
 import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.InkAndToner;
-import com.hp.inventory.audit.parser.model.Monitor;
 
 /**
  * Document parser for "PDP" type Ink and Toner pages
  *
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.5
  */
 public class InkAndTonerParser extends DocumentParser {
 
@@ -24,7 +27,7 @@ public class InkAndTonerParser extends DocumentParser {
         extractCommonProps(p);
 
         p.setColorsOfPrintCartridges(prop("Color(s) of print cartridges"));
-        p.setPageYieldBlackAndWhite(prop("Page yield (black and white)"));
+        p.setPageYield(any(prop("Page yield (black and white)"), prop("Page yield (color)")));
         p.setPageYieldFootnote(prop("Page yield footnote"));
         p.setInkDrop(prop("Ink drop"));
         p.setCompatibleInkTypes(prop("Compatible ink types"));

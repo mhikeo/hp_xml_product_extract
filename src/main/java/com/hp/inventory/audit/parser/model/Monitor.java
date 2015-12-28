@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ */
+
 package com.hp.inventory.audit.parser.model;
 
 import javax.persistence.Entity;
@@ -9,7 +13,7 @@ import javax.persistence.Entity;
  * @version 1.0.0
  */
 @Entity
-public class Monitor extends AbstractProduct implements IProduct {
+public class Monitor extends AbstractProduct {
 
     private String nativeResolution;
     private String contrastRatio;
@@ -102,13 +106,19 @@ public class Monitor extends AbstractProduct implements IProduct {
         this.whatsInTheBox = whatsInTheBox;
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
     public void initNewEntity() {
 
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
-    public void upgradeEntityFrom(IProduct from) throws Exception {
-        IProduct.updateEntity(from, this);
+    public void upgradeEntityFrom(AbstractProduct from) throws Exception {
+        AbstractProduct.updateEntity(from, this);
     }
 }

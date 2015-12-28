@@ -6,6 +6,9 @@ package com.hp.inventory.audit.parser.model;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
@@ -17,53 +20,37 @@ import com.hp.inventory.audit.parser.model.annotation.SkipNullUpdate;
 import java.util.*;
 
 /**
- * Product entity
+ * Model class representing any Product present in the HP Store.
  *
  * @author TCDEVELOPER
- * @version 1.0.4
+ * @version 1.0.5
  * 
  */
 @Entity
-public class Product implements IProduct {
-
-	@Transient
-	StringBuilder parsingErrors;
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="productNumber")
+public class Product extends AbstractProduct {
 
 	/** @since 1.0.2
      */
     @Transient
     private String listDelimiter;
-	
+
+    @Expose
+    private Integer id;
+
     /** @since 1.0.3
      */
     @Transient
     private int propertiesThreshold;
-	
-	@Override
-	public StringBuilder getParsingErrors() {
-		return parsingErrors;
-	}
 	
 	public String getListDelimiter() {
 		return listDelimiter;
 	}
 	
     @Expose
-    private Integer id;
-
-    @Version
-    private Long version;
-
-    @Id
-    @Expose
-    private String productNumber;
-
-    @Expose
-    private String productUrl;
-    
-    @Expose
     private String sourceFile;
 
+    @JsonIgnore
     private String fullText;
     
     @Expose
@@ -73,9 +60,7 @@ public class Product implements IProduct {
      */
     @Expose
     private String productType;
-    @Expose
-    private String productName;
-    
+
     @SkipNullUpdate
     @Expose
     private Date dateAdded;
@@ -122,6 +107,13 @@ public class Product implements IProduct {
         updateMap(this.ratings, ratings, false, true);
     }
 
+    public String getSourceFile() {
+        return sourceFile;
+    }
+
+    public void setSourceFile(String sourceFile) {
+        this.sourceFile = sourceFile;
+    }
 
     public Set<ProductImage> getImages() {
         return images;
@@ -131,14 +123,22 @@ public class Product implements IProduct {
     	updateSet(this.images, images, false, true);
     }
 
-    public void setAccessories(Set<RelatedAccessory> topAccessories) throws Exception {
-    	updateSet(this.accessories, topAccessories, false, true);
+    public void setAccessories(Set<RelatedAccessory> accessories) throws Exception {
+    	updateSet(this.accessories, accessories, false, true);
     }
     
     public void setReviews(Set<ProductReview> reviews) throws Exception {
     	updateSet(this.reviews, reviews, true, false);
     }
-    
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public Set<RelatedAccessory> getAccessories() {
         return accessories;
     }
@@ -151,51 +151,6 @@ public class Product implements IProduct {
     	this.auditTimeStamp = dateTime;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-    	this.id = id;
-    }
-
-    public String getProductNumber() {
-        return productNumber;
-    }
-
-    public void setProductNumber(String productNumber) {
-    	this.productNumber = productNumber;
-    }
-
-    public String getSourceFile() {
-        return sourceFile;
-    }
-
-    public void setSourceFile(String sourceFile) {
-    	this.sourceFile = sourceFile;
-    }
-
-    public String getProductUrl() {
-        return this.productUrl;
-    }
-
-    public void setProductUrl(String url) {
-    	this.productUrl = url;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-	public String getProductName() {
-		return productName;
-	}
-	public void setProductName(String productName) {
-		this.productName = productName;
-	}
 	public Date getDateAdded() {
 		return dateAdded;
 	}
@@ -254,6 +209,9 @@ public class Product implements IProduct {
 	}
 
 
+    /**
+     * @inheritDoc
+     */
 	@Override
 	public void initNewEntity() {
 		Date now = new Date();
@@ -263,8 +221,11 @@ public class Product implements IProduct {
 		}
 	}
 
+    /**
+     * @inheritDoc
+     */
     @Override
-	public void upgradeEntityFrom(IProduct fromIFace) throws Exception {
+	public void upgradeEntityFrom(AbstractProduct fromIFace) throws Exception {
 		Date now = new Date();
         Product from = (Product) fromIFace;
 
@@ -278,7 +239,7 @@ public class Product implements IProduct {
                         .append(fromPrice.getCurrentPrice(), thisPrice.getCurrentPrice())
                         .isEquals();
                 if (!isEquals)
-                    IProduct.updateEntity(fromPrice, thisPrice);
+                    AbstractProduct.updateEntity(fromPrice, thisPrice);
             }
         }
 
@@ -290,12 +251,12 @@ public class Product implements IProduct {
                         .append(fromRating.getRating(), thisRating.getRating())
                         .isEquals();
                 if (!isEquals)
-                    IProduct.updateEntity(fromRating, thisRating);
+                    AbstractProduct.updateEntity(fromRating, thisRating);
             }
         }
 
         // Execute update
-        IProduct.updateEntity(from, this);
+        AbstractProduct.updateEntity(from, this);
 
 		if(this.getComingSoonDate()==null) {
 			//no 'coming soon' date

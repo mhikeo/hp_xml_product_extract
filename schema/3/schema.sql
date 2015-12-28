@@ -38,7 +38,9 @@ CREATE TABLE Product (
   dateOfParsingError    DATE,
   comingSoonDate	      DATE,
   availableForSaleDate  DATE,
-  fullText              LONG VARCHAR(1000000)
+  hpDataSheet           VARCHAR(5000),
+  parseDate             TIMESTAMP NOT NULL,
+  fullText              LONG VARCHAR(1000000),
   PRIMARY KEY (productNumber)
 );
 
@@ -492,7 +494,7 @@ CREATE TABLE InkAndToner (
   productName                        VARCHAR(5000) NOT NULL,
   productUrl                         VARCHAR(5000) NOT NULL,
   colorsOfPrintCartridges            VARCHAR(5000),
-  pageYieldBlackAndWhite             VARCHAR(5000),
+  pageYield                          VARCHAR(5000),
   pageYieldFootnote                  VARCHAR(5000),
   inkDrop                            VARCHAR(5000),
   compatibleInkTypes                 VARCHAR(5000),
