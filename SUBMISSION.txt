@@ -69,7 +69,8 @@ SQL queries suggested to check for requirements:
       select  p.productNumber, p.productName, p.productType,
               coalesce(p.availableForSaleDate, p.comingSoonDate) as inStoreDate
       from Product as p
-      where productNumber in ('A0X35AA#ABA', 'E5M78AA#ABL', 'H1D24UT', 'G1K47AA#ABL', 'H5W94AA#ABA', 'J0J89AA#ABA', 'QZ6078');
+      where productNumber in ('A0X35AA#ABA', 'E5M78AA#ABL', 'H1D24UT',
+                              'G1K47AA#ABL', 'H5W94AA#ABA', 'J0J89AA#ABA', 'QZ6078');
 
   - Check generic products were added (reviews):
       select productNumber, username, location, rating, title, comments
