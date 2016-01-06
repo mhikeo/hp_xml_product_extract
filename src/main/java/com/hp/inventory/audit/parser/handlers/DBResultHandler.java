@@ -4,13 +4,18 @@
 
 package com.hp.inventory.audit.parser.handlers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.hp.inventory.audit.parser.Config;
 import com.hp.inventory.audit.parser.Report;
-import com.hp.inventory.audit.parser.model.IProduct;
+import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.Product;
+import com.hp.inventory.audit.parser.model.RelatedAccessory;
+import com.hp.inventory.audit.parser.parsers.DetectionResult;
 import com.hp.inventory.audit.parser.parsers.DocumentParser;
-
+import com.hp.inventory.audit.parser.parsers.IgnoringParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,16 +23,16 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.transaction.Transactional;
-
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Result handler that writes products to the configured database.
  *
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.5
  */
 public class DBResultHandler implements ResultHandler {
 
@@ -42,6 +47,30 @@ public class DBResultHandler implements ResultHandler {
 
     private PrintWriter reportOutput;
     private Report report;
+    private Config config;
+
+    ObjectMapper jsonMapper = new ObjectMapper();
+
+
+    private Set<String> unknownAccessoryURLs = new HashSet<>();
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public void unknownAccessory(RelatedAccessory ra) {
+        boolean isNew = unknownAccessoryURLs.add(ra.getUrl());
+        if (isNew)
+            log.warn("Could not find the product number for accessory with URL {}", ra.getUrl());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public void setConfig(Config config) {
+        this.config = config;
+    }
 
     /**
      * @inheritDoc
@@ -49,15 +78,18 @@ public class DBResultHandler implements ResultHandler {
     @Override
     public void beforeStart() {
         this.entityManagerFactory = Persistence.createEntityManagerFactory("hp-product-parser");
+        jsonMapper.enable(SerializationFeature.INDENT_OUTPUT);
         report = new Report();
     }
+
+
 
     /**
      * @inheritDoc
      */
     @Override
     public void extractionFailed(Product definition, Exception e) {
-        log.error("Exception occurred while trying to extract product #{}:", definition.getId(), e);
+        log.error("Exception occurred while trying to extract product #: {}:", definition.getId(), e);
                 report.addError(definition, e.getMessage());
     }
 
@@ -67,50 +99,50 @@ public class DBResultHandler implements ResultHandler {
      */
     @Override
     @Transactional
-    public synchronized void extractionSucceeded(Product productDefinition, IProduct extractedEntity) throws Exception {
-        	
-        	extractedEntity.populateCommonsToProduct(productDefinition);
-        	
-        	getEntityManager().clear();
-        	
-        	startTransaction();
-            try {
-            	if(productDefinition.getParsingError()!=null) {
-                	log.warn("product Id: {}, #{}: {}",
-                			productDefinition.getId(),
-                            productDefinition.getProductNumber(),
-                            productDefinition.getParsingError());
-                }
+    public synchronized void extractionSucceeded(Product productDefinition, AbstractProduct extractedEntity) throws Exception {
 
-                upgradeDefinitionIfExisting(productDefinition);
+        extractedEntity.populateCommonsToProduct(productDefinition);
 
-                upgradeProductIfExisting(extractedEntity);
+        getEntityManager().clear();
 
-            	getEntityManager().flush();
-
-            	commitTransaction();
-
-                log.info("Processed product Id: {}, #{}, Type: {}",
+        startTransaction();
+        try {
+            if(productDefinition.getParsingError()!=null) {
+                log.warn("product Id: {}, #: {}, {}",
                         productDefinition.getId(),
                         productDefinition.getProductNumber(),
-                        extractedEntity.getClass().getSimpleName());
-                report.addProductCount(extractedEntity.getClass().getSimpleName(), productDefinition.getProductNumber());
-            } catch (Exception e) {
-                try { rollbackTransaction(); } catch (Exception ignored) { }
-                log.error("Offending product: " + new GsonBuilder()
-                        .setPrettyPrinting()
-                        .serializeNulls()
-                        .create()
-                        .toJson(extractedEntity));
-                throw e;
+                        productDefinition.getParsingError());
             }
-            
+
+            productDefinition = upgradeDefinitionIfExisting(productDefinition);
+
+            // If the same object, avoid persisting the definition and extracted entity twice
+            if (!(extractedEntity instanceof Product))
+                upgradeProductIfExisting(extractedEntity);
+
+            getEntityManager().flush();
+
+            commitTransaction();
+
+            log.info("Processed product {}: SKU: {}, Class: {}, ProdType: {}",
+                    productDefinition.getId(),
+                    productDefinition.getProductNumber(),
+                    extractedEntity.getClass().getSimpleName(),
+                    productDefinition.getProductType());
+            report.addProductCount(extractedEntity.getClass().getSimpleName(), productDefinition.getProductNumber());
+        } catch (Exception e) {
             try { rollbackTransaction(); } catch (Exception ignored) { }
-     
+            String json = jsonMapper.writeValueAsString(extractedEntity);
+            log.error("Offending product: {}", json);
+            throw e;
+        }
+
+        try { rollbackTransaction(); } catch (Exception ignored) { }
+
     }
 
-    private void upgradeProductIfExisting(IProduct extractedEntity) throws Exception {
-        IProduct existingExtracted = getEntityManager().find(extractedEntity.getClass(), extractedEntity.getProductNumber());
+    private void upgradeProductIfExisting(AbstractProduct extractedEntity) throws Exception {
+        AbstractProduct existingExtracted = getEntityManager().find(extractedEntity.getClass(), extractedEntity.getProductNumber());
         if(existingExtracted!=null) {
             //existing entity
             existingExtracted.upgradeEntityFrom(extractedEntity);
@@ -124,25 +156,25 @@ public class DBResultHandler implements ResultHandler {
         }
     }
 
-    private void upgradeDefinitionIfExisting(Product productDefinition) throws Exception {
+    private Product upgradeDefinitionIfExisting(Product productDefinition) throws Exception {
         Product existingDefinition = getEntityManager().find(Product.class, productDefinition.getProductNumber());
 
         Date now = new Date();
 
-        if(existingDefinition!=null) {
+        if(existingDefinition != null) {
             //existing Product
             existingDefinition.upgradeEntityFrom(productDefinition);
 
-            //
-
-            getEntityManager().merge(existingDefinition);
+            return getEntityManager().merge(existingDefinition);
 
         } else {
             //new Product
             productDefinition.initNewEntity();
 
             getEntityManager().persist(productDefinition);
+            return productDefinition;
         }
+
     }
 
     private void rollbackTransaction() {
@@ -188,11 +220,6 @@ public class DBResultHandler implements ResultHandler {
         this.reportOutput = printWriter;
     }
 
-    @Override
-    public void addParserNotFound(Product definition) {
-        report.addParserNotFound(definition);
-    }
-
     /**
      * @inheritDoc
      */
@@ -231,18 +258,28 @@ public class DBResultHandler implements ResultHandler {
         this.entityManagerFactory = entityManagerFactory;
     }
 
-	@Override
-	public void detectParserFailed(Product definition) {
-		report.addDetectFailed(definition);
-	}
-	
-	@Override
-	public void addIgnored(Product definition) {
-		report.addIgnored(definition);
-	}
-	
-	@Override
-	public void addHit(String ruleHit) {
-		report.addHit(ruleHit);
-	}
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public void detectionSucceeded(DetectionResult detectionResult, Product definition, AbstractProduct extracted) {
+        if (extracted == null) {
+            report.addParserNotFound(definition);
+
+        } else if (detectionResult.parser instanceof IgnoringParser) {
+            report.addIgnored(definition);
+        } else {
+            report.addHit(detectionResult.ruleHit);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public void detectionFailed(Product definition, Exception e) {
+        log.error("Error on parser detection", e);
+        report.addDetectFailed(definition);
+    }
+
 }

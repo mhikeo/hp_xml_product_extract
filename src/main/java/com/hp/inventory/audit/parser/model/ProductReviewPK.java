@@ -10,7 +10,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.io.Serializable;
 
 /**
- * !!Description
+ * PK for product review.
  *
  * @author TCDEVELOPER
  * @version 1.0.0

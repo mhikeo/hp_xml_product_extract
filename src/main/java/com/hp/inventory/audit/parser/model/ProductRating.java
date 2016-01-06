@@ -4,6 +4,8 @@
 
 package com.hp.inventory.audit.parser.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.gson.annotations.Expose;
 import com.hp.inventory.audit.parser.model.annotation.TrackChanges;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -13,13 +15,14 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
- * TODO: description
+ * Product overall rating for a given site.
  *
  * @author TCDEVELOPER
  * @version 1.0.4
  */
 @Entity
 @IdClass(ProductRatingPK.class)
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
 public class ProductRating {
 
     @Id

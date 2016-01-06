@@ -102,10 +102,10 @@ public class PrinterParserTest extends ParserTest {
 	
 	@Test
 	public void shouldParseAndPopulateStrikedPrice() throws Exception {
-		Product product = findProduct("productPage2499.html");
+		Product product = findProduct("productPage1280.html");
 		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
 		
-		assertEquals(new BigDecimal("1999.99"), printer.getProduct().getPrices().get(HP).getStrikedPrice());
+		assertEquals(new BigDecimal("2453.00"), printer.getProduct().getPrices().get(HP).getStrikedPrice());
 	}
 	
 	

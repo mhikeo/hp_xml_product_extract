@@ -1,118 +1,198 @@
 {
-	"typeMap" : {
-		"laptops" : "com.hp.inventory.audit.parser.parsers.LaptopParser",
-		"desktops" : "com.hp.inventory.audit.parser.parsers.DesktopParser",
-		"printers" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
-		"laserjet" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
-		"designjet" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
-		"tablets" : "com.hp.inventory.audit.parser.parsers.TabletParser"
+  "typeMap" : {
+	"laptops" : "com.hp.inventory.audit.parser.parsers.LaptopParser",
+	"desktops" : "com.hp.inventory.audit.parser.parsers.DesktopParser",
+	"printers" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
+	"laserjet" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
+	"designjet" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
+	"tablets" : "com.hp.inventory.audit.parser.parsers.TabletParser",
+	"ink--toner---paper": "com.hp.inventory.audit.parser.parsers.InkAndTonerParser"
+  },
+  "urlExclude" : [
+
+  ],
+  "urlMatch" : [
+	{ "-mobile-workstation" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+
+	{ "-small-form-factor-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+	{ "-tower-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+	{ "-all-in-one-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+	{ "-ultra-slim-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+	{ "hp-chromebox" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+
+	{ "hp-chromebook" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+
+	{ "pdp/.*?monitors.*?/" : "com.hp.inventory.audit.parser.parsers.MonitorParser" }
+  ],
+  "productNameExclude" : [
+
+  ],
+  "productNameMatch" : [
+	{ "^HP EliteDisplay.*Monitor" : "com.hp.inventory.audit.parser.parsers.MonitorParser"},
+	{ "^HP V\\d+.* Monitor" : "com.hp.inventory.audit.parser.parsers.MonitorParser"},
+
+
+	{ "^HP EliteDesk .*PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
+	{ "^HP EliteOne .*PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
+	{ "^HP ProDesk .*PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
+	{ "^HP Z\\d+ .*Workstation" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
+	{ "HP ProLiant .*Server" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
+	{ "HP ProOne .*PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
+
+	{ "^HP Pro .*Tablet" : "com.hp.inventory.audit.parser.parsers.TabletParser"},
+	{ "^HP Elite .*Tablet" : "com.hp.inventory.audit.parser.parsers.TabletParser"},
+
+	{ "^HP EliteBook " : "com.hp.inventory.audit.parser.parsers.LaptopParser"},
+	{ "^HP ProBook .*PC" : "com.hp.inventory.audit.parser.parsers.LaptopParser"},
+	{ "^HP ZBook .*Mobile Workstation" : "com.hp.inventory.audit.parser.parsers.LaptopParser"},
+	{ "^HP .*15z .*Laptop" : "com.hp.inventory.audit.parser.parsers.LaptopParser"},
+
+
+	{ "^HP Latex \\d+" : "com.hp.inventory.audit.parser.parsers.PrinterParser"}
+
+
+  ],
+
+  "contentExclude" : [
+	"has been discontinued. Please shop for associated supplies"
+  ],
+
+  "contentMatch" : [
+
+	{ "sales cat id: 88317" : "com.hp.inventory.audit.parser.parsers.GeneralParser"}, // Ink replacement services
+	{ "sales cat id: 88191" : "com.hp.inventory.audit.parser.parsers.GeneralParser"}, // Scanners
+
+	{ "sales cat id: 88103" : "com.hp.inventory.audit.parser.parsers.TabletParser"}, // By screen size: Tablet
+
+	{ "catGroupTraversalByName FIRST: HP ENVY monitors": "com.hp.inventory.audit.parser.parsers.MonitorParser" },
+	{ "catGroupTraversalByName FIRST: HP Z Display": "com.hp.inventory.audit.parser.parsers.MonitorParser" },
+	{ "catGroupTraversalByName FIRST: HP ProDisplay": "com.hp.inventory.audit.parser.parsers.MonitorParser" },
+	{ "sales cat id: 142524": "com.hp.inventory.audit.parser.parsers.MonitorParser" }, // HP Pavilion monitors
+	{ "sales cat id: 294030": "com.hp.inventory.audit.parser.parsers.MonitorParser" }, // HP EliteDisplay
+
+
+
+	{ "sales cat id: 88310": "com.hp.inventory.audit.parser.parsers.InkAndTonerParser" }, // Ink Cartridges
+	{ "sales cat id: 88311": "com.hp.inventory.audit.parser.parsers.InkAndTonerParser" },  // Toner Cartridges
+	{ "sales cat id: 88313": "com.hp.inventory.audit.parser.parsers.InkAndTonerParser" },  // Printheads
+	{ "sales cat id: 142568": "com.hp.inventory.audit.parser.parsers.InkAndTonerParser" },  // Image Drums
+
+
+	// Generic categories. Should have lower priority
+	{ "sales cat id: 142523" : "com.hp.inventory.audit.parser.parsers.MonitorParser" },
+	{ "sales cat id: 88339" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+	{ "sales cat id: 88337" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+	{ "sales cat id: 243002" : "com.hp.inventory.audit.parser.parsers.TabletParser" },
+	{ "sales cat id: 240508" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
+	{ "sales cat id: 88340" : "com.hp.inventory.audit.parser.parsers.PrinterParser" }
+
+
+
+  ],
+  "queriesSpec" : {
+	"productNumberQuery" : "span.prodNum",
+	"productNameQuery" : "[itemprop=name]",
+	"currentPriceQueryVisible" : "div[itemprop=offers] #price_value",
+	"currentPriceQuery" : "div[itemprop=offers] span[itemprop=price]",
+	"currencyQuery" : "div[itemprop=offers] meta[itemprop=priceCurrency]",
+	"strikedPriceQuery" : "div[itemprop=offers] del",
+	"reviewIdPattern" : "(\\d+)",
+	"ratingQuery" : "#BVSecondaryCustomerRatings div.BVRRRatingNormalOutOf span.BVRRRatingNumber",
+	"reviewsQuery" : "#BVSecondaryCustomerRatings div.BVRRRatingSummaryLinks span.BVRRCount span.BVRRNumber",
+	"comingSoonQuery" : "div[itemprop=offers] span:contains(Out of stock)",
+
+	"specQueryPrefix" : "#specs h2:matchesOwn(",
+	"specQuerySuffix" : ")",
+	"specQueryPostQuery" : ".proc,.specsDescription",
+
+	"linkQueryPrefix" : "h2:matchesOwn(",
+	"linkQuerySuffix" : ")",
+	"linkQueryPostQuery" : ".large-12 .large-7 a",
+
+	"accessoriesNameQuery" : "#accessories ._product_title",
+	"accessoriesUrlQuery" : "#accessories .details",
+
+	"imagesSelectQuery" : "ul.pdp_featured_image",
+	"imagesSelectPostQuery" : "img[itemprop=image",
+
+	"reviewsExtractQuery" : "div.BVRRDisplayContentBody .BVRRContentReview",
+	"reviewsExtractDateFormat" : "yyyy-MM-dd",
+	"reviewsExtractPostDateQuery" : "meta[itemprop=datePublished]",
+	"reviewsExtractHpResponseDateQuery" : ".BVRRReviewClientResponseSubtitleDate",
+	"reviewsExtractRatingQuery" : "span[itemprop=ratingValue]",
+	"reviewsExtractScaleQuery" : "span[itemprop=bestRating]",
+	"reviewsExtractTitleQuery" : ".BVRRReviewTitle",
+	"reviewsExtractComentsQuery" : ".BVRRReviewText",
+	"reviewsExtractUsernameQuery" : ".BVRRNickname",
+	"reviewsExtractLocationQuery" : ".BVRRUserLocation",
+	"reviewsExtractHpResponseQuery" : ".BVRRReviewClientResponseText",
+	"reviewsExtractHpResponseUserQuery" : ".BVRRReviewClientResponseSubtitleName",
+
+	"reviewsExtractYesQuery" : "div.BVDI_FVVotes span.BVDILabel:contains(yes)",
+	"reviewsExtractYesPostQuery" : ".BVDINumber",
+
+	"reviewsExtractNoQuery" : "div.BVDI_FVVotes span.BVDILabel:contains(no)",
+	"reviewsExtractNoPostQuery" : ".BVDINumber",
+
+	// Full-text field extraction configuration.
+	"fullTextExtractStartQuery" : "#content",
+	"fullTextExtractExcludes" : "#reviews"
+
+  },
+
+  // Configuration for inferring product type for GeneralProducts. Mostly we'll try
+  // to use embedded category information in the page.
+
+  "productType": {
+
+	// Categories to be excluded. [regex]
+	"categoryExclude": [
+	  "(^|~| )offer($|~| )",	// Deals and Offer categories.
+	  "(^|~| )sale($|~| )",
+	  "(^|~| )deal($|~| )",
+
+	  "egphase",				// ???
+	  "3pp",
+
+	  "^Tablets~Accessories$"	// Categories with false matches
+	],
+
+	// Types to be replace once resolved. [regex]
+	"typeReplace": {
+
+	  // Make software categories more generic
+	  "microsoft windows": "Software",
+	  "Microsoft Office": "Software",
+	  "mcafee": "Software",
+	  "corel": "Software",
+	  "cyberlink": "Software",
+	  "quicken": "Software",
+	  "Nuance Dragon": "Software",
+
+	  // Generify some categories
+	  "Paper Handling": "Paper Handling Accessories",
+	  "Paper": "Paper",
+	  "Care Packs": "Care Packs",
+	  "Stands": "Mounts & Stands",
+	  "Cases": "Cases & Sleeves",
+
+	  "Mice( |$)": "Mice & Keyboards",
+	  "Keyboard": "Mice & Keyboards"
 	},
-	"urlExclude" : [
-		"-warranty"
-	],
-	"urlMatch" : [
-		{ "-mobile-workstation" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
 
-		{ "-small-form-factor-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		{ "-tower-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		{ "-all-in-one-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		{ "-desktop" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		{ "-workstation" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		
-		{ "-notebook" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
-		{ "hp-chromebook" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
-		{ "-laptop" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
-		
-		{ "-printer" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
-		{ "-eprinter" : "com.hp.inventory.audit.parser.parsers.PrinterParser" }
-		
-	],
-	"productNameExclude" : [
-		"Warranty"
-	],
-	"productNameMatch" : [
-		{ " mobile workstation" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+	// When we can't get the type from embedded category info, resort to
+	// product name match. [regex]
 
-		{ " Desktop PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		{ " Desktop Mini PC " : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		{ " Small Form Factor PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		
-		{ " workstation" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		{ " Microtower" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		{ " Tower" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		{ " All-in-One PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		
-		{ " laptop" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
-		{ " notebook" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
-		
-		{ " tablet" : "com.hp.inventory.audit.parser.parsers.TabletParser" },
-		
-		{ " printer" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
-		{ " LaserJet" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
-		{ " Inkjet" : "com.hp.inventory.audit.parser.parsers.PrinterParser" }
-	],
-	
-	"contentExclude" : [
-		"has been discontinued. Please shop for associated supplies",
-		"catGroupTraversalByName FIRST: Batteries & AC adapters",
-		"catGroupTraversalByName FIRST: Accessories",
-		"catGroupTraversalByName FIRST: Other accessories",
-		"catGroupTraversalByName FIRST: Care Packs",
-		"catGroupTraversalByName FIRST: Ink, toner & paper",
-		"catGroupTraversalByName FIRST: Servers, Storage",
-		"catGroupTraversalByName FIRST: Mounts & stands"
-	],
-	"contentMatch" : [
-		{ "catGroupTraversalByName FIRST: Laptops" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
-		{ "catGroupTraversalByName FIRST: Desktops" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-		{ "catGroupTraversalByName FIRST: Printers" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
-		{ "catGroupTraversalByName FIRST: Tablets" : "com.hp.inventory.audit.parser.parsers.TabletParser" }
-	],
-	"queriesSpec" : {
-		"productNumberQuery" : "span.prodNum",
-		"productNameQuery" : "span[itemprop=name]",
-		"currentPriceQueryVisible" : "div[itemprop=offers] #price_value",
-		"currentPriceQuery" : "div[itemprop=offers] span[itemprop=price]",
-		"currencyQuery" : "div[itemprop=offers] meta[itemprop=priceCurrency]",
-		"strikedPriceQuery" : "div[itemprop=offers] del",
-		"reviewIdPattern" : "(\\d+)",
-		"ratingQuery" : "#BVSecondaryCustomerRatings div.BVRRRatingNormalOutOf span.BVRRRatingNumber",
-		"reviewsQuery" : "#BVSecondaryCustomerRatings div.BVRRRatingSummaryLinks span.BVRRCount span.BVRRNumber",
-		"comingSoonQuery" : "div[itemprop=offers] span:contains(Out of stock)",
-		
-		"specQueryPrefix" : "#specs h2:matchesOwn(",
-		"specQuerySuffix" : ")",
-		"specQueryPostQuery" : ".proc,.specsDescription",
-		
-		"linkQueryPrefix" : "h2:matchesOwn(",
-		"linkQuerySuffix" : ")",
-		"linkQueryPostQuery" : ".large-12 .large-7 a",
-		
-		"accessoriesNameQuery" : "#accessories div.items h3",
-		"accessoriesUrlQuery" : "#accessories div.items .priceHolder div > div > a",
-		
-		"imagesSelectQuery" : "ul.pdp_featured_image",
-		"imagesSelectPostQuery" : "img[itemprop=image",
-		
-		"reviewsExtractQuery" : "div.BVRRDisplayContentBody .BVRRContentReview",
-		"reviewsExtractDateFormat" : "MMM dd, yyyy",
-		"reviewsExtractPostDateQuery" : ".BVRRReviewDate",
-		"reviewsExtractHpResponseDateQuery" : ".BVRRReviewClientResponseSubtitleDate",
-		"reviewsExtractRatingQuery" : "span[itemprop=ratingValue]",
-		"reviewsExtractScaleQuery" : "span[itemprop=bestRating]",
-		"reviewsExtractTitleQuery" : ".BVRRReviewTitle",
-		"reviewsExtractComentsQuery" : ".BVRRReviewText",
-		"reviewsExtractUsernameQuery" : ".BVRRNickname",
-		"reviewsExtractLocationQuery" : ".BVRRUserLocation",
-		"reviewsExtractHpResponseQuery" : ".BVRRReviewClientResponseText",
-		"reviewsExtractHpResponseUserQuery" : ".BVRRReviewClientResponseSubtitleName",
-
-		"reviewsExtractYesQuery" : "div.BVDI_FVVotes span.BVDILabel:contains(yes)",
-		"reviewsExtractYesPostQuery" : ".BVDINumber",
-		
-		"reviewsExtractNoQuery" : "div.BVDI_FVVotes span.BVDILabel:contains(no)",
-		"reviewsExtractNoPostQuery" : ".BVDINumber"
-		
+	"productNameMatch": {
+	  "year.* warranty": "Care Packs",
+	  "headphones$": "Headphones & Headsets",
+	  "mouse$": "Mice & Keyboards",
+	  "battery$": "Batteries & Ac Adapters",
+	  "picture frame$": "Picture Frame",
+	  "digital camera$": "Cameras",
+	  "dvdrw drive": "Dvd Writers",
+	  "jetdirect.*server": "Jetdirect"
 	}
-	
+  }
+
 }

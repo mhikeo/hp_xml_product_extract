@@ -4,6 +4,9 @@
 
 package com.hp.inventory.audit.parser.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -14,6 +17,7 @@ import javax.persistence.Id;
  * @version 1.0.0
  */
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
 public class Site {
 
     @Id

@@ -4,6 +4,8 @@
 
 package com.hp.inventory.audit.parser.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.gson.annotations.Expose;
 import com.hp.inventory.audit.parser.model.annotation.TrackChanges;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -14,13 +16,14 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Product price info
+ * Product price information for a given site.
  *
  * @author TCDEVELOPER
  * @version 1.0.4
  */
 @IdClass(ProductPricePK.class)
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
 public class ProductPrice {
 
     @Id

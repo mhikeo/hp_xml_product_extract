@@ -8,7 +8,7 @@ apply plugin: 'application'
 // compileJava.options.fork = true
 // compileJava.options.forkOptions.executable = '/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/bin/java'
 
-version = '1.0.0'
+version = '1.0.5'
 
 sourceCompatibility = '1.8'
 
@@ -59,11 +59,17 @@ dependencies {
     compile 'org.jsoup:jsoup:1.8.2'
 
     // Json manipulation
+    // NOTE: we should deprecate Gson in favor of Jackson as this is more suited for
+    // handling circular relationships in data.
     compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.6.4'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.6.4'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.6.4'
 
     // Common utilities
     compile 'org.apache.commons:commons-lang3:3.4'
     compile 'commons-io:commons-io:2.4'
+    compile 'org.riversun:finbin:0.6.1'
 
 
     testCompile 'junit:junit:4.12'

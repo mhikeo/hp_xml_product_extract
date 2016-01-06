@@ -6,17 +6,20 @@ package com.hp.inventory.audit.parser.model;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
- * !!Description
+ * Model for product image.
  *
  * @author TCDEVELOPER
  * @version 1.0.0
  */
 @Entity
 @IdClass(ProductImagePK.class)
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
 public class ProductImage {
 
     @Id
