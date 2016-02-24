@@ -31,7 +31,7 @@ public class ProductImage {
     @Id
     private String productNumber;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="productNumber", referencedColumnName = "productNumber", insertable = false, updatable = false)
     private Product product;
 

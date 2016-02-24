@@ -31,7 +31,7 @@ public class ProductRating {
     @Id
     private String productNumber;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="productNumber", insertable = false, updatable = false)
     private Product product;
 

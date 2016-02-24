@@ -49,7 +49,7 @@ public class ProductReview {
 	private Integer reviewHelpfulYesCount;
 	private Integer reviewHelpfulNoCount;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name="productNumber", insertable = false, updatable = false)
 	private Product product;
 
