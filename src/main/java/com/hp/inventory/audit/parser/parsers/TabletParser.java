@@ -1,20 +1,25 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser.parsers;
 
 import com.hp.inventory.audit.parser.model.AbstractProduct;
-import com.hp.inventory.audit.parser.model.AbstractProduct;
-import com.hp.inventory.audit.parser.model.Tablet;
+import com.hp.inventory.audit.parser.model.Product;
+import com.hp.inventory.audit.parser.model.ProductSpecification;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Parser for Tablet products
  *
+ * changes:
+ *  - 1.0.4: refactor the columns to specifications.
+ * 
  * @author TCDEVELOPER
- * @version 1.0.3
+ * @version 1.0.4
  */
 public class TabletParser extends DocumentParser {
 	
@@ -29,56 +34,63 @@ public class TabletParser extends DocumentParser {
      */
     @Override
     public AbstractProduct extract() throws Exception {
-        Tablet p = new Tablet();
-        
+        Product p = this.definition;
+        p.setCategory("Tablet");
         setParsingErrorsReceiver(p);
         
         extractCommonProps(p);
-        
-        p.setBattery(prop("Battery", listDelimiter));
-        p.setBatteryLife(prop("Battery life", true, listDelimiter));
-        p.setMaxBatteryLifeInHours(parseBatteryLife(p.getBatteryLife()));
-        p.setColor(prop("Color", listDelimiter));
 
-        p.setDimensions(prop("Dimensions", listDelimiter));
-        BigDecimal[] wdh = parseDimensions(p.getDimensions());
-        if(wdh != null) {
-            p.setDimensionWidthInInches(wdh[0]);
-            p.setDimensionDepthInInches(wdh[1]);
-            p.setDimensionHeightInInches(wdh[2]);
-        }
-
-        p.setDisplay(prop("Display", listDelimiter));
-        p.setExpansionSlots(prop("Expansion slots", listDelimiter));
         p.setHpDataSheet(propLink("HP Data Sheet"));
 
-        p.setMemory(prop("Memory", listDelimiter));
-        p.setModelNumber(prop("Model number", listDelimiter));
-        p.setOperatingSystem(prop("Operating system", listDelimiter));
-        p.setPorts(prop("Ports", listDelimiter));
-        p.setProcessor(prop("Processor", listDelimiter));
-        p.setSoftwareIncluded(prop("Software included", listDelimiter));
+        Set<ProductSpecification> specifications = new HashSet<>();
 
-        p.setWeight(prop("Weight", listDelimiter));
-        p.setWeightInPounds(parseWeightInPounds(p.getWeight()));
-        p.setWarranty(prop("Warranty", listDelimiter));
-        p.setWireless(prop("Wireless", listDelimiter));
-        p.setInternalStorage(prop("Internal storage", listDelimiter));
-        p.setIntegratedCamera(prop("Integrated camera", listDelimiter));
-        p.setSensors(prop("Sensors", listDelimiter));
-        p.setAudio(prop("Audio", listDelimiter));
-        p.setWhatsInTheBox(prop("What's in the box", listDelimiter));
+        specifications.add(constructSpecification(p, "battery", prop("Battery", listDelimiter)));
+        specifications.add(constructSpecification(p, "batteryLife", prop("Battery life", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "maxBatteryLifeInHours", String.valueOf(parseBatteryLife(prop("Battery life", true, listDelimiter)))));
+        specifications.add(constructSpecification(p, "color", prop("Color", listDelimiter)));
+
+        specifications.add(constructSpecification(p, "dimensions", prop("Dimensions", listDelimiter)));
+        BigDecimal[] wdh = parseDimensions(prop("Dimensions", listDelimiter));
+        if(wdh != null) {
+            specifications.add(constructSpecification(p, "dimensionWidthInInches", String.valueOf(wdh[0])));
+            specifications.add(constructSpecification(p, "dimensionDepthInInches", String.valueOf(wdh[1])));
+            specifications.add(constructSpecification(p, "dimensionHeightInInches", String.valueOf(wdh[2])));
+        }
+
+        specifications.add(constructSpecification(p, "display", prop("Display", listDelimiter)));
+        specifications.add(constructSpecification(p, "expansionSlots", prop("Expansion slots", listDelimiter)));
+
+
+        specifications.add(constructSpecification(p, "memory", prop("Memory", listDelimiter)));
+        specifications.add(constructSpecification(p, "modelNumber", prop("Model number", listDelimiter)));
+        specifications.add(constructSpecification(p, "operatingSystem", prop("Operating system", listDelimiter)));
+        specifications.add(constructSpecification(p, "ports", prop("Ports", listDelimiter)));
+        specifications.add(constructSpecification(p, "processor", prop("Processor", listDelimiter)));
+        specifications.add(constructSpecification(p, "softwareIncluded", prop("Software included", listDelimiter)));
+
+        specifications.add(constructSpecification(p, "weight", prop("Weight", listDelimiter)));
+        specifications.add(constructSpecification(p, "weightInPounds",
+                String.valueOf(parseWeightInPounds(prop("Weight", listDelimiter)))));
+        specifications.add(constructSpecification(p, "warranty", prop("Warranty", listDelimiter)));
+        specifications.add(constructSpecification(p, "wireless", prop("Wireless", listDelimiter)));
+        specifications.add(constructSpecification(p, "internalStorage", prop("Internal storage", listDelimiter)));
+        specifications.add(constructSpecification(p, "integratedCamera", prop("Integrated camera", listDelimiter)));
+        specifications.add(constructSpecification(p, "sensors", prop("Sensors", listDelimiter)));
+        specifications.add(constructSpecification(p, "audio", prop("Audio", listDelimiter)));
+        specifications.add(constructSpecification(p, "whatsInTheBox", prop("What's in the box", listDelimiter)));
         
-        p.setChipset(prop("Chipset", true, listDelimiter));
-        p.setEnergyEfficiency(prop("Energy efficiency", true, listDelimiter));
-        p.setGraphics(prop("Graphics", true, listDelimiter));
-        p.setInternalDrive(prop("Internal drive", true, listDelimiter));
-        p.setPowerSupply(prop("Power supply", true, listDelimiter));
-        p.setProcessorFamily(prop("Processor family", true, listDelimiter));
-        p.setProcessorTechnology(prop("Processor technology", true, listDelimiter));
-        p.setSecurityManagement(prop("Security management", true, listDelimiter));
+        specifications.add(constructSpecification(p, "chipset", prop("Chipset", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "energyEfficiency", prop("Energy efficiency", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "graphics", prop("Graphics", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "internalDrive", prop("Internal drive", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "powerSupply", prop("Power supply", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "processorFamily", prop("Processor family", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "processorTechnology", prop("Processor technology", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "securityManagement", prop("Security management", true, listDelimiter)));
 
         checkParsedProps();
+
+        p.setSpecifications(specifications);
         
         return p;
     }

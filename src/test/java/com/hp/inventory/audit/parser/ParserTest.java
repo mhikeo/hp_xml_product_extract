@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser;
@@ -9,12 +9,9 @@ import static org.junit.Assert.*;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+import com.hp.inventory.audit.parser.model.ProductSpecification;
 import com.hp.inventory.audit.parser.parsers.DocumentParser;
 import com.hp.inventory.audit.parser.parsers.DocumentParserDetector;
 import org.apache.commons.io.IOUtils;
@@ -93,5 +90,15 @@ public abstract class ParserTest {
 		assertEquals(yesterday.get(Calendar.YEAR), c.get(Calendar.YEAR));
 		assertEquals(yesterday.get(Calendar.MONTH), c.get(Calendar.MONTH));
 		assertEquals(yesterday.get(Calendar.DAY_OF_MONTH), c.get(Calendar.DAY_OF_MONTH));
+	}
+
+	protected String getSpecification(Product p, String name) {
+		Set<ProductSpecification> specificatons = p.getSpecifications();
+		for (ProductSpecification s : specificatons) {
+			if (s.getName().equals(name)) {
+				return s.getValue();
+			}
+		}
+		return null;
 	}
 }

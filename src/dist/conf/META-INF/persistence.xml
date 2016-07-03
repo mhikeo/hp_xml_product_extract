@@ -1,5 +1,7 @@
 <!--
-  ~ Copyright (c) 2015 Topcoder Inc. All rights reserved.
+  ~ Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
+  version: 1.1
+  changes: add ProductSpecification model
   -->
 
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -12,14 +14,8 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
         <class>com.hp.inventory.audit.parser.model.Product</class>
-        <class>com.hp.inventory.audit.parser.model.GeneralProduct</class>
-        <class>com.hp.inventory.audit.parser.model.Laptop</class>
-        <class>com.hp.inventory.audit.parser.model.Desktop</class>
-        <class>com.hp.inventory.audit.parser.model.Tablet</class>
-        <class>com.hp.inventory.audit.parser.model.Printer</class>
-        <class>com.hp.inventory.audit.parser.model.InkAndToner</class>
-        <class>com.hp.inventory.audit.parser.model.Monitor</class>
         <class>com.hp.inventory.audit.parser.model.ProductImage</class>
+        <class>com.hp.inventory.audit.parser.model.ProductSpecification</class>
         <class>com.hp.inventory.audit.parser.model.RelatedAccessory</class>
         <class>com.hp.inventory.audit.parser.model.ProductReview</class>
         <class>com.hp.inventory.audit.parser.model.Site</class>
@@ -29,9 +25,9 @@
         <properties>
 
             <!-- Change these properties for your environment -->
-            <property name="javax.persistence.jdbc.url" value="jdbc:vertica://127.0.0.1:5433/hp_product_audit" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:vertica://192.168.1.114:5433/hp_product_audit3" />
             <property name="javax.persistence.jdbc.user" value="dbadmin" />
-            <property name="javax.persistence.jdbc.password" value="password" />
+            <property name="javax.persistence.jdbc.password" value="123456" />
             <property name="javax.persistence.jdbc.driver" value="com.vertica.jdbc.Driver" />
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL81Dialect" />

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser.parsers;
@@ -30,8 +30,11 @@ import java.util.regex.Pattern;
 /**
  * Abstract document parser with common utilities.
  *
+ * changes:
+ *  - 1.0.3: refactor the columns to specifications.
+ * 
  * @author TCDEVELOPER
- * @version 1.0.2
+ * @version 1.0.3
  */
 public abstract class DocumentParser {
 
@@ -89,12 +92,13 @@ public abstract class DocumentParser {
      * @param product
      * @throws Exception
      */
-    protected void extractCommonProps(AbstractProduct product) throws Exception {
+    protected void extractCommonProps(Product product) throws Exception {
 
         product.setProductNumber(text(QueriesSpec.productNumberQuery));
-        product.setProduct(definition);
+        if (product.getProductType() == null) {
+            product.setProductType(product.getCategory());
+        }
 
-        definition.setProductNumber(product.getProductNumber());
 
         listDelimiter = definition.getListDelimiter();
         propertiesThreshold = definition.getPropertiesThreshold();
@@ -102,7 +106,7 @@ public abstract class DocumentParser {
         product.setParseDate(new Date());
 
         product.setProductName(text(QueriesSpec.productNameQuery));
-        product.setProductUrl(definition.getProductUrl());
+
 
         // Product ratings
         ProductRating rating = new ProductRating();
@@ -623,7 +627,7 @@ public abstract class DocumentParser {
     /**
      * Extract processor and graphics fields, accounting for some variations.
      */
-    protected void extractProcessorAndGraphics(ProcessorGraphicsMixin p) {
+    protected void extractProcessorAndGraphics(Product p, Set<ProductSpecification> specifications) {
         List<String> processors = new LinkedList<>();
         List<String> graphics = new LinkedList<>();
 
@@ -641,15 +645,16 @@ public abstract class DocumentParser {
         }
 
         if (processors.size() > 0) {
-            p.setProcessor(StringUtils.join(processors, ';'));
+            specifications.add(constructSpecification(p, "processor", StringUtils.join(processors, ";")));
         } else {
-            p.setProcessor(prop("Processor", listDelimiter));
+            specifications.add(constructSpecification(p, "processor", prop("Processor", listDelimiter)));
         }
 
         if (graphics.size() > 0) {
-            p.setGraphics(StringUtils.join(graphics, ';'));
+            specifications.add(constructSpecification(p, "graphics", StringUtils.join(processors, ";")));
         } else {
-            p.setGraphics(any(prop("Graphics", listDelimiter), prop("Graphics card", listDelimiter)));
+            specifications.add(constructSpecification(p, "graphics",
+                    any(prop("Graphics", listDelimiter), prop("Graphics card", listDelimiter))));
         }
     }
 
@@ -680,6 +685,14 @@ public abstract class DocumentParser {
                             parsed, countExpected));
         }
 
+    }
+
+    protected ProductSpecification constructSpecification(Product product, String name, String value) {
+        ProductSpecification specification = new ProductSpecification();
+        specification.setProductNumber(product.getProductNumber());
+        specification.setName(name);
+        specification.setValue(value);
+        return specification;
     }
 
     public Document getDoc() {

@@ -1,25 +1,29 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser.parsers;
 
 import com.hp.inventory.audit.parser.model.AbstractProduct;
-import com.hp.inventory.audit.parser.model.AbstractProduct;
-import com.hp.inventory.audit.parser.model.Printer;
 
 import java.math.BigDecimal;
-import java.util.Scanner;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hp.inventory.audit.parser.model.Product;
+import com.hp.inventory.audit.parser.model.ProductSpecification;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * Parser for printer products.
  *
+ * changes:
+ *  - 1.0.4: refactor the columns to specifications.
+ * 
  * @author TCDEVELOPER
- * @version 1.0.3
+ * @version 1.0.4
  */
 public class PrinterParser extends DocumentParser {
 
@@ -27,199 +31,215 @@ public class PrinterParser extends DocumentParser {
 
 	@Override
 	protected AbstractProduct extract() throws Exception {
-		Printer p = new Printer();
+		Product p = this.definition;
+		p.setCategory("Printer");
 
 		setParsingErrorsReceiver(p);
 
 		extractCommonProps(p);
 
-		p.setDimensions(prop("Dimensions", listDelimiter));
-		BigDecimal[] wdh = parseDimensions(p.getDimensions());
-		if (wdh != null) {
-			p.setDimensionWidthInInches(wdh[0]);
-			p.setDimensionDepthInInches(wdh[1]);
-			p.setDimensionHeightInInches(wdh[2]);
-		}
-
-		p.setDimensionsMax(prop("Dimensions (Maximum)", listDelimiter));
-		wdh = parseDimensions(p.getDimensions());
-		if (wdh != null) {
-			p.setDimensionWidthInInchesMax(wdh[0]);
-			p.setDimensionDepthInInchesMax(wdh[1]);
-			p.setDimensionHeightInInchesMax(wdh[2]);
-		}
-
-		p.setDisplay(prop("Display", listDelimiter));
-		p.setEnergyEfficiency(prop("Energy efficiency", listDelimiter));
 		p.setHpDataSheet(propLink("HP Data Sheet"));
 
-		p.setSoftwareIncluded(prop("Software included", listDelimiter));
+		Set<ProductSpecification> specifications = new HashSet<>();
 
-		p.setWeight(prop("Weight", true, listDelimiter));
-		p.setWeightInPounds(parseWeightInPounds(p.getWeight()));
+		specifications.add(constructSpecification(p, "dimensions", prop("Dimensions", listDelimiter)));
+		BigDecimal[] wdh = parseDimensions(prop("Dimensions", listDelimiter));
+		if (wdh != null) {
+			specifications.add(constructSpecification(p, "dimensionWidthInInches", String.valueOf(wdh[0])));
+			specifications.add(constructSpecification(p, "dimensionDepthInInches", String.valueOf(wdh[1])));
+			specifications.add(constructSpecification(p, "dimensionHeightInInches", String.valueOf(wdh[2])));
+		}
 
-		p.setPackageWeight(prop("Package weight", listDelimiter));
-		p.setPackageWeightInPounds(parseWeightInPounds(p.getPackageWeight()));
+		specifications.add(constructSpecification(p, "dimensionsMax", prop("Dimensions (Maximum)", listDelimiter)));
+		wdh = parseDimensions(prop("Dimensions", listDelimiter));
+		if (wdh != null) {
+			specifications.add(constructSpecification(p, "dimensionWidthInInchesMax", String.valueOf(wdh[0])));
+			specifications.add(constructSpecification(p, "dimensionDepthInInchesMax", String.valueOf(wdh[1])));
+			specifications.add(constructSpecification(p, "dimensionHeightInInchesMax", String.valueOf(wdh[2])));
+		}
 
-		p.setWarranty(prop("Warranty", true, listDelimiter));
+		specifications.add(constructSpecification(p, "display", prop("Display", listDelimiter)));
+		specifications.add(constructSpecification(p, "energyEfficiency", prop("Energy efficiency", listDelimiter)));
 
-		p.setAutomaticPaperSensor(prop("Automatic paper sensor", listDelimiter));
-		p.setBorderlessPrinting(prop("Borderless printing", listDelimiter));
-		p.setCompatibleInkTypes(prop("Compatible ink types", listDelimiter));
-		p.setCableIncluded(prop("Cable included", listDelimiter));
-		p.setCompatibleOperatingSystems(any(
+
+		specifications.add(constructSpecification(p, "softwareIncluded", prop("Software included", listDelimiter)));
+
+		specifications.add(constructSpecification(p, "weight", prop("Weight", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "weightInPounds",
+						String.valueOf(parseWeightInPounds(prop("Weight", true, listDelimiter)))));
+
+		specifications.add(constructSpecification(p, "packageWeight", prop("Package weight", listDelimiter)));
+		specifications.add(constructSpecification(p, "packageWeightInPounds", 
+						String.valueOf(parseWeightInPounds(prop("Package weight", listDelimiter)))));
+		specifications.add(constructSpecification(p, "warranty", prop("Warranty", true, listDelimiter)));
+
+		specifications.add(constructSpecification(p, "automaticPaperSensor", prop("Automatic paper sensor", listDelimiter)));
+		specifications.add(constructSpecification(p, "borderlessPrinting", prop("Borderless printing", listDelimiter)));
+		specifications.add(constructSpecification(p, "compatibleInkTypes", prop("Compatible ink types", listDelimiter)));
+		specifications.add(constructSpecification(p, "cableIncluded", prop("Cable included", listDelimiter)));
+		specifications.add(constructSpecification(p, "compatibleOperatingSystems", any(
 				prop("Compatible operating systems", listDelimiter),
-				prop("Supported operating systems", listDelimiter)));
-		p.setConnectivityStd(prop("Connectivity, standard", listDelimiter));
-		p.setConnectivityOptional(prop("Connectivity, optional", listDelimiter));
-		p.setDuplexPrinting(prop("Duplex printing", listDelimiter));
-		p.setEnvelopeInputCapacity(prop("Envelope input capacity", listDelimiter));
-		p.setFunctions(prop("Functions", listDelimiter));
-		p.setMediaSizesSupported(any(prop("Media sizes supported", listDelimiter),
-				prop("Media sizes, standard", listDelimiter)));
-		p.setMediaSizesCustom(prop("Media sizes, custom", listDelimiter));
-		p.setMediaTypes(prop("Media types", listDelimiter));
-		p.setMediaWeightsByPaperPath(prop("Media weights by paper path", listDelimiter));
-		p.setMemoryMax(prop("Memory, maximum", listDelimiter));
-		p.setMemoryStd(prop("Memory, standard", listDelimiter));
-		p.setMinimumSystemRequirements(prop("Minimum system requirements", listDelimiter));
-		p.setMobilePrintingCapability(prop("Mobile Printing Capability", listDelimiter));
-		p.setMonthlyDutyCycle(prop("Monthly duty cycle", listDelimiter));
-		p.setNetworkReady(prop("Network ready", listDelimiter));
-		p.setPostWarranty(prop("Post warranty", listDelimiter));
-		p.setEnergyEfficiency(prop("Energy efficiency", listDelimiter));
+				prop("Supported operating systems", listDelimiter))));
+		specifications.add(constructSpecification(p, "connectivityStd", prop("Connectivity, standard", listDelimiter)));
+		specifications.add(constructSpecification(p, "connectivityOptional",
+						prop("Connectivity, optional", listDelimiter)));
+		specifications.add(constructSpecification(p, "duplexPrinting", prop("Duplex printing", listDelimiter)));
+		specifications.add(constructSpecification(p,
+						"envelopeInputCapacity", prop("Envelope input capacity", listDelimiter)));
+		specifications.add(constructSpecification(p, "functions", prop("Functions", listDelimiter)));
+		specifications.add(constructSpecification(p, "mediaSizesSupported", any(prop("Media sizes supported", listDelimiter),
+				prop("Media sizes, standard", listDelimiter))));
+		specifications.add(constructSpecification(p, "mediaSizesCustom", prop("Media sizes, custom", listDelimiter)));
+		specifications.add(constructSpecification(p, "mediaTypes", prop("Media types", listDelimiter)));
+		specifications.add(constructSpecification(p,
+						"mediaWeightsByPaperPath", prop("Media weights by paper path", listDelimiter)));
+		specifications.add(constructSpecification(p, "memoryMax", prop("Memory, maximum", listDelimiter)));
+		specifications.add(constructSpecification(p, "memoryStd", prop("Memory, standard", listDelimiter)));
+		specifications.add(constructSpecification(p,
+						"minimumSystemRequirements", prop("Minimum system requirements", listDelimiter)));
+		specifications.add(constructSpecification(p,
+						"mobilePrintingCapability", prop("Mobile Printing Capability", listDelimiter)));
+		specifications.add(constructSpecification(p, "monthlyDutyCycle", prop("Monthly duty cycle", listDelimiter)));
+		specifications.add(constructSpecification(p, "networkReady", prop("Network ready", listDelimiter)));
+		specifications.add(constructSpecification(p, "postWarranty", prop("Post warranty", listDelimiter)));
+		specifications.add(constructSpecification(p, "energyEfficiency", prop("Energy efficiency", listDelimiter)));
 
-		p.setNumberPrintCartridges(prop("Number of print cartridges", listDelimiter));
-		p.setOperatingHumidityRange(prop("Operating humidity range", listDelimiter));
-		p.setOperatingTemperatureRange(prop("Operating temperature range", listDelimiter));
-		p.setPaperHandlingInputStd(prop("Paper handling input, standard", listDelimiter));
-		p.setPaperHandlingOutputStd(prop("Paper handling output, standard", listDelimiter));
-		p.setPaperTraysMax(parsePaperTray(prop("Paper trays, maximum", listDelimiter), p));
-		p.setPaperTraysStd(parsePaperTray(prop("Paper trays, standard", listDelimiter), p));
-		p.setPower(prop("Power", listDelimiter));
-		p.setPowerConsumption(prop("Power consumption", listDelimiter));
-		p.setPrintTechnology(prop("Print Technology", listDelimiter));
+		specifications.add(constructSpecification(p, "numberPrintCartridges",
+						prop("Number of print cartridges", listDelimiter)));
+		specifications.add(constructSpecification(p, "operatingHumidityRange", prop("Operating humidity range", listDelimiter)));
+		specifications.add(constructSpecification(p, "operatingTemperatureRange",
+						prop("Operating temperature range", listDelimiter)));
+		specifications.add(constructSpecification(p, "paperHandlingInputStd",
+						prop("Paper handling input, standard", listDelimiter)));
+		specifications.add(constructSpecification(p, "paperHandlingOutputStd",
+						prop("Paper handling output, standard", listDelimiter)));
+		specifications.add(constructSpecification(p, "paperTraysMax",
+						String.valueOf(parsePaperTray(prop("Paper trays, maximum", listDelimiter), p))));
+		specifications.add(constructSpecification(p, "paperTraysStd",
+						String.valueOf(parsePaperTray(prop("Paper trays, standard", listDelimiter), p))));
+		specifications.add(constructSpecification(p, "power", prop("Power", listDelimiter)));
+		specifications.add(constructSpecification(p, "powerConsumption", prop("Power consumption", listDelimiter)));
+		specifications.add(constructSpecification(p, "printTechnology", prop("Print Technology", listDelimiter)));
 
-		/**
-		 * @since 1.0.1 Printer type
-		 */
+		String technology = prop("Print Technology", listDelimiter);
 		if (highEndPrinterPattern.matcher(p.getProductName()).find()) {
-			p.setType("HighEnd");
-		} else if (p.getPrintTechnology() != null
-				&& p.getPrintTechnology().contains("Laser")) {
-			p.setType("Laser");
+			p.setProductType("HighEnd Printer");
+		} else if (technology != null
+				&& technology.contains("Laser")) {
+			p.setProductType("Laser Printer");
 		} else {
-			p.setType("Inkjet");
+			p.setProductType("Inkjet Printer");
 		}
 		// ----------------------
 
-		p.setPrintLanguages(prop("Print languages", listDelimiter));
+		specifications.add(constructSpecification(p, "printLanguages", prop("Print languages", listDelimiter)));
 
-		p.setPrintSpeedBlackDraft(prop("Print speed, black (draft)", listDelimiter));
-		p.setPrintSpeedBlackISO(any(prop("Print speed, black (normal)", listDelimiter),
-				prop("Print speed, black (ISO, laser comparable)", listDelimiter)));
-		p.setPrintSpeedColorDraft(any(prop("Print speed, color (draft)", listDelimiter),
-				prop("Print speed, color (draft, 4x6 photo)", listDelimiter)));
-		p.setPrintSpeedColorISO(any(prop("Print speed, color (normal)", listDelimiter),
-				prop("Print speed, color (ISO, laser comparable)", listDelimiter)));
+		specifications.add(constructSpecification(p, "printSpeedBlackDraft", prop("Print speed, black (draft)", listDelimiter)));
+		specifications.add(constructSpecification(p, "printSpeedBlackISO", any(prop("Print speed, black (normal)", listDelimiter),
+				prop("Print speed, black (ISO, laser comparable)", listDelimiter))));
+		specifications.add(constructSpecification(p, "printSpeedColorDraft", any(prop("Print speed, color (draft)", listDelimiter),
+				prop("Print speed, color (draft, 4x6 photo)", listDelimiter))));
+		specifications.add(constructSpecification(p, "printSpeedColorISO", any(prop("Print speed, color (normal)", listDelimiter),
+				prop("Print speed, color (ISO, laser comparable)", listDelimiter))));
 
-		p.setPrinterManagement(prop("Printer management", listDelimiter));
-		p.setPrinterPageYield(prop("Printer page yield", listDelimiter));
-		p.setProcessorSpeed(prop("Processor speed", listDelimiter));
+		specifications.add(constructSpecification(p, "printerManagement", prop("Printer management", listDelimiter)));
+		specifications.add(constructSpecification(p, "printerPageYield", prop("Printer page yield", listDelimiter)));
+		specifications.add(constructSpecification(p, "processorSpeed", prop("Processor speed", listDelimiter)));
 
-		p.setReplacementCartridges(prop("Replacement cartridges", listDelimiter));
-		p.setResolutionBlack(prop("Resolution (black)", listDelimiter));
-		p.setResolutionColor(prop("Resolution (color)", listDelimiter));
-		p.setRecommendedMediaWeight(prop("Recommended media weight", listDelimiter));
-		p.setSecurityManagement(prop("Security management", listDelimiter));
-		p.setSupportedMediaWeight(prop("Supported media weight", listDelimiter));
-		p.setSupportedNetworkProtocols(prop("Supported network protocols", listDelimiter));
-		p.setWhatsInTheBox(prop("What's in the box", listDelimiter));
-		p.setFcc(prop("FCC", listDelimiter));
-		p.setHardDisk(any(prop("Hard disk", listDelimiter), prop("Internal drive", listDelimiter)));
+		specifications.add(constructSpecification(p, "replacementCartridges", prop("Replacement cartridges", listDelimiter)));
+		specifications.add(constructSpecification(p, "resolutionBlack", prop("Resolution (black)", listDelimiter)));
+		specifications.add(constructSpecification(p, "resolutionColor", prop("Resolution (color)", listDelimiter)));
+		specifications.add(constructSpecification(p, "recommendedMediaWeight", prop("Recommended media weight", listDelimiter)));
+		specifications.add(constructSpecification(p, "securityManagement", prop("Security management", listDelimiter)));
+		specifications.add(constructSpecification(p, "supportedMediaWeight", prop("Supported media weight", listDelimiter)));
+		specifications.add(constructSpecification(p, "supportedNetworkProtocols", prop("Supported network protocols", listDelimiter)));
+		specifications.add(constructSpecification(p, "whatsInTheBox", prop("What's in the box", listDelimiter)));
+		specifications.add(constructSpecification(p, "fcc", prop("FCC", listDelimiter)));
+		specifications.add(constructSpecification(p, "hardDisk", any(prop("Hard disk", listDelimiter), prop("Internal drive", listDelimiter))));
 
-		p.setAdfCapacity(prop("ADF Capacity", true, listDelimiter));
-		p.setAutoDocumentFeeder(prop("Auto document feeder", true, listDelimiter));
-		p.setBatteryRechargeTime(prop("Battery recharge time", true, listDelimiter));
-		p.setBitDepth(prop("Bit depth", true, listDelimiter));
-		p.setBroadcastLocations(prop("Broadcast locations", true, listDelimiter));
-		p.setBrowserSupported(prop("Browser supported", true, listDelimiter));
-		p.setColorStability(prop("Color stability", true, listDelimiter));
-		p.setConnectivity(prop("Connectivity", true, listDelimiter));
-		p.setControlPanel(prop("Control panel", true, listDelimiter));
-		p.setMaximumCopies(prop("Copies, maximum", true, listDelimiter));
-		p.setCopyReduceEnlargeSettings(prop("Copy reduce / enlarge settings",
-				true, listDelimiter));
-		p.setCopyResolutionBlackText(prop("Copy resolution (black text)", true, listDelimiter));
-		p.setCopyResolutionColourTextGraphics(prop(
-				"Copy resolution (colour text and graphics)", true, listDelimiter));
-		p.setCopySpeedBlackDraft(prop("Copy speed black (draft)", true, listDelimiter));
-		p.setCopySpeedBlackNormal(prop("Copy speed black (normal)", true, listDelimiter));
-		p.setCopySpeedColorDraft(prop("Copy speed color (draft)", true, listDelimiter));
-		p.setCopySpeedColorNormal(prop("Copy speed color (normal)", true, listDelimiter));
-		p.setDigitalSendFileFormats(prop("Digital send file Formats", true, listDelimiter));
-		p.setDigitalSendingFeatures(prop("Digital sending features", true, listDelimiter));
-		p.setDuplexAdfScanning(prop("Duplex ADF scanning", true, listDelimiter));
-		p.setEnergyStar(prop("ENERGY STAR", true, listDelimiter));
-		p.setEmbeddedWebServer(prop("Embedded web server", true, listDelimiter));
-		p.setFaxMemory(prop("Fax memory", true, listDelimiter));
-		p.setFaxResolution(prop("Fax resolution", true, listDelimiter));
-		p.setFaxTransmissionSpeed(prop("Fax transmission speed", true, listDelimiter));
-		p.setFaxing(prop("Faxing", true, listDelimiter));
-		p.setFinishedOutputHandling(prop("Finished output handling", true, listDelimiter));
-		p.setFirstPageOutBlack(prop("First page out (ready) black", true, listDelimiter));
-		p.setFirstPageOutColor(prop("First page out (ready) color", true, listDelimiter));
-		p.setGuaranteedMinimumLineWidth(prop("Guaranteed minimum line width",
-				true, listDelimiter));
-		p.setInputType(prop("Input type", true, listDelimiter));
-		p.setLineAccuracy(prop("Line accuracy", true, listDelimiter));
-		p.setMaximumDocumentScanSize(prop("Maximum document scan size", true, listDelimiter));
-		p.setMaximumOpticalDensityBlack(prop("Maximum optical density (black)",
-				true, listDelimiter));
-		p.setMptUsColorImageBestModeGlossy(prop(
+		specifications.add(constructSpecification(p, "adfCapacity", prop("ADF Capacity", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "autoDocumentFeeder", prop("Auto document feeder", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "batteryRechargeTime", prop("Battery recharge time", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "bitDepth", prop("Bit depth", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "broadcastLocations", prop("Broadcast locations", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "browserSupported", prop("Browser supported", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "colorStability", prop("Color stability", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "connectivity", prop("Connectivity", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "controlPanel", prop("Control panel", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "maximumCopies", prop("Copies, maximum", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "copyReduceEnlargeSettings", prop("Copy reduce / enlarge settings",
+				true, listDelimiter)));
+		specifications.add(constructSpecification(p, "copyResolutionBlackText", prop("Copy resolution (black text)", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "copyResolutionColourTextGraphics", prop(
+				"Copy resolution (colour text and graphics)", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "copySpeedBlackDraft", prop("Copy speed black (draft)", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "copySpeedBlackNormal", prop("Copy speed black (normal)", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "copySpeedColorDraft", prop("Copy speed color (draft)", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "copySpeedColorNormal", prop("Copy speed color (normal)", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "digitalSendFileFormats", prop("Digital send file Formats", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "digitalSendingFeatures", prop("Digital sending features", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "duplexAdfScanning", prop("Duplex ADF scanning", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "energyStar", prop("ENERGY STAR", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "embeddedWebServer", prop("Embedded web server", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "faxMemory", prop("Fax memory", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "faxResolution", prop("Fax resolution", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "faxTransmissionSpeed", prop("Fax transmission speed", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "faxing", prop("Faxing", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "finishedOutputHandling", prop("Finished output handling", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "firstPageOutBlack", prop("First page out (ready) black", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "firstPageOutColor", prop("First page out (ready) color", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "guaranteedMinimumLineWidth", prop("Guaranteed minimum line width",
+				true, listDelimiter)));
+		specifications.add(constructSpecification(p, "inputType", prop("Input type", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "lineAccuracy", prop("Line accuracy", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "maximumDocumentScanSize", prop("Maximum document scan size", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "maximumOpticalDensityBlack", prop("Maximum optical density (black)",
+				true, listDelimiter)));
+		specifications.add(constructSpecification(p, "mptUsColorImageBestModeGlossy", prop(
 				"Mechanical print time, US D color image, best mode, glossy",
-				true, listDelimiter));
-		p.setMptUsColorImageDraftModeCoated(prop(
+				true, listDelimiter)));
+		specifications.add(constructSpecification(p, "mptUsColorImageDraftModeCoated", prop(
 				"Mechanical print time, US D color image, draft mode, coated",
-				true, listDelimiter));
-		p.setMptUsColorImageNormalModeCoated(prop(
+				true, listDelimiter)));
+		specifications.add(constructSpecification(p, "mptUsColorImageNormalModeCoated", prop(
 				"Mechanical print time, US D color image, normal mode, coated",
-				true, listDelimiter));
-		p.setMptUsColorImageNormalModeGlossy(prop(
+				true, listDelimiter)));
+		specifications.add(constructSpecification(p, "mptUsColorImageNormalModeGlossy", prop(
 				"Mechanical print time, US D color image, normal mode, glossy",
-				true, listDelimiter));
-		p.setMptBWLineDrawingDraftModePlain(prop(
+				true, listDelimiter)));
+		specifications.add(constructSpecification(p, "mptBWLineDrawingDraftModePlain", prop(
 				"Mechanical print time, b\u0026w line drawing, draft mode, plain",
-				true, listDelimiter));
-		p.setMptColorLineDrawingDraftModePlain(prop(
+				true, listDelimiter)));
+		specifications.add(constructSpecification(p, "mptColorLineDrawingDraftModePlain", prop(
 				"Mechanical print time, color line drawing, draft mode, plain",
-				true, listDelimiter));
-		p.setMptLineDrawingEconomodePlain(prop(
-				"Mechanical print time, line drawing, economode, plain", true, listDelimiter));
-		p.setMediaThickness(prop("Media thickness", true, listDelimiter));
-		p.setMemoryCardCompatibility(prop("Memory card compatibility", true, listDelimiter));
-		p.setNonPrintableArea(prop("Non-printable area (cut-sheet)", true, listDelimiter));
-		p.setPorts(prop("Ports", true, listDelimiter));
-		p.setPrintRepeatability(prop("Print repeatability", true, listDelimiter));
-		p.setPrintSpeedMaximum(prop("Print speed, maximum", true, listDelimiter));
-		p.setResolution(prop("Resolution", true, listDelimiter));
-		p.setResolutionTechnology(prop("Resolution technology", true, listDelimiter));
-		p.setRollExternalDiameter(prop("Roll external diameter", true, listDelimiter));
-		p.setRollMaximumOutput(prop("Roll maximum output", true, listDelimiter));
-		p.setScanFileFormat(prop("Scan file format", true, listDelimiter));
-		p.setScanResolutionHardware(prop("Scan resolution, hardware", true, listDelimiter));
-		p.setScanResolutionOptical(prop("Scan resolution, optical", true, listDelimiter));
-		p.setScanSizeMaximum(prop("Scan size (ADF), maximum", true, listDelimiter));
-		p.setScanSizeFlatbedMaximum(prop("Scan size (flatbed), maximum", true, listDelimiter));
-		p.setScanSpeedMaximum(prop("Scan speed, maximum", true, listDelimiter));
-		p.setScannableMediaTypes(prop("Scannable media types", true, listDelimiter));
-		p.setScannerType(prop("Scanner type", true, listDelimiter));
-		p.setSpeedDialsMaximumNumber(prop("Speed dials, maximum number", true, listDelimiter));
-		p.setUsColorLineDrawingsDraftPlain(prop(
-				"US D color line drawings/hr, draft mode, plain", true, listDelimiter));
+				true, listDelimiter)));
+		specifications.add(constructSpecification(p, "mptLineDrawingEconomodePlain", prop(
+				"Mechanical print time, line drawing, economode, plain", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "mediaThickness", prop("Media thickness", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "memoryCardCompatibility", prop("Memory card compatibility", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "nonPrintableArea", prop("Non-printable area (cut-sheet)", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "ports", prop("Ports", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "printRepeatability", prop("Print repeatability", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "printSpeedMaximum", prop("Print speed, maximum", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "resolution", prop("Resolution", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "resolutionTechnology", prop("Resolution technology", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "rollExternalDiameter", prop("Roll external diameter", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "rollMaximumOutput", prop("Roll maximum output", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "scanFileFormat", prop("Scan file format", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "scanResolutionHardware", prop("Scan resolution, hardware", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "scanResolutionOptical", prop("Scan resolution, optical", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "scanSizeMaximum", prop("Scan size (ADF), maximum", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "scanSizeFlatbedMaximum", prop("Scan size (flatbed), maximum", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "scanSpeedMaximum", prop("Scan speed, maximum", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "scannableMediaTypes", prop("Scannable media types", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "scannerType", prop("Scanner type", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "speedDialsMaximumNumber", prop("Speed dials, maximum number", true, listDelimiter)));
+		specifications.add(constructSpecification(p, "usColorLineDrawingsDraftPlain", prop(
+				"US D color line drawings/hr, draft mode, plain", true, listDelimiter)));
 
-		recommendedMonthlyPageVolume(p);
+		recommendedMonthlyPageVolume(p, specifications);
 
+		p.setSpecifications(specifications);
 		return p;
 	}
 
@@ -262,10 +282,10 @@ public class PrinterParser extends DocumentParser {
 	 * Tries to set the fields recommMonthlyPageVolume,
 	 * recommMonthlyPageVolumeMin and recommMonthlyPageVolumeMax
 	 */
-	private void recommendedMonthlyPageVolume(Printer p) {
+	private void recommendedMonthlyPageVolume(Product p, Set<ProductSpecification> specifications) {
 		String[] rmpvs = props("Recommended monthly page volume");
 		String mpvsJoined = (rmpvs == null) ? null : StringUtils.join(rmpvs, "\n");
-		p.setRecommMonthlyPageVolume(mpvsJoined);
+		specifications.add(constructSpecification(p, "recommMonthlyPageVolume", mpvsJoined));
 
 		if (rmpvs != null) {
 			boolean parsed = false;
@@ -274,9 +294,9 @@ public class PrinterParser extends DocumentParser {
 				if (rmpv != null && !rmpv.trim().isEmpty()) {
 					Matcher matcher = rmpvPattern.matcher(rmpv);
 					if (matcher.find()) {
-						p.setRecommMonthlyPageVolumeMin(Integer.valueOf(matcher
+						specifications.add(constructSpecification(p, "recommMonthlyPageVolumeMin", matcher
 								.group(1).replace(",", "")));
-						p.setRecommMonthlyPageVolumeMax(Integer.valueOf(matcher
+						specifications.add(constructSpecification(p, "recommMonthlyPageVolumeMax", matcher
 								.group(2).replace(",", "")));
 						parsed = true;
 						break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser.handlers;
@@ -31,8 +31,9 @@ import java.util.Set;
 /**
  * Result handler that writes products to the configured database.
  *
+ * changes: remove useless update entity
  * @author TCDEVELOPER
- * @version 1.0.5
+ * @version 1.0.6
  */
 public class DBResultHandler implements ResultHandler {
 
@@ -100,7 +101,6 @@ public class DBResultHandler implements ResultHandler {
     @Override
     @Transactional
     public synchronized void extractionSucceeded(Product productDefinition, AbstractProduct extractedEntity) throws Exception {
-
         extractedEntity.populateCommonsToProduct(productDefinition);
 
         getEntityManager().clear();
@@ -115,10 +115,6 @@ public class DBResultHandler implements ResultHandler {
             }
 
             productDefinition = upgradeDefinitionIfExisting(productDefinition);
-
-            // If the same object, avoid persisting the definition and extracted entity twice
-            if (!(extractedEntity instanceof Product))
-                upgradeProductIfExisting(extractedEntity);
 
             getEntityManager().flush();
 
@@ -141,36 +137,18 @@ public class DBResultHandler implements ResultHandler {
 
     }
 
-    private void upgradeProductIfExisting(AbstractProduct extractedEntity) throws Exception {
-        AbstractProduct existingExtracted = getEntityManager().find(extractedEntity.getClass(), extractedEntity.getProductNumber());
-        if(existingExtracted!=null) {
-            //existing entity
-            existingExtracted.upgradeEntityFrom(extractedEntity);
-
-            getEntityManager().merge(existingExtracted);
-        } else {
-            //new entity
-            extractedEntity.initNewEntity();
-
-            getEntityManager().persist(extractedEntity);
-        }
-    }
 
     private Product upgradeDefinitionIfExisting(Product productDefinition) throws Exception {
         Product existingDefinition = getEntityManager().find(Product.class, productDefinition.getProductNumber());
-
-        Date now = new Date();
-
         if(existingDefinition != null) {
             //existing Product
             existingDefinition.upgradeEntityFrom(productDefinition);
-
             return getEntityManager().merge(existingDefinition);
+
 
         } else {
             //new Product
             productDefinition.initNewEntity();
-
             getEntityManager().persist(productDefinition);
             return productDefinition;
         }

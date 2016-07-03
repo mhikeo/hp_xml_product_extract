@@ -57,7 +57,6 @@ public class ProductExtractorJob implements Runnable {
 
             DocumentParser parser = detectionResult.parser;
             AbstractProduct extracted = parser.parse(detectionResult.doc, definition, config);
-
             resultHandler.detectionSucceeded(detectionResult, definition, extracted);
 
             if (extracted != null) {

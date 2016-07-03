@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser;
@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.hp.inventory.audit.parser.handlers.JSONResultHandler;
-import com.hp.inventory.audit.parser.model.Printer;
+import com.hp.inventory.audit.parser.model.Product;
 import com.hp.inventory.audit.parser.model.Product;
 import com.hp.inventory.audit.parser.parsers.PrinterParser;
 
@@ -32,579 +32,579 @@ public class PrinterParserTest extends ParserTest {
 	@Test
 	public void shouldParseCurrency() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		assertEquals("USD", printer.getProduct().getPrices().get(HP).getCurrency());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		assertEquals("USD", printer.getPrices().get(HP).getCurrency());
 	}
 
 	@Test
 	public void shouldParseTypeInkjet() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		assertEquals("Inkjet", printer.getType());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		assertEquals("Inkjet Printer", printer.getProductType());
 	}
 
 	@Test
 	public void shouldParseTypeLaser() throws Exception {
 		Product product = findProduct("productPage12.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		assertEquals("Laser", printer.getType());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		assertEquals("Laser Printer", printer.getProductType());
 	}
-	
+
 	@Test
 	public void shouldParsePrintTechnology() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		assertEquals("HP Thermal Inkjet", printer.getPrintTechnology());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		assertEquals("HP Thermal Inkjet", getSpecification(printer, "printTechnology"));
 	}
 
 	@Test
 	public void shouldParseAndPopulateRatingAndReviewsCount() throws Exception {
 		Product product = findProduct("productPage730.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		assertEquals(Integer.valueOf(4), printer.getProduct().getRatings().get(HP).getRating());
-		assertEquals(Integer.valueOf(89), printer.getProduct().getRatings().get(HP).getNumberOfReviews());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		assertEquals(Integer.valueOf(4), printer.getRatings().get(HP).getRating());
+		assertEquals(Integer.valueOf(89), printer.getRatings().get(HP).getNumberOfReviews());
 	}
 
 	@Test
 	public void shouldParseAndPopulateProductName() throws Exception {
 		Product product = findProduct("productPage730.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
 		assertEquals("HP Officejet Pro 8610 e-All-in-One Printer", printer.getProductName());
-		
+
 		printer.populateCommonsToProduct(product);
 		assertEquals("HP Officejet Pro 8610 e-All-in-One Printer", product.getProductName());
 	}
-	
+
 	@Test
 	public void shouldPopulateProductTypeLaser() throws Exception {
 		Product product = findProduct("productPage12.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
 		printer.populateCommonsToProduct(product);
-		
+
 		assertEquals("Laser Printer", product.getProductType());
 	}
 	@Test
 	public void shouldPopulateProductTypeInkjet() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
 		printer.populateCommonsToProduct(product);
-		
+
 		assertEquals("Inkjet Printer", product.getProductType());
 	}
-	
+
 	@Test
 	public void shouldParseAndPopulateCurrentPrice() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		
-		assertEquals(new BigDecimal("99.99"), printer.getProduct().getPrices().get(HP).getCurrentPrice());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+
+		assertEquals(new BigDecimal("99.99"), printer.getPrices().get(HP).getCurrentPrice());
 	}
-	
+
 	@Test
 	public void shouldParseAndPopulateStrikedPrice() throws Exception {
 		Product product = findProduct("productPage1280.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		
-		assertEquals(new BigDecimal("2453.00"), printer.getProduct().getPrices().get(HP).getStrikedPrice());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+
+		assertEquals(new BigDecimal("2453.00"), printer.getPrices().get(HP).getStrikedPrice());
 	}
-	
-	
+
+
 	@Test
 	public void shouldParseAdfCapacity() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getAdfCapacity());
-		assertEquals("Standard, 35 sheets", printer.getAdfCapacity());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "adfCapacity"));
+		assertEquals("Standard, 35 sheets", getSpecification(printer, "adfCapacity"));
 	}
 
 	@Test
 	public void shouldParseAutoDocumentFeeder() throws Exception {
 		Product product = findProduct("productPage350.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getAutoDocumentFeeder());
-		assertEquals("None", printer.getAutoDocumentFeeder());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "autoDocumentFeeder"));
+		assertEquals("None", getSpecification(printer, "autoDocumentFeeder"));
 	}
 
 	@Test
 	public void shouldParseBatteryRechargeTime() throws Exception {
 		Product product = findProduct("productPage1771.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getBatteryRechargeTime());
-		assertEquals("Approximately 3 hours (fully charged)", printer.getBatteryRechargeTime());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "batteryRechargeTime"));
+		assertEquals("Approximately 3 hours (fully charged)", getSpecification(printer, "batteryRechargeTime"));
 	}
 
 	@Test
 	public void shouldParseBitDepth() throws Exception {
 		Product product = findProduct("productPage350.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getBitDepth());
-		assertEquals("48-bit", printer.getBitDepth());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "bitDepth"));
+		assertEquals("48-bit", getSpecification(printer, "bitDepth"));
 	}
 
 	@Test
 	public void shouldParseBroadcastLocations() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getBroadcastLocations());
-		assertEquals("20 locations", printer.getBroadcastLocations());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "broadcastLocations"));
+		assertEquals("20 locations", getSpecification(printer, "broadcastLocations"));
 	}
 
 	@Test
 	public void shouldParseBrowserSupported() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getBrowserSupported());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "browserSupported"));
 		assertEquals(
 				"Internet Explorer 5.0 and higher, Netscape 6.0.1 and higher, Safari for Mac OS 10.3 and higher, Mozilla 1.5 and higher",
-				printer.getBrowserSupported());
+				getSpecification(printer, "browserSupported"));
 	}
 
 	@Test
 	public void shouldParseColorStability() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getColorStability());
-		assertEquals("< 1 dE2000 in less than 5 minutes", printer.getColorStability());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "colorStability"));
+		assertEquals("< 1 dE2000 in less than 5 minutes", getSpecification(printer, "colorStability"));
 	}
 
 	@Test
 	public void shouldParseConnectivity() throws Exception {
 		Product product = findProduct("productPage350.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getConnectivity());
-		assertEquals("1 Hi-Speed USB 2.0", printer.getConnectivity());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "connectivity"));
+		assertEquals("1 Hi-Speed USB 2.0", getSpecification(printer, "connectivity"));
 	}
 
 	@Test
 	public void shouldParseControlPanel() throws Exception {
 		Product product = findProduct("productPage350.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getControlPanel());
-		assertEquals("4 front-panel buttons (Copy, Scan, Scan to E-mail, Scan to PDF)", printer.getControlPanel());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "controlPanel"));
+		assertEquals("4 front-panel buttons (Copy, Scan, Scan to E-mail, Scan to PDF)", getSpecification(printer, "controlPanel"));
 	}
 
 	@Test
 	public void shouldParseCopyReduceEnlargeSettings() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getCopyReduceEnlargeSettings());
-		assertEquals("25 to 400%", printer.getCopyReduceEnlargeSettings());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "copyReduceEnlargeSettings"));
+		assertEquals("25 to 400%", getSpecification(printer, "copyReduceEnlargeSettings"));
 	}
 
 	@Test
 	public void shouldParseCopyResolutionBlackText() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getCopyResolutionBlackText());
-		assertEquals("Up to 600 x 600 dpi", printer.getCopyResolutionBlackText());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "copyResolutionBlackText"));
+		assertEquals("Up to 600 x 600 dpi", getSpecification(printer, "copyResolutionBlackText"));
 	}
 
 	@Test
 	public void shouldParseCopyResolutionColourTextGraphics() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getCopyResolutionColourTextGraphics());
-		assertEquals("Up to 600 x 600 dpi", printer.getCopyResolutionColourTextGraphics());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "copyResolutionColourTextGraphics"));
+		assertEquals("Up to 600 x 600 dpi", getSpecification(printer, "copyResolutionColourTextGraphics"));
 	}
 
 	@Test
 	public void shouldParseCopySpeedBlackDraft() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getCopySpeedBlackDraft());
-		assertEquals("Up to 28 cpm", printer.getCopySpeedBlackDraft());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "copySpeedBlackDraft"));
+		assertEquals("Up to 28 cpm", getSpecification(printer, "copySpeedBlackDraft"));
 	}
 
 	@Test
 	public void shouldParseCopySpeedBlackNormal() throws Exception {
 		Product product = findProduct("productPage307.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getCopySpeedBlackNormal());
-		assertEquals("Up to 6 cpm", printer.getCopySpeedBlackNormal());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "copySpeedBlackNormal"));
+		assertEquals("Up to 6 cpm", getSpecification(printer, "copySpeedBlackNormal"));
 	}
 
 	@Test
 	public void shouldParseCopySpeedColorDraft() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getCopySpeedColorDraft());
-		assertEquals("Up to 24 cpm", printer.getCopySpeedColorDraft());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "copySpeedColorDraft"));
+		assertEquals("Up to 24 cpm", getSpecification(printer, "copySpeedColorDraft"));
 	}
 
 	@Test
 	public void shouldParseCopySpeedColorNormal() throws Exception {
 		Product product = findProduct("productPage307.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getCopySpeedColorNormal());
-		assertEquals("Up to 4 cpm", printer.getCopySpeedColorNormal());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "copySpeedColorNormal"));
+		assertEquals("Up to 4 cpm", getSpecification(printer, "copySpeedColorNormal"));
 	}
 
 	@Test
 	public void shouldParseDigitalSendFileFormats() throws Exception {
 		Product product = findProduct("productPage307.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getDigitalSendFileFormats());
-		assertEquals("PDF; BMP; PNG; TIF; JPG", printer.getDigitalSendFileFormats());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "digitalSendFileFormats"));
+		assertEquals("PDF; BMP; PNG; TIF; JPG", getSpecification(printer, "digitalSendFileFormats"));
 	}
 
 	@Test
 	public void shouldParseDigitalSendingFeatures() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getDigitalSendingFeatures());
-		assertEquals("Scan to thumb drive/PC", printer.getDigitalSendingFeatures());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "digitalSendingFeatures"));
+		assertEquals("Scan to thumb drive/PC", getSpecification(printer, "digitalSendingFeatures"));
 	}
 
 	@Test
 	public void shouldParseDuplexAdfScanning() throws Exception {
 		Product product = findProduct("productPage383.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getDuplexAdfScanning());
-		assertEquals("Yes", printer.getDuplexAdfScanning());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "duplexAdfScanning"));
+		assertEquals("Yes", getSpecification(printer, "duplexAdfScanning"));
 	}
 
 	@Test
 	public void shouldParseEmbeddedWebServer() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getEmbeddedWebServer());
-		assertEquals("Yes", printer.getEmbeddedWebServer());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "embeddedWebServer"));
+		assertEquals("Yes", getSpecification(printer, "embeddedWebServer"));
 	}
 
 	@Test
 	public void shouldParseEnergyStar() throws Exception {
 		Product product = findProduct("productPage350.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getEnergyStar());
-		assertEquals("ENERGY STAR® qualified; EPEAT ® Bronze", printer.getEnergyStar());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "energyStar"));
+		assertEquals("ENERGY STAR® qualified; EPEAT ® Bronze", getSpecification(printer, "energyStar"));
 	}
 
 	@Test
 	public void shouldParseFaxMemory() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getFaxMemory());
-		assertEquals("Up to 100 pages", printer.getFaxMemory());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "faxMemory"));
+		assertEquals("Up to 100 pages", getSpecification(printer, "faxMemory"));
 	}
 
 	@Test
 	public void shouldParseFaxResolution() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getFaxResolution());
-		assertEquals("Up to 300 x 300 dpi", printer.getFaxResolution());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "faxResolution"));
+		assertEquals("Up to 300 x 300 dpi", getSpecification(printer, "faxResolution"));
 	}
 
 	@Test
 	public void shouldParseFaxTransmissionSpeed() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getFaxTransmissionSpeed());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "faxTransmissionSpeed"));
 		assertEquals(
 				"4 sec per page [3] Based on standard ITU-T Test Image No. 1 at standard resolution. More complicated pages or higher resolution will take longer and use more memory.",
-				printer.getFaxTransmissionSpeed());
+				getSpecification(printer, "faxTransmissionSpeed"));
 	}
 
 	@Test
 	public void shouldParseFaxing() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getFaxing());
-		assertEquals("Yes, color", printer.getFaxing());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "faxing"));
+		assertEquals("Yes, color", getSpecification(printer, "faxing"));
 	}
 
 	@Test
 	public void shouldParseFinishedOutputHandling() throws Exception {
 		Product product = findProduct("productPage12.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getFinishedOutputHandling());
-		assertEquals("Sheetfed", printer.getFinishedOutputHandling());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "finishedOutputHandling"));
+		assertEquals("Sheetfed", getSpecification(printer, "finishedOutputHandling"));
 	}
 
 	@Test
 	public void shouldParseFirstPageOutBlack() throws Exception {
 		Product product = findProduct("productPage12.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getFirstPageOutBlack());
-		assertEquals("As fast as 9.5 sec", printer.getFirstPageOutBlack());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "firstPageOutBlack"));
+		assertEquals("As fast as 9.5 sec", getSpecification(printer, "firstPageOutBlack"));
 	}
 
 	@Test
 	public void shouldParseFirstPageOutColor() throws Exception {
 		Product product = findProduct("productPage13.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getFirstPageOutColor());
-		assertEquals("As fast as 13 sec", printer.getFirstPageOutColor());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "firstPageOutColor"));
+		assertEquals("As fast as 13 sec", getSpecification(printer, "firstPageOutColor"));
 	}
 
 	@Test
 	public void shouldParseGuaranteedMinimumLineWidth() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getGuaranteedMinimumLineWidth());
-		assertEquals("0.0022 in (ISO/IEC 13660:2001(E))", printer.getGuaranteedMinimumLineWidth());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "guaranteedMinimumLineWidth"));
+		assertEquals("0.0022 in (ISO/IEC 13660:2001(E))", getSpecification(printer, "guaranteedMinimumLineWidth"));
 	}
 
 	@Test
 	public void shouldParseInputType() throws Exception {
 		Product product = findProduct("productPage350.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getInputType());
-		assertEquals("Flatbed", printer.getInputType());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "inputType"));
+		assertEquals("Flatbed", getSpecification(printer, "inputType"));
 	}
 
 	@Test
 	public void shouldParseLineAccuracy() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getLineAccuracy());
-		assertEquals("+/- 0.2%", printer.getLineAccuracy());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "lineAccuracy"));
+		assertEquals("+/- 0.2%", getSpecification(printer, "lineAccuracy"));
 	}
 
 	@Test
 	public void shouldParseMaximumCopies() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMaximumCopies());
-		assertEquals("Up to 99 copies", printer.getMaximumCopies());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "maximumCopies"));
+		assertEquals("Up to 99 copies", getSpecification(printer, "maximumCopies"));
 	}
 
 	@Test
 	public void shouldParseMaximumDocumentScanSize() throws Exception {
 		Product product = findProduct("productPage351.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMaximumDocumentScanSize());
-		assertEquals("8.5 x 122 in", printer.getMaximumDocumentScanSize());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "maximumDocumentScanSize"));
+		assertEquals("8.5 x 122 in", getSpecification(printer, "maximumDocumentScanSize"));
 	}
 
 	@Test
 	public void shouldParseMaximumOpticalDensityBlack() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMaximumOpticalDensityBlack());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "maximumOpticalDensityBlack"));
 		assertEquals("4 L* min/2.5 D (with HP Premium Instant Dry Photo Gloss media with Original HP inks)",
-				printer.getMaximumOpticalDensityBlack());
+				getSpecification(printer, "maximumOpticalDensityBlack"));
 	}
 
 	@Test
 	public void shouldParseMediaThickness() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMediaThickness());
-		assertEquals("Up to 31.5 mil", printer.getMediaThickness());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "mediaThickness"));
+		assertEquals("Up to 31.5 mil", getSpecification(printer, "mediaThickness"));
 	}
 
 	@Test
 	public void shouldParseMemoryCardCompatibility() throws Exception {
 		Product product = findProduct("productPage15.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMemoryCardCompatibility());
-		assertEquals("Thumb drive", printer.getMemoryCardCompatibility());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "memoryCardCompatibility"));
+		assertEquals("Thumb drive", getSpecification(printer, "memoryCardCompatibility"));
 	}
 
 	@Test
 	public void shouldParseMptBWLineDrawingDraftModePlain() throws Exception {
 		Product product = findProduct("productPage1592.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMptBWLineDrawingDraftModePlain());
-		assertEquals("70 D prints per hour", printer.getMptBWLineDrawingDraftModePlain());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "mptBWLineDrawingDraftModePlain"));
+		assertEquals("70 D prints per hour", getSpecification(printer, "mptBWLineDrawingDraftModePlain"));
 	}
 
 	@Test
 	public void shouldParseMptColorLineDrawingDraftModePlain() throws Exception {
 		Product product = findProduct("productPage1592.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMptColorLineDrawingDraftModePlain());
-		assertEquals("35 sec/page", printer.getMptColorLineDrawingDraftModePlain());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "mptColorLineDrawingDraftModePlain"));
+		assertEquals("35 sec/page", getSpecification(printer, "mptColorLineDrawingDraftModePlain"));
 	}
 
 	@Test
 	public void shouldParseMptUsColorImageBestModeGlossy() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMptUsColorImageBestModeGlossy());
-		assertEquals("12.4 min/page", printer.getMptUsColorImageBestModeGlossy());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "mptUsColorImageBestModeGlossy"));
+		assertEquals("12.4 min/page", getSpecification(printer, "mptUsColorImageBestModeGlossy"));
 	}
 
 	@Test
 	public void shouldParseMptUsColorImageDraftModeCoated() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMptUsColorImageDraftModeCoated());
-		assertEquals("2 min/page", printer.getMptUsColorImageDraftModeCoated());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "mptUsColorImageDraftModeCoated"));
+		assertEquals("2 min/page", getSpecification(printer, "mptUsColorImageDraftModeCoated"));
 	}
 
 	@Test
 	public void shouldParseMptUsColorImageNormalModeCoated() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMptUsColorImageNormalModeCoated());
-		assertEquals("3.8 min/page", printer.getMptUsColorImageNormalModeCoated());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "mptUsColorImageNormalModeCoated"));
+		assertEquals("3.8 min/page", getSpecification(printer, "mptUsColorImageNormalModeCoated"));
 	}
 
 	@Test
 	public void shouldParseMptUsColorImageNormalModeGlossy() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMptUsColorImageNormalModeGlossy());
-		assertEquals("7.2 min/page", printer.getMptUsColorImageNormalModeGlossy());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "mptUsColorImageNormalModeGlossy"));
+		assertEquals("7.2 min/page", getSpecification(printer, "mptUsColorImageNormalModeGlossy"));
 	}
 
 	@Test
 	public void shouldParseMptLineDrawingEconomodePlain() throws Exception {
 		Product product = findProduct("productPage1592.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getMptLineDrawingEconomodePlain());
-		assertEquals("70 D prints per hour", printer.getMptLineDrawingEconomodePlain());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "mptLineDrawingEconomodePlain"));
+		assertEquals("70 D prints per hour", getSpecification(printer, "mptLineDrawingEconomodePlain"));
 	}
 
 	@Test
 	public void shouldParseNonPrintableArea() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getNonPrintableArea());
-		assertEquals("0.2 x 0.67 x 0.2 x 0.2 in", printer.getNonPrintableArea());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "nonPrintableArea"));
+		assertEquals("0.2 x 0.67 x 0.2 x 0.2 in", getSpecification(printer, "nonPrintableArea"));
 	}
 
 	@Test
 	public void shouldParsePorts() throws Exception {
 		Product product = findProduct("productPage12.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getPorts());
-		assertEquals("1 Hi-Speed USB 2.0; 1 Fast Ethernet 10/100Base-TX", printer.getPorts());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "ports"));
+		assertEquals("1 Hi-Speed USB 2.0; 1 Fast Ethernet 10/100Base-TX", getSpecification(printer, "ports"));
 	}
 
 	@Test
 	public void shouldParsePrintRepeatability() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getPrintRepeatability());
-		assertEquals("Average < 0.5 dE2000, 95% of colors < 1.4 dE2000", printer.getPrintRepeatability());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "printRepeatability"));
+		assertEquals("Average < 0.5 dE2000, 95% of colors < 1.4 dE2000", getSpecification(printer, "printRepeatability"));
 	}
 
 	@Test
 	public void shouldParsePrintSpeedMaximum() throws Exception {
 		Product product = findProduct("productPage1594.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getPrintSpeedMaximum());
-		assertEquals("570 ft²/hr", printer.getPrintSpeedMaximum());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "printSpeedMaximum"));
+		assertEquals("570 ft²/hr", getSpecification(printer, "printSpeedMaximum"));
 	}
 
 	@Test
 	public void shouldParseResolution() throws Exception {
 		Product product = findProduct("productPage350.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getResolution());
-		assertEquals("Up to 4800 x 9600 dpi", printer.getResolution());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "resolution"));
+		assertEquals("Up to 4800 x 9600 dpi", getSpecification(printer, "resolution"));
 	}
 
 	@Test
 	public void shouldParseResolutionTechnology() throws Exception {
 		Product product = findProduct("productPage12.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getResolutionTechnology());
-		assertEquals("FastRes 600; FastRes 1200", printer.getResolutionTechnology());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "resolutionTechnology"));
+		assertEquals("FastRes 600; FastRes 1200", getSpecification(printer, "resolutionTechnology"));
 	}
 
 	@Test
 	public void shouldParseRollExternalDiameter() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getRollExternalDiameter());
-		assertEquals("5.3 in", printer.getRollExternalDiameter());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "rollExternalDiameter"));
+		assertEquals("5.3 in", getSpecification(printer, "rollExternalDiameter"));
 	}
 
 	@Test
 	public void shouldParseRollMaximumOutput() throws Exception {
 		Product product = findProduct("productPage379.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getRollMaximumOutput());
-		assertEquals("300 ft", printer.getRollMaximumOutput());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "rollMaximumOutput"));
+		assertEquals("300 ft", getSpecification(printer, "rollMaximumOutput"));
 	}
 
 	@Test
 	public void shouldParseScanFileFormat() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getScanFileFormat());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "scanFileFormat"));
 		assertEquals(
 				"Scan File Type supported by Software: Bitmap (.bmp), JPEG (.jpg), PDF (.pdf), PNG (.png), Rich Text (.rtf), Searchable PDF (.pdf), Text (.txt), TIFF (.tif)",
-				printer.getScanFileFormat());
+				getSpecification(printer, "scanFileFormat"));
 	}
 
 	@Test
 	public void shouldParseScanResolutionHardware() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getScanResolutionHardware());
-		assertEquals("Up to 1200 x 1200 dpi", printer.getScanResolutionHardware());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "scanResolutionHardware"));
+		assertEquals("Up to 1200 x 1200 dpi", getSpecification(printer, "scanResolutionHardware"));
 	}
 
 	@Test
 	public void shouldParseScanResolutionOptical() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getScanResolutionOptical());
-		assertEquals("Up to 1200 dpi", printer.getScanResolutionOptical());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "scanResolutionOptical"));
+		assertEquals("Up to 1200 dpi", getSpecification(printer, "scanResolutionOptical"));
 	}
 
 	@Test
 	public void shouldParseScanSizeFlatbedMaximum() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getScanSizeFlatbedMaximum());
-		assertEquals("8.5 x 11.7 in", printer.getScanSizeFlatbedMaximum());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "scanSizeFlatbedMaximum"));
+		assertEquals("8.5 x 11.7 in", getSpecification(printer, "scanSizeFlatbedMaximum"));
 	}
 
 	@Test
 	public void shouldParseScanSizeMaximum() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getScanSizeMaximum());
-		assertEquals("8.5 x 14 in", printer.getScanSizeMaximum());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "scanSizeMaximum"));
+		assertEquals("8.5 x 14 in", getSpecification(printer, "scanSizeMaximum"));
 	}
 
 	@Test
 	public void shouldParseScanSpeedMaximum() throws Exception {
 		Product product = findProduct("productPage1605.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getScanSpeedMaximum());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "scanSpeedMaximum"));
 		assertEquals("Up to 1.5 in/sec (color, 200 dpi); up to 4.5 in/sec (grayscale, 200 dpi)",
-				printer.getScanSpeedMaximum());
+				getSpecification(printer, "scanSpeedMaximum"));
 	}
 
 	@Test
 	public void shouldParseScannableMediaTypes() throws Exception {
 		Product product = findProduct("productPage350.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getScannableMediaTypes());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "scannableMediaTypes"));
 		assertEquals(
 				"Paper (inkjet, laser, plain), photographic material (silver halide, pigment-dye), 3-D objects, 35 mm slides and negatives (using transparent media adapter)",
-				printer.getScannableMediaTypes());
+				getSpecification(printer, "scannableMediaTypes"));
 	}
 
 	@Test
 	public void shouldParseScannerType() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getScannerType());
-		assertEquals("Flatbed, ADF", printer.getScannerType());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "scannerType"));
+		assertEquals("Flatbed, ADF", getSpecification(printer, "scannerType"));
 	}
 
 	@Test
 	public void shouldParseSpeedDialsMaximumNumber() throws Exception {
 		Product product = findProduct("productPage14.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getSpeedDialsMaximumNumber());
-		assertEquals("99", printer.getSpeedDialsMaximumNumber());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "speedDialsMaximumNumber"));
+		assertEquals("99", getSpecification(printer, "speedDialsMaximumNumber"));
 	}
 
 	@Test
 	public void shouldParseUsColorLineDrawingsDraftPlain() throws Exception {
 		Product product = findProduct("productPage1592.html");
-		Printer printer = (Printer) parser.parse(parseHtml(product), product, config);
-		System.out.println(printer.getUsColorLineDrawingsDraftPlain());
-		assertEquals("70 D prints per hour", printer.getUsColorLineDrawingsDraftPlain());
+		Product printer = (Product) parser.parse(parseHtml(product), product, config);
+		System.out.println(getSpecification(printer, "usColorLineDrawingsDraftPlain"));
+		assertEquals("70 D prints per hour", getSpecification(printer, "usColorLineDrawingsDraftPlain"));
 	}
 
 }

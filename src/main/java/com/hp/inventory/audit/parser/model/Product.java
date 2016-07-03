@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser.model;
@@ -22,8 +22,9 @@ import java.util.*;
 /**
  * Model class representing any Product present in the HP Store.
  *
+ * changes: add the category field and specifications
  * @author TCDEVELOPER
- * @version 1.0.5
+ * @version 1.0.6
  * 
  */
 @Entity
@@ -37,6 +38,13 @@ public class Product extends AbstractProduct {
 
     @Expose
     private Integer id;
+
+  /**
+   * Since 1.0.6
+   * This is the category of the product, (Printer, Tablet, Desktop,...)
+   */
+  @Expose
+    private String category;
 
     /** @since 1.0.3
      */
@@ -77,22 +85,32 @@ public class Product extends AbstractProduct {
     private Date availableForSaleDate;
     
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
-    @Fetch(FetchMode.JOIN)
+    @Fetch(FetchMode.SUBSELECT)
     @BatchSize(size=100)
     private Set<ProductImage> images = new HashSet<ProductImage>();
     
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
-    @Fetch(FetchMode.JOIN)
+    @Fetch(FetchMode.SUBSELECT)
     @BatchSize(size=100)
     private Set<RelatedAccessory> accessories = new HashSet<RelatedAccessory>();
 
+  /**
+   * The specifications.
+   * @since 1.0.6
+   */
+  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
+  @Fetch(FetchMode.SUBSELECT)
+  @BatchSize(size=100)
+  private Set<ProductSpecification> specifications = new HashSet<>();
+
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
-    @Fetch(FetchMode.JOIN)
+    @Fetch(FetchMode.SUBSELECT)
     @BatchSize(size=100)
     private Set<ProductReview> reviews = new HashSet<ProductReview>();
 
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
 	@MapKey(name="siteId")
+  @Fetch(FetchMode.SUBSELECT)
 	private Map<Integer, ProductPrice> prices = new HashMap<>();
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
@@ -286,4 +304,37 @@ public class Product extends AbstractProduct {
 	public void setPropertiesThreshold(int propertiesThreshold) {
 		this.propertiesThreshold = propertiesThreshold;
 	}
+
+  /**
+   * Gets the specification.
+   * @return the specification.
+   */
+  public Set<ProductSpecification> getSpecifications() {
+    return specifications;
+  }
+
+  /**
+   * Sets the specifications
+   * @param specifications the specifications.
+   * @throws Exception if there are any error.
+   */
+  public void setSpecifications(Set<ProductSpecification> specifications) throws Exception {
+    updateSet(this.specifications, specifications, false, true);
+  }
+
+  /**
+   * Gets the category.
+   * @return the category
+   */
+  public String getCategory() {
+    return category;
+  }
+
+  /**
+   * Sets the category.
+   * @param category the category
+   */
+  public void setCategory(String category) {
+    this.category = category;
+  }
 }

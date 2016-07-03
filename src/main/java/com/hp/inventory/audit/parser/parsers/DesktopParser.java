@@ -1,19 +1,25 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser.parsers;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.hp.inventory.audit.parser.model.AbstractProduct;
-import com.hp.inventory.audit.parser.model.Desktop;
+import com.hp.inventory.audit.parser.model.Product;
+import com.hp.inventory.audit.parser.model.ProductSpecification;
 
 /**
  * Document parser for "PDP" type Desktop pages
  *
+ * changes:
+ *  - 1.0.4: refactor the columns to specifications.
+ * 
  * @author TCDEVELOPER
- * @version 1.0.3
+ * @version 1.0.4
  */
 public class DesktopParser extends DocumentParser {
 
@@ -24,116 +30,178 @@ public class DesktopParser extends DocumentParser {
     @Override
     protected AbstractProduct extract() throws Exception {
 
-    	Desktop p = new Desktop();
-        
+        Product p = this.definition;
+
+        p.setCategory("Desktop");
+
         setParsingErrorsReceiver(p);
         
         extractCommonProps(p);
-        
-        p.setColor(prop("Color", listDelimiter));
-        
-        p.setDimensions(prop("Dimensions", listDelimiter));
-        BigDecimal[] wdh = parseDimensions(p.getDimensions());
+
+        p.setHpDataSheet(propLink("HP Data Sheet"));
+
+
+        Set<ProductSpecification> specifications = new HashSet<>();
+
+
+        specifications.add(constructSpecification(p, "color", prop("Color", listDelimiter)));
+        specifications.add(constructSpecification(p, "dimensions", prop("Dimensions", listDelimiter)));
+        BigDecimal[] wdh = parseDimensions(prop("Dimensions", listDelimiter));
         if(wdh != null) {
-            p.setDimensionWidthInInches(wdh[0]);
-            p.setDimensionDepthInInches(wdh[1]);
-            p.setDimensionHeightInInches(wdh[2]);
+            specifications.add(constructSpecification(p, "dimensionWidthInInches", String.valueOf(wdh[0])));
+            specifications.add(constructSpecification(p, "dimensionDepthInInches", String.valueOf(wdh[1])));
+            specifications.add(constructSpecification(p, "dimensionHeightInInches", String.valueOf(wdh[2])));
         }
         
-        p.setEnergyEfficiency(prop("Energy efficiency", listDelimiter));
-        p.setExpansionSlots(prop("Expansion slots", listDelimiter));
-        p.setHardDrive(any(prop("Hard drive", listDelimiter), prop("Internal drive", listDelimiter), prop("Internal storage", listDelimiter)));
-        p.setHpDataSheet(propLink("HP Data Sheet"));
+        specifications.add(constructSpecification(p, "energyEfficiency", prop("Energy efficiency", listDelimiter)));
+        specifications.add(constructSpecification(p, "expansionSlots", prop("Expansion slots", listDelimiter)));
+        specifications.add(constructSpecification(p, "hardDrive", any(prop("Hard drive", listDelimiter),
+                prop("Internal drive", listDelimiter),
+                prop("Internal storage", listDelimiter))));
+
+        specifications.add(constructSpecification(p, "memory", prop("Memory", listDelimiter)));
+        specifications.add(constructSpecification(p, "modelNumber", prop("Model number", listDelimiter)));
+        specifications.add(constructSpecification(p, "operatingSystem", prop("Operating system", listDelimiter)));
+        specifications.add(constructSpecification(p, "ports", prop("Ports", listDelimiter)));
+        specifications.add(constructSpecification(p, "powerSupply", prop("Power supply", listDelimiter)));
+        specifications.add(constructSpecification(p, "softwareIncluded", prop("Software included", listDelimiter)));
         
-        p.setMemory(prop("Memory", listDelimiter));
-        p.setModelNumber(prop("Model number", listDelimiter));
-        p.setOperatingSystem(prop("Operating system", listDelimiter));
-        p.setPorts(prop("Ports", listDelimiter));
-        p.setPowerSupply(prop("Power supply", listDelimiter));
-        
-        p.setSoftwareIncluded(prop("Software included", listDelimiter));
-        
-        p.setWeight(prop("Weight", listDelimiter));
-        p.setWeightInPounds(parseWeightInPounds(p.getWeight()));
-        p.setWarranty(prop("Warranty", listDelimiter));
-        p.setWireless(prop("Wireless", listDelimiter));
-        p.setKeyboard(any(prop("Keyboard", listDelimiter), prop("Keyboard and mouse", listDelimiter)));
-        p.setPointingDevices(any(prop("Pointing devices", listDelimiter), prop("Mouse", listDelimiter)));
-        p.setOpticalDrive(prop("Optical drive", listDelimiter));
-        p.setMemorySlots(prop("Memory slots", listDelimiter));
-        p.setNetworking(any(
+        specifications.add(constructSpecification(p, "weight", prop("Weight", listDelimiter)));
+        specifications.add(constructSpecification(p, "weightInPounds",
+                String.valueOf(parseWeightInPounds(prop("Weight", listDelimiter)))));
+        specifications.add(constructSpecification(p, "warranty", prop("Warranty", listDelimiter)));
+        specifications.add(constructSpecification(p, "wireless", prop("Wireless", listDelimiter)));
+        specifications.add(constructSpecification(p, "keyboard", any(prop("Keyboard", listDelimiter),
+                prop("Keyboard and mouse", listDelimiter))));
+        specifications.add(constructSpecification(p, "pointingDevices",
+                any(prop("Pointing devices", listDelimiter), prop("Mouse", listDelimiter))));
+        specifications.add(constructSpecification(p, "opticalDrive",
+                prop("Optical drive", listDelimiter)));
+        specifications.add(constructSpecification(p, "memorySlots",
+                prop("Memory slots", listDelimiter)));
+        specifications.add(constructSpecification(p, "networking", any(
                 prop("Networking", listDelimiter),
                 prop("Network card", listDelimiter),
                 prop("Network interface", listDelimiter),
                 prop("Integrated network", listDelimiter),
-                prop("LAN", listDelimiter)));
-        p.setOfficeSoftware(prop("Office software", listDelimiter));
-        p.setPhotographySoftware(prop("Photography software", listDelimiter));
-        p.setPopularSoftware(prop("Popular, useful and fun software", listDelimiter));
-        p.setAudio(prop("Audio", listDelimiter));
-        p.setSoftwareUpgrades(prop("Software upgrades", listDelimiter));
-        p.setSoundCard(prop("Sound card", listDelimiter));
-        p.setTvTurner(prop("TV turner", listDelimiter));
-        p.setAccessories(prop("Accessories", listDelimiter));
-        p.setAdditionalApplicationSoftware(prop("Additional application software", true, listDelimiter));
-        p.setAdditionalNetworkingOptions(prop("Additional networking options", true, listDelimiter));
-        p.setBattery(prop("Battery", true, listDelimiter));
-        p.setBatteryLife(prop("Battery life", true, listDelimiter));
-        p.setCableOptionKits(prop("Cable option kits", true, listDelimiter));
-        p.setChassis(prop("Chassis", true, listDelimiter));
-        p.setChinaCccCompliance(prop("China CCC compliance", true, listDelimiter));
-        p.setController(prop("Controller", true, listDelimiter));
-        p.setDisplay(prop("Display", true, listDelimiter));
-        p.setDisplayCable(prop("Display cable", true, listDelimiter));
-        p.setEnergyStar(prop("ENERGY STAR", true, listDelimiter));
-        p.setEightInternalStorage(prop("Eight internal storage", true, listDelimiter));
-        p.setExternalIOPorts(prop("External I/O Ports", true, listDelimiter));
-        p.setExternalOpticalDrive(prop("External optical drive", true, listDelimiter));
-        p.setFempCompliance(prop("FEMP compliance", true, listDelimiter));
-        p.setFifthInternalStorage(prop("Fifth internal storage", true, listDelimiter));
-        p.setFlashCache(prop("Flash cache", true, listDelimiter));
-        p.setFourthInternalStorage(prop("Fourth internal storage", true, listDelimiter));
-        p.setGraphicsConnectors(prop("Graphics connectors", true, listDelimiter));
-        p.setHighPerformanceGpuComputing(prop("High performance GPU computing", true, listDelimiter));
-        p.setIntegratedCamera(prop("Integrated camera", true, listDelimiter));
-        p.setIntelSrtDiskCacheModules(prop("Intel SRT disk cache modules", true, listDelimiter));
-        p.setIntelSmartResponseTechnology(prop("Intel Smart Response Technology", true, listDelimiter));
-        p.setInternalOsLoadStorageOptions(prop("Internal OS load storage options", true, listDelimiter));
-        p.setInternalPcieStorage(prop("Internal PCIe storage", true, listDelimiter));
-        p.setInternalStorageOptions(prop("Internal storage options", true, listDelimiter));
-        p.setLanTransceivers(prop("LAN Transceivers", true, listDelimiter));
-        p.setLabel(prop("Label", true, listDelimiter));
-        p.setMaximumMemory(prop("Maximum memory", true, listDelimiter));
-        p.setSecuritySoftware(prop("McAfee LiveSafe(TM) Security Software", true, listDelimiter));
-        p.setMediaReader(prop("Media reader", true, listDelimiter));
-        p.setMemoryCardDevice(prop("Memory card device", true, listDelimiter));
-        p.setProcessorTechnology(prop("Processor technology", true, listDelimiter));
-        p.setRealTimeDataBackup(prop("Real-time data backup", true, listDelimiter));
-        p.setSecondDisplayCable(prop("Second display cable", true, listDelimiter));
-        p.setSecondGraphicsCard(prop("Second graphics card", true, listDelimiter));
-        p.setSecondaryOpticalDrive(prop("Secondary optical drive", true, listDelimiter));
-        p.setSecondInternalStorage(prop("Second internal storage", true, listDelimiter));
-        p.setSecondaryProcessor(prop("Secondary processor", true, listDelimiter));
-        p.setSecondaryInternalPcieStorage(prop("Secondary internal PCIe storage", true, listDelimiter));
-        p.setSecurity(prop("Security", true, listDelimiter));
-        p.setSecurityEncryption(prop("Security encryption", true, listDelimiter));
-        p.setSixthInternalStorage(prop("Sixth internal storage", true, listDelimiter));
-        p.setSeventhInternalStorage(prop("Seventh iternal storage", true, listDelimiter));
-        p.setSoftwareBundles(prop("Software bundles", true, listDelimiter));
-        p.setSpeakers(prop("Speakers", true, listDelimiter));
-        p.setStand(prop("Stand", true, listDelimiter));
-        p.setSystemRecoverySolutions(prop("System recovery solutions", true, listDelimiter));
-        p.setTvTuner(prop("TV tuner", true, listDelimiter));
-        p.setTechnical(prop("Technical", true, listDelimiter));
-        p.setTechnicalAV(prop("Technical AV", true, listDelimiter));
-        p.setThirdGraphicsCard(prop("Third graphics card", true, listDelimiter));
-        p.setThirdInternalStorage(prop("Third internal storage", true, listDelimiter));
-        p.setWebcam(prop("Webcam", true, listDelimiter));
+                prop("LAN", listDelimiter))));
+        specifications.add(constructSpecification(p, "officeSoftware", prop("Office software", listDelimiter)));
+        specifications.add(constructSpecification(p, "photographySoftware",
+                prop("Photography software", listDelimiter)));
+        specifications.add(constructSpecification(p, "popularSoftware",
+                prop("Popular, useful and fun software", listDelimiter)));
+        specifications.add(constructSpecification(p, "audio", prop("Audio", listDelimiter)));
+        specifications.add(constructSpecification(p, "softwareUpgrades", prop("Software upgrades", listDelimiter)));
+        specifications.add(constructSpecification(p, "soundCard", prop("Sound card", listDelimiter)));
+        specifications.add(constructSpecification(p, "tvTurner", prop("TV turner", listDelimiter)));
+        
+        specifications.add(constructSpecification(p, "additionalApplicationSoftware",
+                prop("Additional application software", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "additionalNetworkingOptions",
+                prop("Additional networking options", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "battery", prop("Battery", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "batteryLife", prop("Battery life", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "cableOptionKits",
+                prop("Cable option kits", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "chassis", prop("Chassis", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "chinaCccCompliance",
+                prop("China CCC compliance", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "controller", prop("Controller", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "display", prop("Display", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "displayCable", prop("Display cable", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "energyStar", prop("ENERGY STAR", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "eightInternalStorage",
+                prop("Eight internal storage", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "externalIOPorts",
+                prop("External I/O Ports", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "externalOpticalDrive",
+                prop("External optical drive", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "fempCompliance",
+                prop("FEMP compliance", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "fifthInternalStorage",
+                prop("Fifth internal storage", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "flashCache",
+                prop("Flash cache", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "fourthInternalStorage",
+                prop("Fourth internal storage", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "graphicsConnectors",
+                prop("Graphics connectors", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "highPerformanceGpuComputing",
+                prop("High performance GPU computing", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "integratedCamera",
+                prop("Integrated camera", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "intelSrtDiskCacheModules",
+                prop("Intel SRT disk cache modules", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "intelSmartResponseTechnology",
+                prop("Intel Smart Response Technology", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "internalOsLoadStorageOptions",
+                prop("Internal OS load storage options", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "internalPcieStorage",
+                prop("Internal PCIe storage", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "internalStorageOptions",
+                prop("Internal storage options", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "lanTransceivers",
+                prop("LAN Transceivers", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "label",
+                prop("Label", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "maximumMemory",
+                prop("Maximum memory", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "securitySoftware",
+                prop("McAfee LiveSafe(TM) Security Software", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "mediaReader",
+                prop("Media reader", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "memoryCardDevice",
+                prop("Memory card device", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "processorTechnology",
+                prop("Processor technology", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "realTimeDataBackup",
+                prop("Real-time data backup", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "secondDisplayCable",
+                prop("Second display cable", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "secondGraphicsCard",
+                prop("Second graphics card", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "secondaryOpticalDrive",
+                prop("Secondary optical drive", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "secondInternalStorage",
+                prop("Second internal storage", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "secondaryProcessor",
+                prop("Secondary processor", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "secondaryInternalPcieStorage",
+                prop("Secondary internal PCIe storage", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "security",
+                prop("Security", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "securityEncryption",
+                prop("Security encryption", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "sixthInternalStorage",
+                prop("Sixth internal storage", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "seventhInternalStorage",
+                prop("Seventh iternal storage", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "softwareBundles",
+                prop("Software bundles", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "speakers",
+                prop("Speakers", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "stand",
+                prop("Stand", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "systemRecoverySolutions",
+                prop("System recovery solutions", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "tvTuner",
+                prop("TV tuner", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "technical",
+                prop("Technical", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "technicalAV",
+                prop("Technical AV", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "thirdGraphicsCard",
+                prop("Third graphics card", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "thirdInternalStorage",
+                prop("Third internal storage", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "webcam", prop("Webcam", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "accessories", prop("Accessories", true, listDelimiter)));
 
-        extractProcessorAndGraphics(p);
+        extractProcessorAndGraphics(p, specifications);
+
+        p.setSpecifications(specifications);
 
         checkParsedProps();
-        
         return p;
     }
 

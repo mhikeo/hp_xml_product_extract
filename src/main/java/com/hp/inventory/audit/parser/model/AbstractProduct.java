@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser.model;
@@ -20,8 +20,9 @@ import java.util.*;
 /**
  * Base class common to all products.
  *
+ * changes: remoe the Product field.
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.1
  */
 @MappedSuperclass
 @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="productNumber")
@@ -63,11 +64,6 @@ public abstract class AbstractProduct {
     @GeneratedValue
     private Long version;
 
-    @OneToOne
-    @JoinColumn(name="productNumber")
-    @Transient
-    private Product product;
-
     @Column(nullable = false)
     private Date parseDate;
 
@@ -95,14 +91,6 @@ public abstract class AbstractProduct {
 
     public void setParseDate(Date parseDate) {
         this.parseDate = parseDate;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
     }
 
 	public String getProductName() {
@@ -376,16 +364,8 @@ public abstract class AbstractProduct {
         productDefinition.setProductNumber(this.getProductNumber());
         productDefinition.setProductName(this.getProductName());
 
-        Class clazz = this.getClass();
         String productType = productDefinition.getProductType();
 
-        if (productType != null) {
-            // Do nothing if already set.
-        } else if (clazz.equals(Printer.class)) {
-            productType = ((Printer) this).getType() + " " + Printer.class.getSimpleName();
-        } else {
-            productType = clazz.getSimpleName();
-        }
         productDefinition.setProductType(productType);
 
         String parsingError = this.getParsingErrors().toString();

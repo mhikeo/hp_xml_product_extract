@@ -1,19 +1,25 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser.parsers;
 
 import com.hp.inventory.audit.parser.model.AbstractProduct;
-import com.hp.inventory.audit.parser.model.Laptop;
+import com.hp.inventory.audit.parser.model.Product;
+import com.hp.inventory.audit.parser.model.ProductSpecification;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Document parser for "PDP" type Laptop pages
  *
+ * changes:
+ *  - 1.0.4: refactor the columns to specifications.
+ * 
  * @author TCDEVELOPER
- * @version 1.0.3
+ * @version 1.0.4
  */
 public class LaptopParser extends DocumentParser {
 	
@@ -24,84 +30,115 @@ public class LaptopParser extends DocumentParser {
     @Override
     protected AbstractProduct extract() throws Exception {
 
-        Laptop p = new Laptop();
-        
+        Product p = this.definition;
+        p.setCategory("Laptop");
+
         setParsingErrorsReceiver(p);
         
         extractCommonProps(p);
-        
-        p.setBattery(any(prop("Battery", true, listDelimiter), prop("Primary battery", listDelimiter)));
-        p.setBatteryLife(prop("Battery life", true, listDelimiter));
-        p.setMaxBatteryLifeInHours(parseBatteryLife(p.getBatteryLife()));
-        p.setColor(prop("Color", listDelimiter));
 
-        p.setDimensions(prop("Dimensions", listDelimiter));
-        BigDecimal[] wdh = parseDimensions(p.getDimensions());
-        if(wdh != null) {
-            p.setDimensionWidthInInches(wdh[0]);
-            p.setDimensionDepthInInches(wdh[1]);
-            p.setDimensionHeightInInches(wdh[2]);
-        }
-
-        p.setDisplay(prop("Display", listDelimiter));
-        p.setEnergyEfficiency(prop("Energy efficiency", listDelimiter));
-        p.setExpansionSlots(prop("Expansion slots", listDelimiter));
-        p.setHardDrive(any(prop("Hard drive", listDelimiter), prop("Internal drive", listDelimiter), prop("Internal storage", listDelimiter)));
         p.setHpDataSheet(propLink("HP Data Sheet"));
 
-        p.setKeyboard(prop("Keyboard", listDelimiter));
-        p.setMemory(prop("Memory", listDelimiter));
-        p.setModelNumber(prop("Model number", listDelimiter));
-        p.setOperatingSystem(prop("Operating system", listDelimiter));
-        p.setPointingDevices(prop("Pointing device", listDelimiter));
-        p.setPorts(prop("Ports", listDelimiter));
-        p.setPowerSupply(prop("Power supply", listDelimiter));
-        p.setSoftwareIncluded(any(prop("Software included", listDelimiter), prop("Software", listDelimiter)));
-        
-        p.setWebcam(any(prop("Webcam", listDelimiter), prop("Integrated camera", listDelimiter), prop("Camera", listDelimiter)));
-        p.setWeight(prop("Weight", true, listDelimiter));
-        p.setWeightInPounds(parseWeightInPounds(p.getWeight()));
-        p.setWarranty(prop("Warranty",true, listDelimiter));
-        p.setNetworking(any(prop("Wireless", listDelimiter), prop("Networking", listDelimiter), prop("Network interface", listDelimiter)));
+        Set<ProductSpecification> specifications = new HashSet<>();
 
-        p.setAcAdapter(prop("AC adapter",true, listDelimiter));
-        p.setAccessories(prop("Accessories",true, listDelimiter));
-        p.setAdditionalBay(prop("Additional bay",true, listDelimiter));
-        p.setAudio(prop("Audio",true, listDelimiter));
-        p.setBluetooth(prop("Bluetooth",true, listDelimiter));
-        p.setBroadbandServiceProvider(prop("Broadband service provider",true, listDelimiter));
-        p.setChipset(prop("Chipset",true, listDelimiter));
-        p.setExternalIOPorts(prop("External I/O Ports",true, listDelimiter));
-        p.setFingerPrintReader(prop("Finger print reader",true, listDelimiter));
-        p.setFlashCache(prop("Flash cache",true, listDelimiter));
-        p.setHpMobileBroadband(prop("HP mobile broadband",true, listDelimiter));
-        p.setLabelEnergyStar(prop("Label ENERGY STAR",true, listDelimiter));
-        p.setLaplinkPcmoverSoftware(prop("Laplink PCmover Software",true, listDelimiter));
-        p.setSecuritySoftware(prop("McAfee LiveSafe(TM) Security Software",true, listDelimiter));
-        p.setMemorySlots(prop("Memory slots",true, listDelimiter));
-        p.setMiniCard(prop("Mini card",true, listDelimiter));
-        p.setMiniCardSsd(prop("Mini card SSD",true, listDelimiter));
-        p.setMiscWarrantyDocumentation(prop("Misc warranty documentation",true, listDelimiter));
-        p.setModem(prop("Modem",true, listDelimiter));
-        p.setNearFieldCommunication(prop("Near field communication",true, listDelimiter));
-        p.setOsRecoveryCd(prop("OS recovery CD",true, listDelimiter));
-        p.setOfficeSoftware(prop("Office software",true, listDelimiter));
-        p.setOpticalDrive(prop("Optical drive",true, listDelimiter));
-        p.setOutOfBandManagement(prop("Out-of-Band management",true, listDelimiter));
-        p.setPersonalization(prop("Personalization",true, listDelimiter));
-        p.setPowerCord(prop("Power cord",true, listDelimiter));
-        p.setProcessorFamily(prop("Processor family",true, listDelimiter));
-        p.setProcessorTechnology(prop("Processor technology",true, listDelimiter));
-        p.setRecoveryMediaDriver(prop("Recovery media driver",true, listDelimiter));
-        p.setSecurityManagement(prop("Security management",true, listDelimiter));
-        p.setSensors(prop("Sensors",true, listDelimiter));
-        p.setTheftProtection(prop("Theft protection",true, listDelimiter));
-        p.setWarrantyBattery(prop("Warranty battery",true, listDelimiter));
-        p.setBoxContents(prop("What\u0027s in the box",true, listDelimiter));
-        p.setWirelessLan(prop("Wireless LAN",true, listDelimiter));
+        specifications.add(constructSpecification(p, "battery", any(prop("Battery", true, listDelimiter),
+                prop("Primary battery", listDelimiter))));
+        specifications.add(constructSpecification(p, "batteryLife", prop("Battery life", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "maxBatteryLifeInHours",
+                String.valueOf(parseBatteryLife(prop("Battery life", true, listDelimiter)))));
+        specifications.add(constructSpecification(p, "color", prop("Color", listDelimiter)));
 
-        extractProcessorAndGraphics(p);
+        specifications.add(constructSpecification(p, "dimensions", prop("Dimensions", listDelimiter)));
+        BigDecimal[] wdh = parseDimensions(prop("Dimensions", listDelimiter));
+        if(wdh != null) {
+            specifications.add(constructSpecification(p, "dimensionWidthInInches", String.valueOf(wdh[0])));
+            specifications.add(constructSpecification(p, "dimensionDepthInInches", String.valueOf(wdh[1])));
+            specifications.add(constructSpecification(p, "dimensionHeightInInches", String.valueOf(wdh[2])));
+        }
+
+        specifications.add(constructSpecification(p, "display", prop("Display", listDelimiter)));
+        specifications.add(constructSpecification(p, "energyEfficiency", prop("Energy efficiency", listDelimiter)));
+        specifications.add(constructSpecification(p, "expansionSlots", prop("Expansion slots", listDelimiter)));
+        specifications.add(constructSpecification(p, "hardDrive", any(prop("Hard drive", listDelimiter),
+                prop("Internal drive", listDelimiter), prop("Internal storage", listDelimiter))));
+
+
+        specifications.add(constructSpecification(p, "keyboard", prop("Keyboard", listDelimiter)));
+        specifications.add(constructSpecification(p, "memory", prop("Memory", listDelimiter)));
+        specifications.add(constructSpecification(p, "modelNumber", prop("Model number", listDelimiter)));
+        specifications.add(constructSpecification(p, "operatingSystem", prop("Operating system", listDelimiter)));
+        specifications.add(constructSpecification(p, "pointingDevices", prop("Pointing device", listDelimiter)));
+        specifications.add(constructSpecification(p, "ports", prop("Ports", listDelimiter)));
+        specifications.add(constructSpecification(p, "powerSupply", prop("Power supply", listDelimiter)));
+        specifications.add(constructSpecification(p, "softwareIncluded",
+                any(prop("Software included", listDelimiter), prop("Software", listDelimiter))));
         
+        specifications.add(constructSpecification(p, "webcam",
+                any(prop("Webcam", listDelimiter), prop("Integrated camera", listDelimiter),
+                        prop("Camera", listDelimiter))));
+        specifications.add(constructSpecification(p, "weight", prop("Weight", true, listDelimiter)));
+        specifications.add(constructSpecification(p, "weightInPounds",
+                String.valueOf(parseWeightInPounds(prop("Weight", true, listDelimiter)))));
+        specifications.add(constructSpecification(p, "warranty", prop("Warranty",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "networking",
+                any(prop("Wireless", listDelimiter), prop("Networking", listDelimiter),
+                        prop("Network interface", listDelimiter))));
+
+        specifications.add(constructSpecification(p, "acAdapter", prop("AC adapter",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "accessories", prop("Accessories",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "additionalBay", prop("Additional bay",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "audio", prop("Audio",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "bluetooth", prop("Bluetooth",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "broadbandServiceProvider",
+                prop("Broadband service provider",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "chipset", prop("Chipset",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "externalIOPorts",
+                prop("External I/O Ports",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "fingerPrintReader",
+                prop("Finger print reader",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "flashCache", prop("Flash cache",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "hpMobileBroadband",
+                prop("HP mobile broadband",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "labelEnergyStar", prop("Label ENERGY STAR",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "laplinkPcmoverSoftware",
+                prop("Laplink PCmover Software",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "securitySoftware",
+                prop("McAfee LiveSafe(TM) Security Software",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "memorySlots", prop("Memory slots",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "miniCard", prop("Mini card",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "miniCardSsd", prop("Mini card SSD",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "miscWarrantyDocumentation",
+                prop("Misc warranty documentation",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "modem", prop("Modem",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "nearFieldCommunication",
+                prop("Near field communication",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "osRecoveryCd", prop("OS recovery CD",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "officeSoftware", prop("Office software",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "opticalDrive", prop("Optical drive",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "outOfBandManagement",
+                prop("Out-of-Band management",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "personalization", prop("Personalization",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "powerCord", prop("Power cord",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "processorFamily", prop("Processor family",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "processorTechnology",
+                prop("Processor technology",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "recoveryMediaDriver",
+                prop("Recovery media driver",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "securityManagement",
+                prop("Security management",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "sensors", prop("Sensors",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "theftProtection",
+                prop("Theft protection",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "warrantyBattery",
+                prop("Warranty battery",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "boxContents",
+                prop("What\u0027s in the box",true, listDelimiter)));
+        specifications.add(constructSpecification(p, "wirelessLan", prop("Wireless LAN",true, listDelimiter)));
+
+        extractProcessorAndGraphics(p, specifications);
+
+        p.setSpecifications(specifications);
+
         checkParsedProps();
         
         return p;

@@ -1,17 +1,24 @@
 /*
- * Copyright (c) 2015 Topcoder Inc. All rights reserved.
+ * Copyright (c) 2015 - 2016 Topcoder Inc. All rights reserved.
  */
 
 package com.hp.inventory.audit.parser.parsers;
 
 import com.hp.inventory.audit.parser.model.AbstractProduct;
-import com.hp.inventory.audit.parser.model.Monitor;
+import com.hp.inventory.audit.parser.model.Product;
+import com.hp.inventory.audit.parser.model.ProductSpecification;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Document parser for "PDP" type Monitor pages
  *
+ * changes:
+ *  - 1.0.6: refactor the columns to specifications.
+ * 
  * @author TCDEVELOPER
- * @version 1.0.5
+ * @version 1.0.6
  */
 public class MonitorParser extends DocumentParser {
 
@@ -20,22 +27,27 @@ public class MonitorParser extends DocumentParser {
      */
     @Override
     protected AbstractProduct extract() throws Exception {
-        Monitor p = new Monitor();
+        Product p = this.definition;
+        p.setCategory("Monitor");
 
         setParsingErrorsReceiver(p);
 
         extractCommonProps(p);
 
-        p.setBrightness(prop("Brightness"));
-        p.setNativeResolution(prop("Native resolution"));
-        p.setContrastRatio(prop("Contrast ratio"));
-        p.setPixelPitch(prop("Pixel pitch"));
-        p.setResponseTime(prop("Response time"));
-        p.setDisplayTiltAndSwivelRange(prop("Display Tilt & Swivel Range"));
-        p.setEnergyEfficiency(prop("Energy efficiency"));
-        p.setDimensions(prop("Dimensions (W X D X H)"));
-        p.setWeight(prop("Weight"));
-        p.setWhatsInTheBox(prop("What's in the box"));
+        Set<ProductSpecification> specifications = new HashSet<>();
+
+        specifications.add(constructSpecification(p, "brightness", prop("Brightness")));
+        specifications.add(constructSpecification(p, "nativeResolution", prop("Native resolution")));
+        specifications.add(constructSpecification(p, "contrastRatio", prop("Contrast ratio")));
+        specifications.add(constructSpecification(p, "pixelPitch", prop("Pixel pitch")));
+        specifications.add(constructSpecification(p, "responseTime", prop("Response time")));
+        specifications.add(constructSpecification(p, "displayTiltAndSwivelRange", prop("Display Tilt & Swivel Range")));
+        specifications.add(constructSpecification(p, "energyEfficiency", prop("Energy efficiency")));
+        specifications.add(constructSpecification(p, "dimensions", prop("Dimensions (W X D X H)")));
+        specifications.add(constructSpecification(p, "weight", prop("Weight")));
+        specifications.add(constructSpecification(p, "whatsInTheBox", prop("What's in the box")));
+
+        p.setSpecifications(specifications);
 
         checkParsedProps();
 
