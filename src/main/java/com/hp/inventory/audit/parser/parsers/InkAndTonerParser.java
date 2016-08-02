@@ -16,7 +16,7 @@ import java.util.Set;
  *
  * changes:
  *  - 1.0.6: refactor the columns to specifications.
- * 
+ *  - 1.0.7: use a general way to extract the specs.
  * @author TCDEVELOPER
  * @version 1.0.6
  */
@@ -32,25 +32,6 @@ public class InkAndTonerParser extends DocumentParser {
         setParsingErrorsReceiver(p);
 
         extractCommonProps(p);
-
-        Set<ProductSpecification> specifications = new HashSet<>();
-
-        specifications.add(constructSpecification(p, "colorsOfPrintCartridges", prop("Color(s) of print cartridges")));
-        specifications.add(constructSpecification(p, "pageYield",
-                any(prop("Page yield (black and white)"), prop("Page yield (color)"))));
-        specifications.add(constructSpecification(p, "pageYieldFootnote", prop("Page yield footnote")));
-        specifications.add(constructSpecification(p, "inkDrop", prop("Ink drop")));
-        specifications.add(constructSpecification(p, "compatibleInkTypes", prop("Compatible ink types")));
-        specifications.add(constructSpecification(p, "operatingTemperatureRange", prop("Operating temperature range")));
-        specifications.add(constructSpecification(p, "storageTemperatureRange", prop("Storage temperature range")));
-        specifications.add(constructSpecification(p, "operatingHumidityRange", prop("Operating humidity range")));
-        specifications.add(constructSpecification(p, "storageHumidity", prop("Storage humidity")));
-        specifications.add(constructSpecification(p, "packageDimensions", prop("Package dimensions (W x D x H)")));
-        specifications.add(constructSpecification(p, "packageWeight", prop("Package weight")));
-        specifications.add(constructSpecification(p, "warranty", prop("Warranty")));
-        specifications.add(constructSpecification(p, "whatsInTheBox", prop("What's in the box")));
-
-        p.setSpecifications(specifications);
 
         checkParsedProps();
 

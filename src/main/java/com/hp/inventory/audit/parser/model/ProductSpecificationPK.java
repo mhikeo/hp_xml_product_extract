@@ -12,27 +12,31 @@ import java.io.Serializable;
 /**
  * PK for product specification
  *
+ * changes in 1.0.1: change the primary key from productNumber to productId.
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class ProductSpecificationPK implements Serializable {
 
     private String name;
 
-    private String productNumber;
+  /**
+   * Represents the product id.
+   */
+  private String productId;
 
     public ProductSpecificationPK() {
     }
 
-    public ProductSpecificationPK(String productNumber, String name) {
-        this.productNumber = productNumber;
+    public ProductSpecificationPK(String productId, String name) {
+        this.productId = productId;
         this.name = name;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-        		.append(productNumber)
+        		.append(productId)
         		.append(name).toHashCode();
     }
 
@@ -47,16 +51,16 @@ public class ProductSpecificationPK implements Serializable {
         ProductSpecificationPK that = (ProductSpecificationPK) obj;
 
         return new EqualsBuilder()
-        		.append(productNumber, that.productNumber)
+        		.append(productId, that.productId)
         		.append(name, that.name).isEquals();
     }
 
-    public String getProductNumber() {
-        return productNumber;
+    public String getProductId() {
+        return productId;
     }
 
-    public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public String getName() {

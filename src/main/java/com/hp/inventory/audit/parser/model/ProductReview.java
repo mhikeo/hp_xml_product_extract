@@ -24,10 +24,13 @@ import javax.persistence.*;
 @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
 public class ProductReview {
 
-	@Id
+	@Column(nullable = false)
 	private Integer siteId;
 
 	@Id
+	private String productId;
+
+	@Column(nullable = false)
 	private String productNumber;
 
 	@Id
@@ -50,14 +53,14 @@ public class ProductReview {
 	private Integer reviewHelpfulNoCount;
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name="productNumber", insertable = false, updatable = false)
+	@JoinColumn(name="productId", insertable = false, updatable = false)
 	private Product product;
 
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder()
 				.append(siteId)
-				.append(productNumber)
+				.append(productId)
 				.append(id).toHashCode();
 	}
 
@@ -73,7 +76,7 @@ public class ProductReview {
 
 		return new EqualsBuilder()
 				.append(siteId, that.siteId)
-				.append(productNumber, that.productNumber)
+				.append(productId, that.productId)
 				.append(id, that.id).isEquals();
 	}
 
@@ -85,12 +88,12 @@ public class ProductReview {
 		this.siteId = siteId;
 	}
 
-	public String getProductNumber() {
-		return productNumber;
+	public String getProductId() {
+		return productId;
 	}
 
-	public void setProductNumber(String productNumber) {
-		this.productNumber = productNumber;
+	public void setProductId(String productId) {
+		this.productId = productId;
 	}
 
 	public Integer getId() {
@@ -205,4 +208,11 @@ public class ProductReview {
 		this.product = product;
 	}
 
+	public String getProductNumber() {
+		return productNumber;
+	}
+
+	public void setProductNumber(String productNumber) {
+		this.productNumber = productNumber;
+	}
 }

@@ -14,6 +14,7 @@ import com.hp.inventory.audit.parser.parsers.extractors.FullTextExtractor;
 import com.hp.inventory.audit.parser.parsers.extractors.ReviewsExtractor;
 import com.hp.inventory.audit.parser.parsers.rules.QueriesSpec;
 import com.hp.inventory.audit.parser.parsers.rules.TypeSpec;
+import com.hp.inventory.audit.parser.utils.LangTranslator;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -32,9 +33,9 @@ import java.util.regex.Pattern;
  *
  * changes:
  *  - 1.0.3: refactor the columns to specifications.
- * 
+ *  - 1.0.4: support productId; support EUR/GBP currency; use a general way to extract specs.
  * @author TCDEVELOPER
- * @version 1.0.3
+ * @version 1.0.4
  */
 public abstract class DocumentParser {
 
@@ -95,10 +96,14 @@ public abstract class DocumentParser {
     protected void extractCommonProps(Product product) throws Exception {
 
         product.setProductNumber(text(QueriesSpec.productNumberQuery));
+        product.setSiteId(config.siteId);
+        product.setProductId(config.constructProductId(product.getProductNumber()));
+
         if (product.getProductType() == null) {
             product.setProductType(product.getCategory());
         }
 
+        product.setItemNumber(product.getProductNumber().split("#|_")[0]);
 
         listDelimiter = definition.getListDelimiter();
         propertiesThreshold = definition.getPropertiesThreshold();
@@ -110,9 +115,15 @@ public abstract class DocumentParser {
 
         // Product ratings
         ProductRating rating = new ProductRating();
-        rating.setProductNumber(definition.getProductNumber());
+        rating.setProductId(definition.getProductId());
         rating.setSiteId(config.siteId);
-        rating.setRating(rating(q(QueriesSpec.ratingQuery).text()));
+        rating.setProductNumber(definition.getProductNumber());
+        Elements ratingElements = q(QueriesSpec.ratingQuery);
+        if (ratingElements.size() == 0) {
+            rating.setRating(0);
+        } else {
+            rating.setRating(rating(q(QueriesSpec.ratingQuery).last().text()));
+        }
         rating.setNumberOfReviews(reviewsCount(q(QueriesSpec.reviewsQuery).text()));
         if (rating.getRating() != null || rating.getNumberOfReviews() != null)
             definition.getRatings().put(rating.getSiteId(), rating);
@@ -120,23 +131,6 @@ public abstract class DocumentParser {
 
         // Product prices
         ProductPrice price = new ProductPrice();
-        price.setProductNumber(definition.getProductNumber());
-        price.setSiteId(config.siteId);
-        price.setStrikedPrice(cur(q(QueriesSpec.strikedPriceQuery).text()));
-
-        String currentPriceVisible = q(QueriesSpec.currentPriceQueryVisible).text();
-        String currentPrice = q(QueriesSpec.currentPriceQuery).text();
-
-        // First try to parse price from { id="price_value" } tag
-        if (currentPriceVisible != null && !currentPriceVisible.isEmpty()) {
-            price.setCurrentPrice(cur(currentPriceVisible));
-        }
-        // If we were unable to parce the price, then try to parse it from {
-        // itemprop="price" }
-        if (price.getCurrentPrice() == null) {
-            price.setCurrentPrice(cur(currentPrice));
-        }
-
         if (config.defaultCurrency == null) {
             // only if default currency hasn't been set yet
             price.setCurrency(nullIfEmpty(q(QueriesSpec.currencyQuery).attr("content")));
@@ -144,6 +138,25 @@ public abstract class DocumentParser {
             // otherwise set it to default
             price.setCurrency(config.defaultCurrency);
         }
+
+        price.setProductId(definition.getProductId());
+        price.setProductNumber(definition.getProductNumber());
+        price.setSiteId(config.siteId);
+        price.setStrikedPrice(cur(q(QueriesSpec.strikedPriceQuery).text(), price.getCurrency()));
+
+        String currentPriceVisible = q(QueriesSpec.currentPriceQueryVisible).text();
+        String currentPrice = text(QueriesSpec.currentPriceQuery);
+
+        // First try to parse price from { id="price_value" } tag
+        if (currentPriceVisible != null && !currentPriceVisible.isEmpty()) {
+            price.setCurrentPrice(cur(currentPriceVisible, price.getCurrency()));
+        }
+        // If we were unable to parce the price, then try to parse it from {
+        // itemprop="price" }
+        if (price.getCurrentPrice() == null) {
+            price.setCurrentPrice(cur(currentPrice, price.getCurrency()));
+        }
+
         if (price.getCurrentPrice() != null)
             definition.getPrices().put(price.getSiteId(), price);
 
@@ -159,6 +172,20 @@ public abstract class DocumentParser {
             definition.setAccessories(accessories());
 
         definition.setReviews(new ReviewsExtractor(this).extract());
+
+        // add all the specs
+        Map<String, String> allSpecs = allSpecs();
+        Set<ProductSpecification> specifications = new HashSet<>();
+        int displayOrder = 0;
+        for (String key : allSpecs.keySet()) {
+            String value = allSpecs.get(key);
+            ProductSpecification spec = constructSpecification(definition, key, value);
+            spec.setDisplayOrder(displayOrder++);
+            specifications.add(spec);
+            specParsed.add(key);
+        }
+        definition.setSpecifications(specifications);
+
     }
 
     /**
@@ -270,8 +297,10 @@ public abstract class DocumentParser {
         parsingErrorsReceiver.getParsingErrors().append(text);
     }
 
-    private static final Pattern weightPattern0 = Pattern.compile("(\\d+\\.?\\d*) lb");
-    private static final Pattern weightPattern1 = Pattern.compile("(\\d+\\.?\\d*) oz");
+    private static final Pattern weightPattern0 = Pattern.compile("(\\d+\\.?\\d*) lb", Pattern.CASE_INSENSITIVE);
+    private static final Pattern weightPattern1 = Pattern.compile("(\\d+\\.?\\d*) oz", Pattern.CASE_INSENSITIVE);
+    private static final Pattern weightPattern2 = Pattern.compile("(\\d+\\.?\\d*) kg", Pattern.CASE_INSENSITIVE);
+    private static final Pattern weightPattern3 = Pattern.compile("(\\d+\\.?\\d*) g", Pattern.CASE_INSENSITIVE);
 
     /**
      * Parse a weight string into a decimal representation.
@@ -289,6 +318,15 @@ public abstract class DocumentParser {
         if (r == null && ((matcher = weightPattern1.matcher(weight)).find())) {
             r = bd(matcher.group(1)).multiply(bd(0.0625)).setScale(2, BigDecimal.ROUND_HALF_UP);
         }
+
+        if (r == null && ((matcher = weightPattern2.matcher(weight)).find())) {
+            r = bd(matcher.group(1)).multiply(bd(2.20462)).setScale(2, BigDecimal.ROUND_HALF_UP);
+        }
+
+        if (r == null && ((matcher = weightPattern3.matcher(weight)).find())) {
+            r = bd(matcher.group(1)).multiply(bd(2.20462 * 0.001)).setScale(2, BigDecimal.ROUND_HALF_UP);
+        }
+
 
         if (r == null) {
             addParsingError(String.format("Could not parse weight from string: %s\n", weight));
@@ -335,7 +373,7 @@ public abstract class DocumentParser {
     protected Integer reviewsCount(String text) {
         if (text == null || text.trim().isEmpty())
             return null;
-
+        text = text.replaceAll("[^\\d]", "");
         Integer i;
         try {
             i = Integer.parseInt(text);
@@ -352,11 +390,21 @@ public abstract class DocumentParser {
      *
      * @since 1.0.2 Added , removal
      */
-    protected BigDecimal cur(String text) {
+    protected BigDecimal cur(String text, String currency) {
         if (text == null)
             return null;
-        // remove $ sign and , delimiter
-        text = text.replace("$", "").replace(",", "");
+        // remove $ sign and , delimiter and space
+        if (currency != null && currency.equals("EUR")) {
+            // in EUR, funny is that, they use "," as "." and use "." as ",".
+            String tmp = ",,,";
+            text = text.replace(",", tmp);
+            text = text.replace(".", ",");
+            text = text.replace(tmp, ".");
+        }
+        text = text.replace("$", "").replace(",", "").replace(" ", "");
+        text = text.replace("£", "");
+        text = text.replace("€", "");
+
         if (text.trim().isEmpty())
             return null;
 
@@ -513,13 +561,30 @@ public abstract class DocumentParser {
     protected Elements propElem(String prop) {
         String propQuoted = Pattern.quote(prop);
 
-        Element propElement = q(QueriesSpec.specQueryPrefix + propQuoted + QueriesSpec.specQuerySuffix).parents().get(2);
+        Element propElement = q(QueriesSpec.specQueryPrefix + propQuoted + QueriesSpec.specQuerySuffix).first();
 
         Elements res = propElement.select(QueriesSpec.specQueryPostQuery);
+
 
         // only add if there were no errors
         specParsed.add(prop);
         return res;
+    }
+
+  /**
+   * Extract all the specs.
+   * @return the specs keys and values.
+   */
+  protected Map<String, String> allSpecs() {
+        // keep the order
+        Map<String, String> result = new LinkedHashMap<>();
+        Elements res = q(QueriesSpec.allSpecQuery);
+        for (Element ele : res) {
+            String key = ele.select(QueriesSpec.allSpecKeyQuery).text();
+            String value = ele.select(QueriesSpec.allSpecValueQuery).text();
+            result.put(key, value);
+        }
+        return result;
     }
 
     /**
@@ -533,7 +598,8 @@ public abstract class DocumentParser {
         try {
 
             prop = Pattern.quote(prop);
-            String url = q(QueriesSpec.linkQueryPrefix + prop + QueriesSpec.linkQuerySuffix).parents().select(QueriesSpec.linkQueryPostQuery).attr("href");
+            String url = q(QueriesSpec.linkQueryPrefix + prop + QueriesSpec.linkQuerySuffix).parents()
+                    .select(QueriesSpec.linkQueryPostQuery).first().attr("href");
 
             if (url.isEmpty()) {
                 throw new NullPointerException();
@@ -565,7 +631,12 @@ public abstract class DocumentParser {
      */
     protected String text(String queryString) {
         try {
-            return q(queryString).first().ownText();
+            Element e = q(queryString).first();
+            String text = e.ownText();
+            if (text!= null && text.trim().length() > 0) {
+                return text;
+            }
+            return e.attr("content");
         } catch (NullPointerException e) {
             logNotFound("text", queryString);
             return null;
@@ -588,17 +659,41 @@ public abstract class DocumentParser {
     protected Set<RelatedAccessory> accessories() {
         String nameQuery = QueriesSpec.accessoriesNameQuery; // "#accessories div.items h3";
         String urlQuery = QueriesSpec.accessoriesUrlQuery; // "#accessories div.items .priceHolder div > div > a";
-
+        String productNumberQuery = QueriesSpec.accessoriesProductNumberQuery;
         Set<RelatedAccessory> out = new HashSet<>();
 
         Elements names = q(nameQuery);
-        Elements urls = q(urlQuery);
+        Elements urls = null;
+        if (urlQuery != null) {
+            urls = q(urlQuery);
+        }
+        Elements productNumbers = null;
+        if (productNumberQuery != null) {
+            productNumbers = q(productNumberQuery);
+        }
 
         for (int i = 0; i < names.size(); i++) {
+            boolean ignore = false;
             RelatedAccessory r = new RelatedAccessory();
+            r.setProductId(definition.getProductId());
             r.setProductNumber(definition.getProductNumber());
-            r.setUrl(urls.get(i).absUrl("href"));
-            out.add(r);
+            if (urls != null) {
+                r.setUrl(urls.get(i).absUrl("href"));
+            }
+            if (productNumbers != null) {
+                String productNumber = productNumbers.get(i).text();
+                // check if that product number/id already crawled
+                String productId = config.constructProductId(productNumber);
+                if (this.config.prodIds.contains(productId)) {
+                    r.setAccessoryProductId(productId);
+                    r.setAccessoryProductNumber(productNumber);
+                } else {
+                    ignore = true;
+                }
+            }
+            if (!ignore) {
+                out.add(r);
+            }
         }
 
         return out;
@@ -612,6 +707,7 @@ public abstract class DocumentParser {
         // Images
         doc.select(QueriesSpec.imagesSelectQuery).select(QueriesSpec.imagesSelectPostQuery).forEach(img -> {
             ProductImage prodImage = new ProductImage();
+            prodImage.setProductId(definition.getProductId());
             prodImage.setProductNumber(definition.getProductNumber());
             String url = img.attr("src");
             if (!url.startsWith("http")) {
@@ -689,6 +785,7 @@ public abstract class DocumentParser {
 
     protected ProductSpecification constructSpecification(Product product, String name, String value) {
         ProductSpecification specification = new ProductSpecification();
+        specification.setProductId(product.getProductId());
         specification.setProductNumber(product.getProductNumber());
         specification.setName(name);
         specification.setValue(value);
@@ -701,5 +798,15 @@ public abstract class DocumentParser {
 
     public Product getDefinition() {
         return definition;
+    }
+
+  /**
+   * Gets the locale string.
+   * @param str the original string.
+   * @return the locale string.
+   */
+    protected String getLocaleString(String str) {
+        LangTranslator translator = LangTranslator.getInstance();
+        return translator.getString(str);
     }
 }

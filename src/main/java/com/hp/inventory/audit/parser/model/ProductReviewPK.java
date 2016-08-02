@@ -12,8 +12,9 @@ import java.io.Serializable;
 /**
  * PK for product review.
  *
+ * changes in 1.0.1: change the primary key from productNumber to productId.
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class ProductReviewPK implements Serializable {
 
@@ -22,25 +23,25 @@ public class ProductReviewPK implements Serializable {
 	 */
 	private static final long serialVersionUID = 2801064352570669011L;
 
-	private Integer siteId;
-	
-    private String productNumber;
+  /**
+   * Represents the product id.
+    */
+  private String productId;
 
     private Integer id;
 
     public ProductReviewPK() {
     }
 
-    public ProductReviewPK(Integer siteId, String productNumber, Integer id) {
-        this.siteId = siteId;
-        this.productNumber = productNumber;
+    public ProductReviewPK(Integer siteId, String productId, Integer id) {
+        this.productId = productId;
         this.id = id;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-        		.append(siteId)
+        		.append(productId)
         		.append(id).toHashCode();
     }
 
@@ -55,24 +56,17 @@ public class ProductReviewPK implements Serializable {
         ProductReviewPK that = (ProductReviewPK) obj;
 
         return new EqualsBuilder()
-        		.append(siteId, that.siteId)
+        		.append(productId, that.productId)
         		.append(id, that.id).isEquals();
     }
 
-	public Integer getSiteId() {
-		return siteId;
+
+	public String getProductId() {
+		return productId;
 	}
 
-	public void setSiteId(Integer siteId) {
-		this.siteId = siteId;
-	}
-
-	public String getProductNumber() {
-		return productNumber;
-	}
-
-	public void setProductNumber(String productNumber) {
-		this.productNumber = productNumber;
+	public void setProductId(String productId) {
+		this.productId = productId;
 	}
 
 	public Integer getId() {

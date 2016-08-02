@@ -12,27 +12,31 @@ import java.io.Serializable;
 /**
  * PK for product image
  *
+ * changes in 1.0.1: change the primary key from productNumber to productId.
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class ProductImagePK implements Serializable {
 
     private String url;
 
-    private String productNumber;
+  /**
+   * Represents the product id.
+   */
+  private String productId;
 
     public ProductImagePK() {
     }
 
-    public ProductImagePK(String productNumber, String url) {
-        this.productNumber = productNumber;
+    public ProductImagePK(String productId, String url) {
+        this.productId = productId;
         this.url = url;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-        		.append(productNumber)
+        		.append(productId)
         		.append(url).toHashCode();
     }
 
@@ -47,16 +51,24 @@ public class ProductImagePK implements Serializable {
         ProductImagePK that = (ProductImagePK) obj;
 
         return new EqualsBuilder()
-        		.append(productNumber, that.productNumber)
+        		.append(productId, that.productId)
         		.append(url, that.url).isEquals();
     }
 
-    public String getProductNumber() {
-        return productNumber;
+  /**
+   * Gets the product id.
+   * @return the product id.
+   */
+  public String getProductId() {
+        return productId;
     }
 
-    public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
+  /**
+   * Sets the product id.
+   * @param productId the product id.
+   */
+  public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public String getUrl() {

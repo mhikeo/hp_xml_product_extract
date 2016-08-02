@@ -14,8 +14,9 @@ import javax.persistence.*;
 /**
  * Model for related accessories.
  *
+ * changes in 1.0.1: change the primary/forgein keys from productNumber to productId.
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.1
  */
 @Entity
 @IdClass(RelatedAccessoryPK.class)
@@ -23,9 +24,15 @@ import javax.persistence.*;
 public class RelatedAccessory {
 
     @Id
-    private String productNumber;
+    private String productId;
 
     @Id
+    private String accessoryProductId;
+
+    @Column(nullable = false)
+    private String productNumber;
+
+    @Column(nullable = false)
     private String accessoryProductNumber;
 
     // When persisting to database, the URL won't be saved, but replaced by the proper accessory product
@@ -34,7 +41,7 @@ public class RelatedAccessory {
     private String url;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="productNumber", referencedColumnName = "productNumber", insertable = false, updatable = false)
+    @JoinColumn(name="productId", referencedColumnName = "productId", insertable = false, updatable = false)
     private Product product;
 
     public String getUrl() {
@@ -45,21 +52,21 @@ public class RelatedAccessory {
         this.url = url;
     }
 
-    public String getAccessoryProductNumber() {
-        return accessoryProductNumber;
+    public String getAccessoryProductId() {
+        return accessoryProductId;
     }
 
-    public void setAccessoryProductNumber(String accessoryProductNumber) {
-        this.accessoryProductNumber = accessoryProductNumber;
+    public void setAccessoryProductId(String accessoryProductId) {
+        this.accessoryProductId = accessoryProductId;
     }
 
 
-    public String getProductNumber() {
-        return productNumber;
+    public String getProductId() {
+        return productId;
     }
 
-    public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public Product getProduct() {
@@ -73,8 +80,8 @@ public class RelatedAccessory {
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-                .append(accessoryProductNumber)
-                .append(productNumber)
+                .append(accessoryProductId)
+                .append(productId)
                 .append(url).toHashCode();
     }
 
@@ -89,10 +96,25 @@ public class RelatedAccessory {
         RelatedAccessory that = (RelatedAccessory) obj;
 
         return new EqualsBuilder()
-                .append(accessoryProductNumber, that.accessoryProductNumber)
-                .append(productNumber, that.productNumber)
+                .append(accessoryProductId, that.accessoryProductId)
+                .append(productId, that.productId)
                 .append(url, that.url)
                 .isEquals();
     }
 
+    public String getProductNumber() {
+        return productNumber;
+    }
+
+    public void setProductNumber(String productNumber) {
+        this.productNumber = productNumber;
+    }
+
+    public String getAccessoryProductNumber() {
+        return accessoryProductNumber;
+    }
+
+    public void setAccessoryProductNumber(String accessoryProductNumber) {
+        this.accessoryProductNumber = accessoryProductNumber;
+    }
 }

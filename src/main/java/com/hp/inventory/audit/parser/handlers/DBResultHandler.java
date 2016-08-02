@@ -22,18 +22,21 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Result handler that writes products to the configured database.
  *
  * changes: remove useless update entity
+ * changes in 1.0.7: handles the product number conflicts.
  * @author TCDEVELOPER
- * @version 1.0.6
+ * @version 1.0.7
  */
 public class DBResultHandler implements ResultHandler {
 
@@ -139,17 +142,47 @@ public class DBResultHandler implements ResultHandler {
 
 
     private Product upgradeDefinitionIfExisting(Product productDefinition) throws Exception {
-        Product existingDefinition = getEntityManager().find(Product.class, productDefinition.getProductNumber());
+        // find different sites of products
+        EntityManager em = getEntityManager();
+        TypedQuery<Product> query = em.createQuery("SELECT p from Product p where p.productNumber=:productNumber",
+                Product.class);
+        query.setParameter("productNumber", productDefinition.getProductNumber());
+        List<Product> products = query.getResultList();
+        if (config.isMainSite) {
+            for (Product product : products) {
+                if (product.getSiteId() != productDefinition.getSiteId() && product.isPrimaryProduct()) {
+                    product.setPrimaryProduct(false);
+                    em.merge(product);
+                }
+            }
+            productDefinition.setPrimaryProduct(true);
+        } else {
+            boolean hasPrimary = false;
+            for (Product product : products) {
+                if (product.isPrimaryProduct()) {
+                    hasPrimary = true;
+                    break;
+                }
+            }
+            if (!hasPrimary) {
+                productDefinition.setPrimaryProduct(true);
+            }
+        }
+
+        Product existingDefinition = null;
+        for (Product product : products) {
+            if (product.getSiteId() == productDefinition.getSiteId()) {
+                existingDefinition = product;
+            }
+        }
         if(existingDefinition != null) {
             //existing Product
             existingDefinition.upgradeEntityFrom(productDefinition);
-            return getEntityManager().merge(existingDefinition);
-
-
+            return em.merge(existingDefinition);
         } else {
             //new Product
             productDefinition.initNewEntity();
-            getEntityManager().persist(productDefinition);
+            em.persist(productDefinition);
             return productDefinition;
         }
 

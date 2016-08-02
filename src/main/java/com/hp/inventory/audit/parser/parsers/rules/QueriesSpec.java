@@ -11,8 +11,9 @@ import java.util.regex.Pattern;
 /**
  * Static value object holding product field CSS queries.
  *
+ * Adds new specs to support UK/Germany sites.
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class QueriesSpec {
     
@@ -41,13 +42,28 @@ public class QueriesSpec {
     public static String specQuerySuffix;
     public static String specQueryPostQuery;
 
+    /**
+    * To query all the specs.
+    */
+    public static String allSpecQuery;
+
+    /**
+     * To query the spec key.
+     */
+    public static String allSpecKeyQuery;
+
+    /**
+     * To query all the spec value.
+     */
+    public static String allSpecValueQuery;
+
     public static String linkQueryPrefix;
     public static String linkQuerySuffix;
     public static String linkQueryPostQuery;
 
     public static String accessoriesNameQuery;
     public static String accessoriesUrlQuery;
-
+    public static String accessoriesProductNumberQuery;
 
     public static String imagesSelectQuery;
     public static String imagesSelectPostQuery;
@@ -100,12 +116,17 @@ public class QueriesSpec {
         QueriesSpec.specQuerySuffix = rulesCfg.queriesSpec.get("specQuerySuffix");
         QueriesSpec.specQueryPostQuery = rulesCfg.queriesSpec.get("specQueryPostQuery");
 
+        QueriesSpec.allSpecQuery = rulesCfg.queriesSpec.get("allSpecQuery");
+        QueriesSpec.allSpecKeyQuery = rulesCfg.queriesSpec.get("allSpecKeyQuery");
+        QueriesSpec.allSpecValueQuery = rulesCfg.queriesSpec.get("allSpecValueQuery");
+
         QueriesSpec.linkQueryPrefix = rulesCfg.queriesSpec.get("linkQueryPrefix");
         QueriesSpec.linkQuerySuffix = rulesCfg.queriesSpec.get("linkQuerySuffix");
         QueriesSpec.linkQueryPostQuery = rulesCfg.queriesSpec.get("linkQueryPostQuery");
 
         QueriesSpec.accessoriesNameQuery = rulesCfg.queriesSpec.get("accessoriesNameQuery");
         QueriesSpec.accessoriesUrlQuery = rulesCfg.queriesSpec.get("accessoriesUrlQuery");
+        QueriesSpec.accessoriesProductNumberQuery = rulesCfg.queriesSpec.get("accessoriesProductNumberQuery");
 
         QueriesSpec.imagesSelectQuery = rulesCfg.queriesSpec.get("imagesSelectQuery");
         QueriesSpec.imagesSelectPostQuery = rulesCfg.queriesSpec.get("imagesSelectPostQuery");

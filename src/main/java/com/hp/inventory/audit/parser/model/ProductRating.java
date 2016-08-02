@@ -17,22 +17,29 @@ import java.util.Date;
 /**
  * Product overall rating for a given site.
  *
+ * changes in 1.0.5: change the primary key from productNumber to productId.
+ *
  * @author TCDEVELOPER
- * @version 1.0.4
+ * @version 1.0.5
  */
 @Entity
-@IdClass(ProductRatingPK.class)
 @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
 public class ProductRating {
 
-    @Id
+    @Column(nullable = false)
     private Integer siteId;
 
-    @Id
+  /**
+   * Represents the product Id.
+   */
+  @Id
+    private String productId;
+
+    @Column(nullable = false)
     private String productNumber;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="productNumber", insertable = false, updatable = false)
+    @JoinColumn(name="productId", insertable = false, updatable = false)
     private Product product;
 
     @TrackChanges(key="rating", target= TrackChanges.TrackingTarget.CURRENT)
@@ -54,7 +61,7 @@ public class ProductRating {
     public int hashCode() {
         return new HashCodeBuilder()
                 .append(siteId)
-                .append(productNumber)
+                .append(productId)
                 .toHashCode();
     }
 
@@ -70,7 +77,7 @@ public class ProductRating {
 
         return new EqualsBuilder()
                 .append(siteId, that.siteId)
-                .append(productNumber, that.productNumber)
+                .append(productId, that.productId)
                 .isEquals();
     }
 
@@ -82,12 +89,12 @@ public class ProductRating {
         this.siteId = siteId;
     }
 
-    public String getProductNumber() {
-        return productNumber;
+    public String getProductId() {
+        return productId;
     }
 
-    public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public Integer getRating() {
@@ -128,5 +135,13 @@ public class ProductRating {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public String getProductNumber() {
+        return productNumber;
+    }
+
+    public void setProductNumber(String productNumber) {
+        this.productNumber = productNumber;
     }
 }

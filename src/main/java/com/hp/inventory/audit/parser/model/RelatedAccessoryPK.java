@@ -12,26 +12,27 @@ import java.io.Serializable;
 /**
  * Primary key for related accessory
  *
+ * changes in 1.0.1: change the primary/forgein keys from productNumber to productId.
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class RelatedAccessoryPK implements Serializable {
 
-    private String accessoryProductNumber;
+    private String accessoryProductId;
 
-    private String productNumber;
+    private String productId;
 
     public RelatedAccessoryPK() {
     }
 
-    public RelatedAccessoryPK(String productNumber, String url) {
-        this.productNumber = productNumber;
-        this.accessoryProductNumber = url;
+    public RelatedAccessoryPK(String productId, String url) {
+        this.productId = productId;
+        this.accessoryProductId = url;
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(accessoryProductNumber).append(productNumber).toHashCode();
+        return new HashCodeBuilder().append(accessoryProductId).append(productId).toHashCode();
     }
 
     @Override
@@ -44,22 +45,22 @@ public class RelatedAccessoryPK implements Serializable {
 
         RelatedAccessoryPK that = (RelatedAccessoryPK) obj;
 
-        return new EqualsBuilder().append(accessoryProductNumber, that.accessoryProductNumber).append(productNumber, that.productNumber).isEquals();
+        return new EqualsBuilder().append(accessoryProductId, that.accessoryProductId).append(productId, that.productId).isEquals();
     }
 
-    public String getProductNumber() {
-        return productNumber;
+    public String getProductId() {
+        return productId;
     }
 
-    public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
-    public String getAccessoryProductNumber() {
-        return accessoryProductNumber;
+    public String getAccessoryProductId() {
+        return accessoryProductId;
     }
 
-    public void setAccessoryProductNumber(String accessoryProductNumber) {
-        this.accessoryProductNumber = accessoryProductNumber;
+    public void setAccessoryProductId(String accessoryProductId) {
+        this.accessoryProductId = accessoryProductId;
     }
 }

@@ -22,8 +22,9 @@ import java.io.PrintWriter;
 /**
  * Command-line application entry-point.
  *
+ * changes in 1.0.4: add "-m" or "--main" option.
  * @author TCDEVELOPER
- * @version 1.0.3
+ * @version 1.0.4
  */
 public class Main {
 
@@ -74,6 +75,12 @@ public class Main {
 
         if (cmd.hasOption("i")) {
             config.siteId = Integer.parseInt(cmd.getOptionValue("i"));
+        }
+
+        if (cmd.hasOption("main")) {
+            config.isMainSite = true;
+        } else {
+            config.isMainSite = false;
         }
 
         if (!cmd.hasOption("d")) {
@@ -252,6 +259,8 @@ public class Main {
         /** @since 1.0.3
          */
         options.addOption("cfg", "config", true, "Rules config file. Required.");
+
+        options.addOption("m", "main", false, "Specify this site is the main site.");
 
         options.addOption("i", "site-id", true, "The siteId value to use. Check your database for valid values. Defaults to 1.");
 

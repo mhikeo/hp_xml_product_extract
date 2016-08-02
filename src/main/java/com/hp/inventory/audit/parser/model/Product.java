@@ -23,12 +23,13 @@ import java.util.*;
  * Model class representing any Product present in the HP Store.
  *
  * changes: add the category field and specifications
+ * changes in 1.0.7: add primaryProduct field.
  * @author TCDEVELOPER
- * @version 1.0.6
+ * @version 1.0.7
  * 
  */
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="productNumber")
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="productId")
 public class Product extends AbstractProduct {
 
 	/** @since 1.0.2
@@ -38,6 +39,12 @@ public class Product extends AbstractProduct {
 
     @Expose
     private Integer id;
+
+  /**
+   * Indicates whether this is the primary product. (existing in the main site, or other sites if not in the main site).
+   */
+  @Expose
+    private boolean primaryProduct;
 
   /**
    * Since 1.0.6
@@ -68,6 +75,9 @@ public class Product extends AbstractProduct {
      */
     @Expose
     private String productType;
+
+    @Expose
+    private String itemNumber;
 
     @SkipNullUpdate
     @Expose
@@ -336,5 +346,36 @@ public class Product extends AbstractProduct {
    */
   public void setCategory(String category) {
     this.category = category;
+  }
+
+  /**
+   * Gets the primary product.
+   * @return the primary product.
+   */
+  public boolean isPrimaryProduct() {
+    return primaryProduct;
+  }
+
+  /**
+   * Sets the primary product.
+   * @param primaryProduct the primary product.
+   */
+  public void setPrimaryProduct(boolean primaryProduct) {
+    this.primaryProduct = primaryProduct;
+  }
+
+  /**
+   * Gets the item number.
+   * @return the item number
+   */
+  public String getItemNumber() {
+    return itemNumber;
+  }
+  /**
+   * Sets the item number.
+   * @param itemNumber item number
+   */
+  public void setItemNumber(String itemNumber) {
+    this.itemNumber = itemNumber;
   }
 }

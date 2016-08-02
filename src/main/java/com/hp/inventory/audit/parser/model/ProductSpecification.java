@@ -26,7 +26,10 @@ public class ProductSpecification {
    * Represents the product number.
    */
   @Id
-    private String productNumber;
+    private String productId;
+
+  @Column(nullable = false)
+  private String productNumber;
 
   /**
    * Represents the name of the specification.
@@ -39,27 +42,29 @@ public class ProductSpecification {
    */
   private String value;
 
+  private int displayOrder;
+
   /**
    * Represents the corresponding product.
    */
   @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="productNumber", referencedColumnName = "productNumber", insertable = false, updatable = false)
+    @JoinColumn(name="productId", referencedColumnName = "productId", insertable = false, updatable = false)
     private Product product;
 
   /**
    * Gets the product number.
    * @return the product number.
    */
-  public String getProductNumber() {
-        return productNumber;
+  public String getProductId() {
+        return productId;
     }
 
   /**
    * Sets the product number.
-   * @param productNumber the product number.
+   * @param productId the product number.
    */
-  public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
+  public void setProductId(String productId) {
+        this.productId = productId;
     }
 
   /**
@@ -85,7 +90,7 @@ public class ProductSpecification {
   @Override
     public int hashCode() {
     	return new HashCodeBuilder()
-    			.append(productNumber)
+    			.append(productId)
     			.append(name).toHashCode();
     }
 
@@ -105,7 +110,7 @@ public class ProductSpecification {
         ProductSpecification that = (ProductSpecification) obj;
 
         return new EqualsBuilder()
-        		.append(productNumber, that.productNumber)
+        		.append(productId, that.productId)
         		.append(name, that.name).isEquals();
     }
 
@@ -141,4 +146,20 @@ public class ProductSpecification {
   public void setValue(String value) {
         this.value = value;
     }
+
+  public int getDisplayOrder() {
+    return displayOrder;
+  }
+
+  public void setDisplayOrder(int displayOrder) {
+    this.displayOrder = displayOrder;
+  }
+
+  public String getProductNumber() {
+    return productNumber;
+  }
+
+  public void setProductNumber(String productNumber) {
+    this.productNumber = productNumber;
+  }
 }

@@ -16,9 +16,9 @@ import java.util.Set;
  *
  * changes:
  *  - 1.0.6: refactor the columns to specifications.
- * 
+ *  - 1.0.7: use a general way to extract the specs.
  * @author TCDEVELOPER
- * @version 1.0.6
+ * @version 1.0.7
  */
 public class MonitorParser extends DocumentParser {
 
@@ -33,21 +33,6 @@ public class MonitorParser extends DocumentParser {
         setParsingErrorsReceiver(p);
 
         extractCommonProps(p);
-
-        Set<ProductSpecification> specifications = new HashSet<>();
-
-        specifications.add(constructSpecification(p, "brightness", prop("Brightness")));
-        specifications.add(constructSpecification(p, "nativeResolution", prop("Native resolution")));
-        specifications.add(constructSpecification(p, "contrastRatio", prop("Contrast ratio")));
-        specifications.add(constructSpecification(p, "pixelPitch", prop("Pixel pitch")));
-        specifications.add(constructSpecification(p, "responseTime", prop("Response time")));
-        specifications.add(constructSpecification(p, "displayTiltAndSwivelRange", prop("Display Tilt & Swivel Range")));
-        specifications.add(constructSpecification(p, "energyEfficiency", prop("Energy efficiency")));
-        specifications.add(constructSpecification(p, "dimensions", prop("Dimensions (W X D X H)")));
-        specifications.add(constructSpecification(p, "weight", prop("Weight")));
-        specifications.add(constructSpecification(p, "whatsInTheBox", prop("What's in the box")));
-
-        p.setSpecifications(specifications);
 
         checkParsedProps();
 

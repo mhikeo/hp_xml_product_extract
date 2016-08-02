@@ -4,25 +4,25 @@
 
 package com.hp.inventory.audit.parser.utils;
 
+import com.google.gson.Gson;
 import com.hp.inventory.audit.parser.Config;
 import com.hp.inventory.audit.parser.ProductIterable;
+import com.hp.inventory.audit.parser.RulesConfig;
 import com.hp.inventory.audit.parser.handlers.DBResultHandler;
 import com.hp.inventory.audit.parser.model.Product;
 import org.riversun.finbin.BinarySearcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 
 /**
  * Utility class to extract product number from pages and map to URLs. Hopefully it's more efficient than
  * naive processing.
- *
+ * changes in 1.0.6: support Germany/UK sites.
  * @author TCDEVELOPER
- * @version 1.0.5
+ * @version 1.0.6
  */
 public class URLNumberMapper {
 
@@ -39,14 +39,27 @@ public class URLNumberMapper {
      */
     @SuppressWarnings("unchecked")
     public void buildMap(Config config, ProductIterable products) {
+        RulesConfig rulesCfg;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(config.rulesConfig))) {
+            rulesCfg = (new Gson()).fromJson(reader, RulesConfig.class);
+            if (rulesCfg.queriesSpec.get("fastProductNumberQueryPrefix") != null) {
+                prodNumberStart = rulesCfg.queriesSpec.get("fastProductNumberQueryPrefix").getBytes();
+            }
+            if (rulesCfg.queriesSpec.get("fastProductNumberQuerySuffix") != null) {
+                prodNumberEnd = rulesCfg.queriesSpec.get("fastProductNumberQuerySuffix").getBytes();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if (config.resultHandler instanceof DBResultHandler) {
             log.info("Retrieving URL-productNumber map from DB");
             // Get from DB first
-            String q = "SELECT productUrl, productNumber from Product";
+            String q = "SELECT productUrl, productId from Product";
             List<Object[]> res = ((DBResultHandler)config.resultHandler).getEntityManager()
                     .createNativeQuery(q).getResultList();
             for (Object[] r : res) {
-                config.urlProdNumberMap.put(r[0].toString(), r[1].toString());
+                config.urlProdIdMap.put(r[0].toString(), r[1].toString());
             }
         }
 
@@ -58,15 +71,17 @@ public class URLNumberMapper {
                 File page = new File(config.dataDirectory, p.getSourceFile());
                 String prodNum = extractNumber(page);
                 if (prodNum == null) {
-                    log.warn("Could extract product number from {}: {}", page, p.getProductUrl());
+                    log.warn("Could not extract product id from {}: {}", page, p.getProductUrl());
                 }
-                config.urlProdNumberMap.put(p.getProductUrl(), prodNum);
+                config.urlProdIdMap.put(p.getProductUrl(), config.constructProductId(prodNum));
                 progressLogger.tick();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
+        config.prodIds.addAll(config.urlProdIdMap.values());
         progressLogger.finish();
+
         log.info("Done retrieving URL-productNumber map from files.");
     }
 

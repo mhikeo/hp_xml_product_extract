@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.*;
 
+import com.hp.inventory.audit.parser.utils.LangTranslator;
 import com.hp.inventory.audit.parser.utils.ProgressLogger;
 import com.hp.inventory.audit.parser.utils.URLNumberMapper;
 import org.joda.time.Period;
@@ -21,8 +22,12 @@ import com.hp.inventory.audit.parser.model.Product;
 /**
  * Main class for running HP Product page parsing jobs.
  *
+ * <p>
+ *   Changes in 1.0.6:
+ *   add productId support.
+ * </p>
  * @author TCDEVELOPER
- * @version 1.0.5
+ * @version 1.0.6
  */
 public class ExtractionJobRunner {
 
@@ -45,6 +50,7 @@ public class ExtractionJobRunner {
 
         ProductIterable products = new ProductIterable(config);
         new URLNumberMapper().buildMap(config, products);
+        LangTranslator.getInstance().init(config);
 
         ProgressLogger progressLogger = new ProgressLogger(log, 0);
         int effectiveTotal = 0;
@@ -52,13 +58,13 @@ public class ExtractionJobRunner {
 
             // Check if we should avoid duplicates
             if (config.singleProductId == -1 && !config.parseDuplicates) {
-                prod.setProductNumber(config.urlProdNumberMap.get(prod.getProductUrl()));
-                if (prod.getProductNumber() == null)
+                prod.setProductId(config.urlProdIdMap.get(prod.getProductUrl()));
+                if (prod.getProductId() == null)
                     continue;
 
-                boolean isNew = parsedProducts.add(prod.getProductNumber());
+                boolean isNew = parsedProducts.add(prod.getProductId());
                 if (!isNew)  {
-                    log.debug("Duplicate product ignored: {}", prod.getProductNumber());
+                    log.debug("Duplicate product ignored: {}", prod.getProductId());
                     continue;
                 }
             }
@@ -69,7 +75,7 @@ public class ExtractionJobRunner {
             }
             effectiveTotal++;
 
-            log.debug("Adding product Id:{} to parsing queue", prod.getId());
+            log.debug("Adding Id:{} to parsing queue", prod.getId());
             ProductExtractorJob extractor = new ProductExtractorJob(config, prod);
             CompletableFuture future = CompletableFuture.runAsync(extractor, executorService);
             //noinspection unchecked

@@ -20,12 +20,13 @@ import java.util.*;
 /**
  * Base class common to all products.
  *
- * changes: remoe the Product field.
+ * changes: remove the Product field.
+ * changes in 1.0.2: add siteId and productId, change the primary key from productNumber to productId
  * @author TCDEVELOPER
- * @version 1.0.1
+ * @version 1.0.2
  */
 @MappedSuperclass
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="productNumber")
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="productId")
 public abstract class AbstractProduct {
 
 	/** @since 1.0.1
@@ -57,8 +58,20 @@ public abstract class AbstractProduct {
 		this.prvComingSoonDate = comingSoonDate;
 	}
 
-	@Id
+   /**
+    * Represents the productId.
+    */
+    @Id
+    private String productId;
+
+	  @Column(nullable = false)
     private String productNumber;
+
+  /**
+   * Represents the site Id.
+   */
+  @Column(nullable = false)
+    private int siteId;
 
     @Version
     @GeneratedValue
@@ -363,6 +376,8 @@ public abstract class AbstractProduct {
 
         productDefinition.setProductNumber(this.getProductNumber());
         productDefinition.setProductName(this.getProductName());
+        productDefinition.setProductId(this.getProductId());
+        productDefinition.setSiteId(this.getSiteId());
 
         String productType = productDefinition.getProductType();
 
@@ -400,4 +415,36 @@ public abstract class AbstractProduct {
      * @throws Exception
      */
     public abstract void upgradeEntityFrom(AbstractProduct from) throws Exception;
+
+  /**
+   * Gets the product id.
+   * @return the product id.
+   */
+  public String getProductId() {
+        return productId;
+    }
+
+  /**
+   * Sets the product id.
+   * @param productId the product id.
+   */
+  public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+  /**
+   * Gets the site id.
+   * @return the site id.
+   */
+  public int getSiteId() {
+        return siteId;
+    }
+
+  /**
+   * Sets the site id.
+   * @param siteId the site id.
+   */
+  public void setSiteId(int siteId) {
+        this.siteId = siteId;
+    }
 }

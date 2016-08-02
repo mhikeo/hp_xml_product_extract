@@ -20,8 +20,9 @@ import java.util.Set;
 /**
  * Runs a single product extract job. To be used with a ExecutorService.
  *
+ * changes in 1.0.6: support product Id.
  * @author TCDEVELOPER
- * @version 1.0.5
+ * @version 1.0.6
  */
 public class ProductExtractorJob implements Runnable {
     private final Product definition;
@@ -79,10 +80,10 @@ public class ProductExtractorJob implements Runnable {
     private void associateRelatedAccessories() {
         Set<RelatedAccessory> toRemove = new HashSet<>();
         for (RelatedAccessory ra : definition.getAccessories()) {
-            if (ra.getAccessoryProductNumber() == null) {
+            if (ra.getAccessoryProductId() == null && ra.getUrl() != null) {
                 String url = ra.getUrl();
-                String number = config.urlProdNumberMap.get(url);
-                if (number == null) {
+                String productId = config.urlProdIdMap.get(url);
+                if (productId == null) {
                     // When we can't find the product number it means that the URL was never
                     // downloaded and that's most likely a mistake. We'll remove the related
                     // accessory since the schema requires the product number.
@@ -93,7 +94,8 @@ public class ProductExtractorJob implements Runnable {
                     config.resultHandler.unknownAccessory(ra);
                     toRemove.add(ra);
                 } else {
-                    ra.setAccessoryProductNumber(number);
+                    ra.setAccessoryProductNumber(config.parseProductNumber(productId));
+                    ra.setAccessoryProductId(productId);
                 }
             }
         }

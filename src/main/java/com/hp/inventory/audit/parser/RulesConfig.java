@@ -10,8 +10,9 @@ import java.util.Map;
 /**
  * Value object representing the raw de-serialized rules JSON file.
  *
+ * changes in 1.0.1: add locale field.
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class RulesConfig {
 
@@ -32,4 +33,9 @@ public class RulesConfig {
 	 * Configurations for assigning product type on generic products.
 	 */
 	public Map<String, Object> productType;
+
+	/**
+	 * Represents the locale of the web pages. (en_US, en_GB or de)
+	 */
+	public String locale;
 }

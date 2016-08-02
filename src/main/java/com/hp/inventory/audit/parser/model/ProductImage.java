@@ -14,8 +14,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 /**
  * Model for product image.
  *
+ * changes in 1.0.1: change the primary key from productNumber to product id.
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.1
  */
 @Entity
 @IdClass(ProductImagePK.class)
@@ -28,19 +29,33 @@ public class ProductImage {
     @Version
     private Long version;
 
-    @Id
+  /**
+   * Represents the product id.
+   */
+  @Id
+    private String productId;
+
+    @Column(nullable = false)
     private String productNumber;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="productNumber", referencedColumnName = "productNumber", insertable = false, updatable = false)
+    @JoinColumn(name="productId", referencedColumnName = "productId", insertable = false, updatable = false)
     private Product product;
 
-    public String getProductNumber() {
-        return productNumber;
+  /**
+   * Gets the product id.
+   * @return the product id.
+   */
+  public String getProductId() {
+        return productId;
     }
 
-    public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
+  /**
+   * Sets the product id.
+   * @param productId the product id.
+   */
+  public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public String getUrl() {
@@ -62,7 +77,7 @@ public class ProductImage {
     @Override
     public int hashCode() {
     	return new HashCodeBuilder()
-    			.append(productNumber)
+    			.append(productId)
     			.append(url).toHashCode();
     }
 
@@ -77,7 +92,7 @@ public class ProductImage {
         ProductImage that = (ProductImage) obj;
 
         return new EqualsBuilder()
-        		.append(productNumber, that.productNumber)
+        		.append(productId, that.productId)
         		.append(url, that.url).isEquals();
     }
 
@@ -87,5 +102,13 @@ public class ProductImage {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public String getProductNumber() {
+        return productNumber;
+    }
+
+    public void setProductNumber(String productNumber) {
+        this.productNumber = productNumber;
     }
 }

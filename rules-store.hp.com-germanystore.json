@@ -1,0 +1,103 @@
+{
+	"locale": "GERMANY",
+  "typeMap" : {
+  },
+  "urlExclude" : [
+
+  ],
+  "urlMatch" : [
+	{ "sel=NTB" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+	{ "sel=DTP" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+	{ "sel=TBL" : "com.hp.inventory.audit.parser.parsers.TabletParser" },
+	{ "sel=MTO" : "com.hp.inventory.audit.parser.parsers.MonitorParser" },
+	{ "sel=PRN" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
+	{ "sel=SUP" : "com.hp.inventory.audit.parser.parsers.InkAndTonerParser" }
+  ],
+  "productNameExclude" : [
+
+  ],
+  "productNameMatch" : [
+
+  ],
+
+  "contentExclude" : [
+  ],
+
+  "contentMatch" : [
+  ],
+
+  "queriesSpec" : {
+	"productNumberQuery" : "meta[itemprop=sku]",
+	"fastProductNumberQueryPrefix" : "<meta itemprop=\"sku\" content=\"",
+	"fastProductNumberQuerySuffix" : "\"",
+	"productNameQuery" : "h1.pb-product__name",
+	"currentPriceQueryVisible" : ".prod__fixed-price .fixed-price__nr",
+	"currentPriceQuery" : "meta[itemprop=price]",
+	"currencyQuery" : "meta[itemprop=priceCurrency]",
+	"strikedPriceQuery" : ".prod .pb-price .pb-price__prev nobr",
+	"reviewIdPattern" : "(\\d+)",
+	"ratingQuery" : ".price-block__rating-review .rating__star.rating__star--active",
+	"reviewsQuery" : ".price-block__rating-review .pb-review",
+	"comingSoonQuery" : "div[itemprop=offers] span:contains(Out of stock)",
+
+	"specQueryPrefix" : ".specs-table tr:has(.specs-table__key:matchesOwn((?i)",
+	"specQuerySuffix" : "))",
+	"specQueryPostQuery" : ".specs-table__value",
+
+	"allSpecQuery": ".specs-table tr:has(.specs-table__key)",
+	"allSpecKeyQuery": ".specs-table__key",
+	"allSpecValueQuery": ".specs-table__value",
+
+	"linkQueryPrefix" : "h2.prod-details-header__title:matchesOwn(",
+	"linkQuerySuffix" : ")",
+	"linkQueryPostQuery" : "a.js-product-spec-download",
+
+	"accessoriesNameQuery" : ".prod-acc-list .prod-acc-list__i .acc__title",
+	"accessoriesProductNumberQuery" : ".prod-acc-list .prod-acc-list__i .acc__sku",
+
+	"imagesSelectQuery" : ".prod-gal__nav ul.gal-nav",
+	"imagesSelectPostQuery" : "img.gal-nav-icon",
+
+	"reviewsExtractQuery" : "ul.reviews-list .reviews-list__i",
+	"reviewsExtractDateFormat" : "dd/MM/yyyy HH:mm",
+	"reviewsExtractPostDateQuery" : ".review-meta__info li:first-child",
+	"reviewsExtractRatingQuery" : "[itemprop=reviewRating] [itemprop=ratingValue]",
+	"reviewsExtractScaleQuery" : "[itemprop=reviewRating] [itemprop=bestRating]",
+	"reviewsExtractTitleQuery" : ".review-body__title",
+	"reviewsExtractComentsQuery" : ".review-body__msg",
+	"reviewsExtractUsernameQuery" : ".review-meta__user[itemprop=author]",
+
+	// Full-text field extraction configuration.
+	"fullTextExtractStartQuery" : "div.prod-details",
+	"fullTextExtractExcludes" : "#prod-details__nav, #accessories, #reviews"
+
+  },
+
+  // Configuration for inferring product type for GeneralProducts. Mostly we'll try
+  // to use embedded category information in the page.
+
+  "productType": {
+
+	// Categories to be excluded. [regex]
+	"categoryExclude": [
+	],
+
+	// Types to be replace once resolved. [regex]
+	"typeReplace": {
+	},
+
+	// When we can't get the type from embedded category info, resort to
+	// product name match. [regex]
+	"productNameMatch": {
+	  "Jahre.*Garantie": "Care Packs",
+	  "Headset$": "Headphones & Headsets",
+	  "Maus$": "Mice & Keyboards",
+	  "battery$": "Batteries & Ac Adapters",
+	  "picture frame$": "Picture Frame",
+	  "digital camera$": "Cameras",
+	  "Laufwerk": "Dvd Writers",
+	  "jetdirect.*server": "Jetdirect"
+	}
+  }
+
+}
