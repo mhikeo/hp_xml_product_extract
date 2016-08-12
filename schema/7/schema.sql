@@ -28,29 +28,28 @@ CREATE TABLE Site (
 CREATE TABLE Product (
   productId             VARCHAR(5000) NOT NULL,
   productNumber         VARCHAR(5000) NOT NULL,
-  primaryProduct        BOOLEAN NOT NULL,
+  primaryProduct        BOOLEAN       NOT NULL,
   siteId                INTEGER       NOT NULL REFERENCES Site,
   category              VARCHAR(100),
   version               INTEGER       NOT NULL,
-  auditTimeStamp        TIMESTAMP NOT NULL,
-  id                    INTEGER NOT NULL,
+  auditTimeStamp        TIMESTAMP     NOT NULL,
+  id                    INTEGER       NOT NULL,
   productName           VARCHAR(5000) NOT NULL,
   productUrl            VARCHAR(5000) NOT NULL,
   sourceFile            VARCHAR(5000) NOT NULL,
   productType           VARCHAR(5000) NOT NULL,
-  dateAdded             DATE NOT NULL, 
-  parsingError	        VARCHAR(5000),
+  dateAdded             DATE          NOT NULL, 
+  parsingError          VARCHAR(5000),
   dateOfParsingError    DATE,
-  comingSoonDate	    DATE,
+  comingSoonDate        DATE,
   availableForSaleDate  DATE,
   hpDataSheet           VARCHAR(5000),
-  parseDate             TIMESTAMP NOT NULL,
+  parseDate             TIMESTAMP     NOT NULL,
   fullText              LONG VARCHAR(1000000),
+  itemNumber            VARCHAR(100),
   PRIMARY KEY (productId),
   UNIQUE (productNumber, siteId)
 );
-
-
 
 CREATE TABLE ProductSpecification (
   productId VARCHAR(5000) NOT NULL REFERENCES Product,
