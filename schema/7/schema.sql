@@ -125,3 +125,44 @@ CREATE TABLE ProductRating (
 
 
 CREATE TEXT INDEX ProductFullTextSearch ON Product (productId, fullText);
+
+
+CREATE TABLE UPC (
+    itemNumber VARCHAR(1000),
+    upc VARCHAR(1000),
+    sku VARCHAR(1000),
+    skuDescription VARCHAR(1000),
+    skuName VARCHAR(1000),
+    model VARCHAR(1000),
+    modelDescription VARCHAR(1000),
+    modelName VARCHAR(1000),
+    product VARCHAR(1000),
+    productDescription VARCHAR(1000),
+    productName VARCHAR(1000),
+    family VARCHAR(1000),
+    familyDescription VARCHAR(1000),
+    familyName VARCHAR(1000),
+    line VARCHAR(1000),
+    lineDescription VARCHAR(1000),
+    lineName VARCHAR(1000),
+    type VARCHAR(1000),
+    typeDescription VARCHAR(1000),
+    typeName VARCHAR(1000),
+    division VARCHAR(1000),
+    divisionDescription VARCHAR(1000),
+    divisionName VARCHAR(1000),
+    groupId VARCHAR(1000),
+    groupDescription VARCHAR(1000),
+    groupName VARCHAR(1000),
+    productSeriesName VARCHAR(1000),
+    productBigseriesName VARCHAR(1000),
+    platformName VARCHAR(1000),
+    plcWwProductReleaseDt VARCHAR(1000),
+    productModelCcbscDt VARCHAR(1000),
+    mktgProductSubcatName VARCHAR(1000),
+    productModelName VARCHAR(1000),
+    productModelDescription VARCHAR(1000),
+    productClassificationName VARCHAR(1000),
+    mktgProductCatName VARCHAR(1000),
+    primaryProductTypeName VARCHAR(1000)
+);
