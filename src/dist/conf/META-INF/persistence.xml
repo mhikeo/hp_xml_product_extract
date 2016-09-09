@@ -21,11 +21,11 @@
         <class>com.hp.inventory.audit.parser.model.Site</class>
         <class>com.hp.inventory.audit.parser.model.ProductRating</class>
         <class>com.hp.inventory.audit.parser.model.ProductPrice</class>
-
+        <class>com.hp.inventory.audit.parser.model.UPC</class>
         <properties>
 
             <!-- Change these properties for your environment -->
-            <property name="javax.persistence.jdbc.url" value="jdbc:vertica://192.168.1.114:5433/hp_product_audit3" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:vertica://192.168.1.114:5433/hp_product_extract" />
             <property name="javax.persistence.jdbc.user" value="dbadmin" />
             <property name="javax.persistence.jdbc.password" value="123456" />
             <property name="javax.persistence.jdbc.driver" value="com.vertica.jdbc.Driver" />

@@ -8,21 +8,22 @@ import static org.junit.Assert.*;
 
 import java.math.BigDecimal;
 
+import com.hp.inventory.audit.parser.parsers.GeneralParser;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.hp.inventory.audit.parser.handlers.JSONResultHandler;
 import com.hp.inventory.audit.parser.model.Product;
-import com.hp.inventory.audit.parser.parsers.LaptopParser;
 
 public class LaptopParserTest extends ParserTest {
-	private LaptopParser parser;
+	private GeneralParser parser;
 	private Config rh;
 	private int HP = 1;
 
 	@Before
 	public void init() {
-		parser = new LaptopParser();
+		parser = new GeneralParser();
+		parser.setProductType("Laptop");
 		rh = new Config();
 		rh.siteId = HP;
 		rh.resultHandler = new JSONResultHandler();

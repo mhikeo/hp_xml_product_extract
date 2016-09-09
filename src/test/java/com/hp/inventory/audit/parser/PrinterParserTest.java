@@ -8,22 +8,23 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 
+import com.hp.inventory.audit.parser.parsers.GeneralParser;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.hp.inventory.audit.parser.handlers.JSONResultHandler;
 import com.hp.inventory.audit.parser.model.Product;
 import com.hp.inventory.audit.parser.model.Product;
-import com.hp.inventory.audit.parser.parsers.PrinterParser;
 
 public class PrinterParserTest extends ParserTest {
 	private static final Integer HP = 1;
-	private PrinterParser parser;
+	private GeneralParser parser;
 	private Config config;
 
 	@Before
 	public void init() {
-		parser = new PrinterParser();
+		parser = new GeneralParser();
+		parser.setProductType("Printer");
 		config = new Config();
 		config.resultHandler = new JSONResultHandler();
 		config.resultHandler.beforeStart();

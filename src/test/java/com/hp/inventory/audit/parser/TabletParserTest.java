@@ -6,22 +6,23 @@ package com.hp.inventory.audit.parser;
 
 import static org.junit.Assert.assertEquals;
 
+import com.hp.inventory.audit.parser.parsers.GeneralParser;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.hp.inventory.audit.parser.handlers.JSONResultHandler;
 import com.hp.inventory.audit.parser.model.Product;
 import com.hp.inventory.audit.parser.model.Product;
-import com.hp.inventory.audit.parser.parsers.TabletParser;
 
 public class TabletParserTest extends ParserTest {
 	private static final Integer HP = 1;
-	private TabletParser parser;
+	private GeneralParser parser;
 	private Config config;
 
 	@Before
 	public void init() {
-		parser = new TabletParser();
+		parser = new GeneralParser();
+		parser.setProductType("Tablet");
 		config = new Config();
 		config.resultHandler = new JSONResultHandler();
 		config.resultHandler.beforeStart();

@@ -4,35 +4,35 @@
 
 package com.hp.inventory.audit.parser.model;
 
-import javax.persistence.*;
-
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.google.gson.annotations.Expose;
+import com.hp.inventory.audit.parser.model.annotation.SkipNullUpdate;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import com.google.gson.annotations.Expose;
-import com.hp.inventory.audit.parser.model.annotation.SkipNullUpdate;
-
+import javax.persistence.*;
 import java.util.*;
 
 /**
  * Model class representing any Product present in the HP Store.
- *
+ * <p>
  * changes: add the category field and specifications
  * changes in 1.0.7: add primaryProduct field.
+ * changes in 1.0.8: remove category and add marketing product type.
+ *
  * @author TCDEVELOPER
- * @version 1.0.7
- * 
+ * @version 1.0.8
  */
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="productId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "productId")
 public class Product extends AbstractProduct {
 
-	/** @since 1.0.2
+    /**
+     * @since 1.0.2
      */
     @Transient
     private String listDelimiter;
@@ -40,44 +40,45 @@ public class Product extends AbstractProduct {
     @Expose
     private Integer id;
 
-  /**
-   * Indicates whether this is the primary product. (existing in the main site, or other sites if not in the main site).
-   */
-  @Expose
+    /**
+     * Indicates whether this is the primary product. (existing in the main site, or other sites if not in the main site).
+     */
+    @Expose
     private boolean primaryProduct;
 
-  /**
-   * Since 1.0.6
-   * This is the category of the product, (Printer, Tablet, Desktop,...)
-   */
-  @Expose
-    private String category;
-
-    /** @since 1.0.3
+    /**
+     * @since 1.0.3
      */
     @Transient
     private int propertiesThreshold;
-	
-	public String getListDelimiter() {
-		return listDelimiter;
-	}
-	
+
+    public String getListDelimiter() {
+        return listDelimiter;
+    }
+
     @Expose
     private String sourceFile;
 
     @JsonIgnore
     private String fullText;
-    
+
     @Expose
     private Date auditTimeStamp;
 
-    /** @since 1.0.1
+    /**
+     * @since 1.0.1
      */
     @Expose
     private String productType;
 
     @Expose
     private String itemNumber;
+
+    /**
+     * @since 1.0.8
+     */
+    @Expose
+    private String marketingProductType;
 
     @SkipNullUpdate
     @Expose
@@ -86,45 +87,46 @@ public class Product extends AbstractProduct {
     private String parsingError;
     @Expose
     private Date dateOfParsingError;
-    
+
     @Expose
     private Date comingSoonDate;
-    
+
     @SkipNullUpdate
     @Expose
     private Date availableForSaleDate;
-    
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
-    @Fetch(FetchMode.SUBSELECT)
-    @BatchSize(size=100)
-    private Set<ProductImage> images = new HashSet<ProductImage>();
-    
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
-    @Fetch(FetchMode.SUBSELECT)
-    @BatchSize(size=100)
-    private Set<RelatedAccessory> accessories = new HashSet<RelatedAccessory>();
-
-  /**
-   * The specifications.
-   * @since 1.0.6
-   */
-  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
-  @Fetch(FetchMode.SUBSELECT)
-  @BatchSize(size=100)
-  private Set<ProductSpecification> specifications = new HashSet<>();
-
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval=true)
-    @Fetch(FetchMode.SUBSELECT)
-    @BatchSize(size=100)
-    private Set<ProductReview> reviews = new HashSet<ProductReview>();
-
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
-	@MapKey(name="siteId")
-  @Fetch(FetchMode.SUBSELECT)
-	private Map<Integer, ProductPrice> prices = new HashMap<>();
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
-    @MapKey(name="siteId")
+    @Fetch(FetchMode.SUBSELECT)
+    @BatchSize(size = 100)
+    private Set<ProductImage> images = new HashSet<ProductImage>();
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
+    @BatchSize(size = 100)
+    private Set<RelatedAccessory> accessories = new HashSet<>();
+
+    /**
+     * The specifications.
+     *
+     * @since 1.0.6
+     */
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
+    @BatchSize(size = 100)
+    private Set<ProductSpecification> specifications = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
+    @BatchSize(size = 100)
+    private Set<ProductReview> reviews = new HashSet<ProductReview>();
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
+    @MapKey(name = "siteId")
+    @Fetch(FetchMode.SUBSELECT)
+    private Map<Integer, ProductPrice> prices = new HashMap<>();
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "product", orphanRemoval = true)
+    @MapKey(name = "siteId")
     private Map<Integer, ProductRating> ratings = new HashMap<>();
 
     public Map<Integer, ProductRating> getRatings() {
@@ -148,15 +150,15 @@ public class Product extends AbstractProduct {
     }
 
     public void setImages(Set<ProductImage> images) throws Exception {
-    	updateSet(this.images, images, false, true);
+        updateSet(this.images, images, false, true);
     }
 
     public void setAccessories(Set<RelatedAccessory> accessories) throws Exception {
-    	updateSet(this.accessories, accessories, false, true);
+        updateSet(this.accessories, accessories, false, true);
     }
-    
+
     public void setReviews(Set<ProductReview> reviews) throws Exception {
-    	updateSet(this.reviews, reviews, true, false);
+        updateSet(this.reviews, reviews, true, false);
     }
 
     public Integer getId() {
@@ -170,51 +172,62 @@ public class Product extends AbstractProduct {
     public Set<RelatedAccessory> getAccessories() {
         return accessories;
     }
-    
+
     public Date getAuditTimeStamp() {
         return auditTimeStamp;
     }
 
     public void setAuditTimeStamp(Date dateTime) {
-    	this.auditTimeStamp = dateTime;
+        this.auditTimeStamp = dateTime;
     }
 
-	public Date getDateAdded() {
-		return dateAdded;
-	}
-	public void setDateAdded(Date dateAdded) {
-		this.dateAdded = dateAdded;
-	}
-	public String getParsingError() {
-		return parsingError;
-	}
-	public void setParsingError(String parsingError) {
-		this.parsingError = parsingError;
-	}
-	public Date getDateOfParsingError() {
-		return dateOfParsingError;
-	}
-	public void setDateOfParsingError(Date dateOfParsingError) {
-		this.dateOfParsingError = dateOfParsingError;
-	}
-	public Date getComingSoonDate() {
-		return comingSoonDate;
-	}
-	public void setComingSoonDate(Date comingSoonDate) {
-		this.comingSoonDate = comingSoonDate;
-	}
-	public Date getAvailableForSaleDate() {
-		return availableForSaleDate;
-	}
-	public void setAvailableForSaleDate(Date availableForSaleDate) {
-		this.availableForSaleDate = availableForSaleDate;
-	}
-	public String getProductType() {
-		return productType;
-	}
-	public void setProductType(String productType) {
-		this.productType = productType;
-	}
+    public Date getDateAdded() {
+        return dateAdded;
+    }
+
+    public void setDateAdded(Date dateAdded) {
+        this.dateAdded = dateAdded;
+    }
+
+    public String getParsingError() {
+        return parsingError;
+    }
+
+    public void setParsingError(String parsingError) {
+        this.parsingError = parsingError;
+    }
+
+    public Date getDateOfParsingError() {
+        return dateOfParsingError;
+    }
+
+    public void setDateOfParsingError(Date dateOfParsingError) {
+        this.dateOfParsingError = dateOfParsingError;
+    }
+
+    public Date getComingSoonDate() {
+        return comingSoonDate;
+    }
+
+    public void setComingSoonDate(Date comingSoonDate) {
+        this.comingSoonDate = comingSoonDate;
+    }
+
+    public Date getAvailableForSaleDate() {
+        return availableForSaleDate;
+    }
+
+    public void setAvailableForSaleDate(Date availableForSaleDate) {
+        this.availableForSaleDate = availableForSaleDate;
+    }
+
+    public String getProductType() {
+        return productType;
+    }
+
+    public void setProductType(String productType) {
+        this.productType = productType;
+    }
 
     public String getFullText() {
         return fullText;
@@ -225,36 +238,36 @@ public class Product extends AbstractProduct {
     }
 
     public Set<ProductReview> getReviews() {
-		return reviews;
-	}
+        return reviews;
+    }
 
-	public Map<Integer, ProductPrice> getPrices() {
-		return prices;
-	}
+    public Map<Integer, ProductPrice> getPrices() {
+        return prices;
+    }
 
-	public void setPrices(Map<Integer, ProductPrice> prices) throws Exception {
-		updateMap(this.prices, prices, false, true);
-	}
+    public void setPrices(Map<Integer, ProductPrice> prices) throws Exception {
+        updateMap(this.prices, prices, false, true);
+    }
 
-
-    /**
-     * @inheritDoc
-     */
-	@Override
-	public void initNewEntity() {
-		Date now = new Date();
-		this.setDateAdded(now);
-		if(this.getComingSoonDate()==null) {
-			this.setAvailableForSaleDate(now);
-		}
-	}
 
     /**
      * @inheritDoc
      */
     @Override
-	public void upgradeEntityFrom(AbstractProduct fromIFace) throws Exception {
-		Date now = new Date();
+    public void initNewEntity() {
+        Date now = new Date();
+        this.setDateAdded(now);
+        if (this.getComingSoonDate() == null) {
+            this.setAvailableForSaleDate(now);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public void upgradeEntityFrom(AbstractProduct fromIFace) throws Exception {
+        Date now = new Date();
         Product from = (Product) fromIFace;
 
 
@@ -286,96 +299,105 @@ public class Product extends AbstractProduct {
         // Execute update
         AbstractProduct.updateEntity(from, this);
 
-		if(this.getComingSoonDate()==null) {
-			//no 'coming soon' date
-			if(this.getAvailableForSaleDate()==null) {
-				//if availableForSale is not set, then set it to now
-				this.setAvailableForSaleDate(now);
-			}
-		} else {
-			//'coming soon' date is set
-			
-			if(this.getAvailableForSaleDate()!=null) {
-				//reset 'availableForSale' date
-				this.setAvailableForSaleDate(null);
-			}
-		}
+        if (this.getComingSoonDate() == null) {
+            //no 'coming soon' date
+            if (this.getAvailableForSaleDate() == null) {
+                //if availableForSale is not set, then set it to now
+                this.setAvailableForSaleDate(now);
+            }
+        } else {
+            //'coming soon' date is set
 
-	}
+            if (this.getAvailableForSaleDate() != null) {
+                //reset 'availableForSale' date
+                this.setAvailableForSaleDate(null);
+            }
+        }
 
-	public void setListDelimiter(String listDelimiter) {
-		this.listDelimiter = listDelimiter;
-	}
+    }
 
-	public int getPropertiesThreshold() {
-		return propertiesThreshold;
-	}
+    public void setListDelimiter(String listDelimiter) {
+        this.listDelimiter = listDelimiter;
+    }
 
-	public void setPropertiesThreshold(int propertiesThreshold) {
-		this.propertiesThreshold = propertiesThreshold;
-	}
+    public int getPropertiesThreshold() {
+        return propertiesThreshold;
+    }
 
-  /**
-   * Gets the specification.
-   * @return the specification.
-   */
-  public Set<ProductSpecification> getSpecifications() {
-    return specifications;
-  }
+    public void setPropertiesThreshold(int propertiesThreshold) {
+        this.propertiesThreshold = propertiesThreshold;
+    }
 
-  /**
-   * Sets the specifications
-   * @param specifications the specifications.
-   * @throws Exception if there are any error.
-   */
-  public void setSpecifications(Set<ProductSpecification> specifications) throws Exception {
-    updateSet(this.specifications, specifications, false, true);
-  }
+    /**
+     * Gets the specification.
+     *
+     * @return the specification.
+     */
+    public Set<ProductSpecification> getSpecifications() {
+        return specifications;
+    }
 
-  /**
-   * Gets the category.
-   * @return the category
-   */
-  public String getCategory() {
-    return category;
-  }
+    /**
+     * Sets the specifications
+     *
+     * @param specifications the specifications.
+     * @throws Exception if there are any error.
+     */
+    public void setSpecifications(Set<ProductSpecification> specifications) throws Exception {
+        updateSet(this.specifications, specifications, false, true);
+    }
 
-  /**
-   * Sets the category.
-   * @param category the category
-   */
-  public void setCategory(String category) {
-    this.category = category;
-  }
+    /**
+     * Gets the primary product.
+     *
+     * @return the primary product.
+     */
+    public boolean isPrimaryProduct() {
+        return primaryProduct;
+    }
 
-  /**
-   * Gets the primary product.
-   * @return the primary product.
-   */
-  public boolean isPrimaryProduct() {
-    return primaryProduct;
-  }
+    /**
+     * Sets the primary product.
+     *
+     * @param primaryProduct the primary product.
+     */
+    public void setPrimaryProduct(boolean primaryProduct) {
+        this.primaryProduct = primaryProduct;
+    }
 
-  /**
-   * Sets the primary product.
-   * @param primaryProduct the primary product.
-   */
-  public void setPrimaryProduct(boolean primaryProduct) {
-    this.primaryProduct = primaryProduct;
-  }
+    /**
+     * Gets the item number.
+     *
+     * @return the item number
+     */
+    public String getItemNumber() {
+        return itemNumber;
+    }
 
-  /**
-   * Gets the item number.
-   * @return the item number
-   */
-  public String getItemNumber() {
-    return itemNumber;
-  }
-  /**
-   * Sets the item number.
-   * @param itemNumber item number
-   */
-  public void setItemNumber(String itemNumber) {
-    this.itemNumber = itemNumber;
-  }
+    /**
+     * Sets the item number.
+     *
+     * @param itemNumber item number
+     */
+    public void setItemNumber(String itemNumber) {
+        this.itemNumber = itemNumber;
+    }
+
+    /**
+     * Gets the marketing product type.
+     *
+     * @return the marketing product type.
+     */
+    public String getMarketingProductType() {
+        return marketingProductType;
+    }
+
+    /**
+     * Sets the marketing product type.
+     *
+     * @param marketingProductType the marketing product type.
+     */
+    public void setMarketingProductType(String marketingProductType) {
+        this.marketingProductType = marketingProductType;
+    }
 }

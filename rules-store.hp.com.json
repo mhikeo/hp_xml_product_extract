@@ -1,56 +1,56 @@
 {
   "locale": "US",
   "typeMap" : {
-	"laptops" : "com.hp.inventory.audit.parser.parsers.LaptopParser",
-	"desktops" : "com.hp.inventory.audit.parser.parsers.DesktopParser",
-	"printers" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
-	"laserjet" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
-	"designjet" : "com.hp.inventory.audit.parser.parsers.PrinterParser",
-	"tablets" : "com.hp.inventory.audit.parser.parsers.TabletParser",
-	"ink--toner---paper": "com.hp.inventory.audit.parser.parsers.InkAndTonerParser"
+	"laptops" : "Laptop",
+	"desktops" : "Desktop",
+	"printers" : "Printer",
+	"laserjet" : "Printer",
+	"designjet" : "Printer",
+	"tablets" : "Tablet",
+	"ink--toner---paper": "InkAndToner"
   },
   "urlExclude" : [
 
   ],
   "urlMatch" : [
-	{ "-mobile-workstation" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+	{ "-mobile-workstation" : "Laptop" },
 
-	{ "-small-form-factor-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-	{ "-tower-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-	{ "-all-in-one-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-	{ "-ultra-slim-pc" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-	{ "hp-chromebox" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
+	{ "-small-form-factor-pc" : "Desktop" },
+	{ "-tower-pc" : "Desktop" },
+	{ "-all-in-one-pc" : "Desktop" },
+	{ "-ultra-slim-pc" : "Desktop" },
+	{ "hp-chromebox" : "Desktop" },
 
-	{ "hp-chromebook" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
+	{ "hp-chromebook" : "Laptop" },
 
-	{ "pdp/.*?monitors.*?/" : "com.hp.inventory.audit.parser.parsers.MonitorParser" }
+	{ "pdp/.*?monitors.*?/" : "Monitor" }
   ],
   "productNameExclude" : [
 
   ],
   "productNameMatch" : [
-	{ "^HP EliteDisplay.*Monitor" : "com.hp.inventory.audit.parser.parsers.MonitorParser"},
-	{ "^HP V\\d+.* Monitor" : "com.hp.inventory.audit.parser.parsers.MonitorParser"},
+	{ "^HP EliteDisplay.*Monitor" : "Monitor"},
+	{ "^HP V\\d+.* Monitor" : "Monitor"},
 
 
-	{ "^HP EliteDesk .*PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
-	{ "^HP EliteOne .*PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
-	{ "^HP ProDesk .*PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
-	{ "^HP Z\\d+ .*Workstation" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
-	{ "HP ProLiant .*Server" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
-	{ "HP ProOne .*PC" : "com.hp.inventory.audit.parser.parsers.DesktopParser"},
+	{ "^HP EliteDesk .*PC" : "Desktop"},
+	{ "^HP EliteOne .*PC" : "Desktop"},
+	{ "^HP ProDesk .*PC" : "Desktop"},
+	{ "^HP Z\\d+ .*Workstation" : "Desktop"},
+	{ "HP ProLiant .*Server" : "Desktop"},
+	{ "HP ProOne .*PC" : "Desktop"},
 
-	{ "^HP Pro .*Tablet" : "com.hp.inventory.audit.parser.parsers.TabletParser"},
-	{ "^HP Elite .*Tablet" : "com.hp.inventory.audit.parser.parsers.TabletParser"},
+	{ "^HP Pro .*Tablet" : "Tablet"},
+	{ "^HP Elite .*Tablet" : "Tablet"},
 
-	{ "^HP EliteBook " : "com.hp.inventory.audit.parser.parsers.LaptopParser"},
-	{ "^HP ProBook .*PC" : "com.hp.inventory.audit.parser.parsers.LaptopParser"},
-	{ "^HP ZBook .*Mobile Workstation" : "com.hp.inventory.audit.parser.parsers.LaptopParser"},
-	{ "^HP .*15z .*Laptop" : "com.hp.inventory.audit.parser.parsers.LaptopParser"},
+	{ "^HP EliteBook " : "Laptop"},
+	{ "^HP ProBook .*PC" : "Laptop"},
+	{ "^HP ZBook .*Mobile Workstation" : "Laptop"},
+	{ "^HP .*15z .*Laptop" : "Laptop"},
 
 
-	{ "^HP Latex \\d+" : "com.hp.inventory.audit.parser.parsers.PrinterParser"},
-	{ "Printer$" : "com.hp.inventory.audit.parser.parsers.PrinterParser"}
+	{ "^HP Latex \\d+" : "Printer"},
+	{ "Printer$" : "Printer"}
 
 
   ],
@@ -61,32 +61,32 @@
 
   "contentMatch" : [
 
-	{ "sales cat id: 88317" : "com.hp.inventory.audit.parser.parsers.GeneralParser"}, // Ink replacement services
-	{ "sales cat id: 88191" : "com.hp.inventory.audit.parser.parsers.GeneralParser"}, // Scanners
+	{ "sales cat id: 88317" : "General"}, // Ink replacement services
+	{ "sales cat id: 88191" : "General"}, // Scanners
 
-	{ "sales cat id: 88103" : "com.hp.inventory.audit.parser.parsers.TabletParser"}, // By screen size: Tablet
+	{ "sales cat id: 88103" : "Tablet"}, // By screen size: Tablet
 
-	{ "catGroupTraversalByName FIRST: HP ENVY monitors": "com.hp.inventory.audit.parser.parsers.MonitorParser" },
-	{ "catGroupTraversalByName FIRST: HP Z Display": "com.hp.inventory.audit.parser.parsers.MonitorParser" },
-	{ "catGroupTraversalByName FIRST: HP ProDisplay": "com.hp.inventory.audit.parser.parsers.MonitorParser" },
-	{ "sales cat id: 142524": "com.hp.inventory.audit.parser.parsers.MonitorParser" }, // HP Pavilion monitors
-	{ "sales cat id: 294030": "com.hp.inventory.audit.parser.parsers.MonitorParser" }, // HP EliteDisplay
+	{ "catGroupTraversalByName FIRST: HP ENVY monitors": "Monitor" },
+	{ "catGroupTraversalByName FIRST: HP Z Display": "Monitor" },
+	{ "catGroupTraversalByName FIRST: HP ProDisplay": "Monitor" },
+	{ "sales cat id: 142524": "Monitor" }, // HP Pavilion monitors
+	{ "sales cat id: 294030": "Monitor" }, // HP EliteDisplay
 
 
 
-	{ "sales cat id: 88310": "com.hp.inventory.audit.parser.parsers.InkAndTonerParser" }, // Ink Cartridges
-	{ "sales cat id: 88311": "com.hp.inventory.audit.parser.parsers.InkAndTonerParser" },  // Toner Cartridges
-	{ "sales cat id: 88313": "com.hp.inventory.audit.parser.parsers.InkAndTonerParser" },  // Printheads
-	{ "sales cat id: 142568": "com.hp.inventory.audit.parser.parsers.InkAndTonerParser" },  // Image Drums
+	{ "sales cat id: 88310": "InkAndToner" }, // Ink Cartridges
+	{ "sales cat id: 88311": "InkAndToner" },  // Toner Cartridges
+	{ "sales cat id: 88313": "InkAndToner" },  // Printheads
+	{ "sales cat id: 142568": "InkAndToner" },  // Image Drums
 
 
 	// Generic categories. Should have lower priority
-	{ "sales cat id: 142523" : "com.hp.inventory.audit.parser.parsers.MonitorParser" },
-	{ "sales cat id: 88339" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-	{ "sales cat id: 88337" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
-	{ "sales cat id: 243002" : "com.hp.inventory.audit.parser.parsers.TabletParser" },
-	{ "sales cat id: 240508" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
-	{ "sales cat id: 88340" : "com.hp.inventory.audit.parser.parsers.PrinterParser" }
+	{ "sales cat id: 142523" : "Monitor" },
+	{ "sales cat id: 88339" : "Desktop" },
+	{ "sales cat id: 88337" : "Laptop" },
+	{ "sales cat id: 243002" : "Tablet" },
+	{ "sales cat id: 240508" : "Printer" },
+	{ "sales cat id: 88340" : "Printer" }
 
 
 

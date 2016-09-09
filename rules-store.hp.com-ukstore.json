@@ -6,12 +6,12 @@
 
   ],
   "urlMatch" : [
-	{ "sel=NTB" : "com.hp.inventory.audit.parser.parsers.LaptopParser" },
-	{ "sel=DTP" : "com.hp.inventory.audit.parser.parsers.DesktopParser" },
-	{ "sel=TBL" : "com.hp.inventory.audit.parser.parsers.TabletParser" },
-	{ "sel=MTO" : "com.hp.inventory.audit.parser.parsers.MonitorParser" },
-	{ "sel=PRN" : "com.hp.inventory.audit.parser.parsers.PrinterParser" },
-	{ "sel=SUP" : "com.hp.inventory.audit.parser.parsers.InkAndTonerParser" }
+	{ "sel=NTB" : "Laptop" },
+	{ "sel=DTP" : "Desktop" },
+	{ "sel=TBL" : "Tablet" },
+	{ "sel=MTO" : "Monitor" },
+	{ "sel=PRN" : "Printer" },
+	{ "sel=SUP" : "InkAndToner" }
   ],
   "productNameExclude" : [
 

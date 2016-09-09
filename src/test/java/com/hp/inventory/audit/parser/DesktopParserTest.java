@@ -12,21 +12,22 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.hp.inventory.audit.parser.parsers.GeneralParser;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.hp.inventory.audit.parser.handlers.JSONResultHandler;
 import com.hp.inventory.audit.parser.model.Product;
-import com.hp.inventory.audit.parser.parsers.DesktopParser;
 
 public class DesktopParserTest extends ParserTest{
 	private static final Integer HP = 1;
-	private DesktopParser parser;
+	private GeneralParser parser;
 	private Config config;
 
 	@Before
 	public void init() {
-		parser = new DesktopParser();
+		parser = new GeneralParser();
+		parser.setProductType("Desktop");
 		config = new Config();
 		config.resultHandler = new JSONResultHandler();
 		config.resultHandler.beforeStart();

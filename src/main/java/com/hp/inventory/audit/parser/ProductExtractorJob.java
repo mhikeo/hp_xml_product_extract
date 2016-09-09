@@ -21,8 +21,9 @@ import java.util.Set;
  * Runs a single product extract job. To be used with a ExecutorService.
  *
  * changes in 1.0.6: support product Id.
+ * changes in 1.0.7: supports parsing product types from UPC table.
  * @author TCDEVELOPER
- * @version 1.0.6
+ * @version 1.0.7
  */
 public class ProductExtractorJob implements Runnable {
     private final Product definition;
@@ -57,6 +58,8 @@ public class ProductExtractorJob implements Runnable {
             }
 
             DocumentParser parser = detectionResult.parser;
+
+            parser.setSkipCheckProps(false);
             AbstractProduct extracted = parser.parse(detectionResult.doc, definition, config);
             resultHandler.detectionSucceeded(detectionResult, definition, extracted);
 

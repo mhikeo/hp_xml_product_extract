@@ -24,9 +24,10 @@ import java.util.regex.Pattern;
 
 /**
  * Functions to detect the correct document parser for each page.
- *
+ * changes:
+ *  - 1.0.1: support UPC product types and remove concrete parsers.
  * @author TCDEVELOPER
- * @version 1.0.0
+ * @version 1.0.1
  */
 public class DocumentParserDetector {
 
@@ -38,12 +39,12 @@ public class DocumentParserDetector {
 	/**
 	 * Lowercase valid product type names
 	 */
-	private static Map<String, Class<? extends DocumentParser>> typeMap;
+	private static Map<String, String> typeMap;
 
 	/**
 	 * URL patterns to help detecting some corner cases.
 	 */
-	private static LinkedHashMap<Pattern, Class<? extends DocumentParser>> urlMatches;
+	private static LinkedHashMap<Pattern, String> urlMatches;
 
 	/**
 	 * URL patterns for exclusion
@@ -53,7 +54,7 @@ public class DocumentParserDetector {
 	/**
 	 * Product name patterns to help detecting some corner cases.
 	 */
-	private static LinkedHashMap<Pattern, Class<? extends DocumentParser>> prodNameMatches;
+	private static LinkedHashMap<Pattern, String> prodNameMatches;
 
 	/**
 	 * Product name patterns for exclusion
@@ -68,7 +69,7 @@ public class DocumentParserDetector {
 	/**
 	 * Content patterns to help detecting some corner cases.
 	 */
-	private static Map<String, Class<? extends DocumentParser>> contentMatches;
+	private static Map<String, String> contentMatches;
 
 	/**
 	 * Content patterns order
@@ -116,7 +117,10 @@ public class DocumentParserDetector {
 				log.debug(urlType);
 				if (typeMap.containsKey(urlType)) {
 					String ptype = "typeMap";
-					return new DetectionResult(typeMap.get(urlType).newInstance(), doc, ptype, urlType);
+					String productType = typeMap.get(urlType);
+					DocumentParser parser = new GeneralParser();
+					parser.setProductType(productType);
+					return new DetectionResult(parser, doc, ptype, urlType);
 				}
 			}
 
@@ -132,7 +136,10 @@ public class DocumentParserDetector {
 			for (Pattern urlcase : urlMatches.keySet()) {
 				if (urlcase.matcher(url).find()) {
 					String ptype = "urlMatch";
-					return new DetectionResult(urlMatches.get(urlcase).newInstance(), doc, ptype, urlcase.toString());
+					String productType = urlMatches.get(urlcase);
+					DocumentParser parser = new GeneralParser();
+					parser.setProductType(productType);
+					return new DetectionResult(parser, doc, ptype, urlcase.toString());
 				}
 			}
 
@@ -140,7 +147,10 @@ public class DocumentParserDetector {
 			for (String contentPattern : contentMatchesOrder) {
 				if (loweredContent.contains(contentPattern.toLowerCase())) {
 					String ptype = "contentMatch";
-					return new DetectionResult(contentMatches.get(contentPattern).newInstance(), doc, ptype, contentPattern);
+					String productType = contentMatches.get(contentPattern);
+					DocumentParser parser = new GeneralParser();
+					parser.setProductType(productType);
+					return new DetectionResult(parser, doc, ptype, contentPattern);
 				}
 			}
 
@@ -186,8 +196,11 @@ public class DocumentParserDetector {
 			for (Pattern productNamePattern : prodNameMatches.keySet()) {
 				if (productNamePattern.matcher(prodName).find()) {
 					String ptype = "productNameMatch";
+					String productType  = prodNameMatches.get(productNamePattern);
+					DocumentParser generalParser = new GeneralParser();
+					parser.setProductType(productType);
 					return new DetectionResult(
-							prodNameMatches.get(productNamePattern).newInstance(), doc, ptype, productNamePattern.toString());
+							generalParser, doc, ptype, productNamePattern.toString());
 				}
 			}
 		}
@@ -195,16 +208,17 @@ public class DocumentParserDetector {
 		return new DetectionResult(new GeneralParser(), doc, "default", null);
 	}
 
-	private static <T extends DocumentParser> void addUrlMatch(String pattern, Class<T> clazz) {
-		urlMatches.put(Pattern.compile(pattern), clazz);
+
+	private static <T extends DocumentParser> void addUrlMatch(String pattern, String productType) {
+		urlMatches.put(Pattern.compile(pattern), productType);
 	}
 
-	private static <T extends DocumentParser> void addProdNameMatch(String pattern, Class<T> clazz) {
-		prodNameMatches.put(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE), clazz);
+	private static <T extends DocumentParser> void addProdNameMatch(String pattern, String productType) {
+		prodNameMatches.put(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE), productType);
 	}
 
-	private static <T extends DocumentParser> void addContentMatch(String pattern, Class<T> clazz) {
-		contentMatches.put(pattern, clazz);
+	private static <T extends DocumentParser> void addContentMatch(String pattern, String productType) {
+		contentMatches.put(pattern, productType);
 		contentMatchesOrder.add(pattern);
 	}
 
@@ -219,7 +233,7 @@ public class DocumentParserDetector {
 		typeMap = new HashMap<>();
 
 		for (String key : rulesCfg.typeMap.keySet()) {
-			typeMap.put(key, (Class<? extends DocumentParser>) Class.forName(rulesCfg.typeMap.get(key)));
+			typeMap.put(key, rulesCfg.typeMap.get(key));
 		}
 		
 		urlMatches = new LinkedHashMap<>();
@@ -231,7 +245,7 @@ public class DocumentParserDetector {
 
 		for (Map<String, String> urlMatch : rulesCfg.urlMatch) {
 			for (String key : urlMatch.keySet()) {
-				addUrlMatch(key, (Class<? extends DocumentParser>) Class.forName(urlMatch.get(key)));
+				addUrlMatch(key, urlMatch.get(key));
 			}
 		}
 		
@@ -244,7 +258,7 @@ public class DocumentParserDetector {
 
 		for (Map<String, String> productNameMatch : rulesCfg.productNameMatch) {
 			for (String key : productNameMatch.keySet()) {
-				addProdNameMatch(key, (Class<? extends DocumentParser>) Class.forName(productNameMatch.get(key)));
+				addProdNameMatch(key, productNameMatch.get(key));
 			}
 		}
 
@@ -260,7 +274,7 @@ public class DocumentParserDetector {
 
 		for (Map<String, String> contentMatch : rulesCfg.contentMatch) {
 			for (String key : contentMatch.keySet()) {
-				addContentMatch(key, (Class<? extends DocumentParser>) Class.forName(contentMatch.get(key)));
+				addContentMatch(key, contentMatch.get(key));
 			}
 		}
 	}

@@ -34,8 +34,9 @@ import java.util.regex.Pattern;
  * changes:
  *  - 1.0.3: refactor the columns to specifications.
  *  - 1.0.4: support productId; support EUR/GBP currency; use a general way to extract specs.
+ *  - 1.0.5: support UPC product types and remove concrete parsers.
  * @author TCDEVELOPER
- * @version 1.0.4
+ * @version 1.0.5
  */
 public abstract class DocumentParser {
 
@@ -54,6 +55,7 @@ public abstract class DocumentParser {
     }
 
     private AbstractProduct parsingErrorsReceiver = null;
+
 
 
     /**
@@ -76,7 +78,7 @@ public abstract class DocumentParser {
 
     private Config config;
 
-    Logger log = LoggerFactory.getLogger(LaptopParser.class);
+    Logger log = LoggerFactory.getLogger(DocumentParser.class);
     protected Set<String> specParsed = new HashSet<>();
 
     public int getSpecParsed() {
@@ -85,6 +87,16 @@ public abstract class DocumentParser {
 
     protected Product definition;
     protected ResultHandler resultHandler;
+
+    /**
+     * Represents the product type of the parser.
+     */
+    private String productType;
+
+    /**
+     * Skips to check props or not.
+     */
+    private boolean skipCheckProps = true;
 
     /**
      * Extracts common properties, such as productName, price, striked price,
@@ -98,10 +110,6 @@ public abstract class DocumentParser {
         product.setProductNumber(text(QueriesSpec.productNumberQuery));
         product.setSiteId(config.siteId);
         product.setProductId(config.constructProductId(product.getProductNumber()));
-
-        if (product.getProductType() == null) {
-            product.setProductType(product.getCategory());
-        }
 
         product.setItemNumber(product.getProductNumber().split("#|_")[0]);
 
@@ -185,6 +193,8 @@ public abstract class DocumentParser {
             specParsed.add(key);
         }
         definition.setSpecifications(specifications);
+
+        definition.setHpDataSheet(propLink(getLocaleString("HP Data Sheet")));
 
     }
 
@@ -808,5 +818,37 @@ public abstract class DocumentParser {
     protected String getLocaleString(String str) {
         LangTranslator translator = LangTranslator.getInstance();
         return translator.getString(str);
+    }
+
+    /**
+     * Gets the product type.
+     * @return the product type.
+     */
+    public String getProductType() {
+        return productType;
+    }
+
+    /**
+     * Sets the product type.
+     * @param productType the product type.
+     */
+    public void setProductType(String productType) {
+        this.productType = productType;
+    }
+
+    /**
+     * Skips to check the props or not.
+     * @return skips to check the props or not.
+     */
+    public boolean isSkipCheckProps() {
+        return skipCheckProps;
+    }
+
+    /**
+     * Sets the skipCheckProps property.
+     * @param skipCheckProps the skpCheckProps property.
+     */
+    public void setSkipCheckProps(boolean skipCheckProps) {
+        this.skipCheckProps = skipCheckProps;
     }
 }

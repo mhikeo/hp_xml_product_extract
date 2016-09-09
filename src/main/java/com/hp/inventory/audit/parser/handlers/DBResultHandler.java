@@ -13,6 +13,7 @@ import com.hp.inventory.audit.parser.Report;
 import com.hp.inventory.audit.parser.model.AbstractProduct;
 import com.hp.inventory.audit.parser.model.Product;
 import com.hp.inventory.audit.parser.model.RelatedAccessory;
+import com.hp.inventory.audit.parser.model.UPC;
 import com.hp.inventory.audit.parser.parsers.DetectionResult;
 import com.hp.inventory.audit.parser.parsers.DocumentParser;
 import com.hp.inventory.audit.parser.parsers.IgnoringParser;
@@ -35,8 +36,9 @@ import java.util.Set;
  *
  * changes: remove useless update entity
  * changes in 1.0.7: handles the product number conflicts.
+ * changes in 1.0.8: find product types from UPC table.
  * @author TCDEVELOPER
- * @version 1.0.7
+ * @version 1.0.8
  */
 public class DBResultHandler implements ResultHandler {
 
@@ -110,6 +112,17 @@ public class DBResultHandler implements ResultHandler {
 
         startTransaction();
         try {
+
+            // find the UPC product types
+            UPC upc = findUPC(productDefinition.getItemNumber());
+            if (upc != null) {
+                if (upc.getPrimaryProductType() != null) {
+                    // override the product type
+                    productDefinition.setProductType(upc.getPrimaryProductType());
+                }
+                productDefinition.setMarketingProductType(upc.getMarketingProductType());
+            }
+
             if(productDefinition.getParsingError()!=null) {
                 log.warn("product Id: {}, #: {}, {}",
                         productDefinition.getId(),
@@ -140,6 +153,28 @@ public class DBResultHandler implements ResultHandler {
 
     }
 
+    /**
+     * Finds the UPC from its item number.
+     * @param itemNumber the item number.
+     * @return the UPC
+     * @throws Exception if there are any errors.
+     */
+    private UPC findUPC(String itemNumber) throws Exception {
+        EntityManager em = getEntityManager();
+        TypedQuery<UPC> query = em.createQuery("SELECT u from UPC u where itemNumber = :itemNumber", UPC.class);
+        query.setMaxResults(1);
+        query.setParameter("itemNumber", itemNumber);
+        try {
+            List<UPC> list = query.getResultList();
+            if (list.size() == 0) {
+                return null;
+            }
+            return list.get(0);
+        } catch (Exception e) {
+            log.error("Failed to get the UPC of item: {}", itemNumber);
+            throw e;
+        }
+    }
 
     private Product upgradeDefinitionIfExisting(Product productDefinition) throws Exception {
         // find different sites of products
